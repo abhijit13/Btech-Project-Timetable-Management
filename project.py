@@ -1,9 +1,18 @@
 #! /usr/bin/python
-
+from gui import *
 all_teachers = []
 all_venues = []
 all_classes = []
 
+# each entry in tables is of the form :
+#	attr1 attr2 None : here None means whole of this object
+# 	attr1 attr2 b1 : here b1 means part of this object not whole Object 
+# 						this is done for creating batches.
+# you can create  batches of teachers, venues or classes in similar way
+# syc-b1 means b1 batch of syc class
+# ac201-a1 means part of ac201 (this way classroom can be shared at same time)
+# teacher-t1 means part of teacher (this way same teacher can teach on two classes)
+#
 class ExistingEntry(Exception):
 	def __init__(self, value):
 		self.value = value
@@ -259,15 +268,25 @@ def print_all_tables():
 
 	print 'Teachers:'
 	for teacher in all_teachers:
+		print teacher
 		teacher.print_table()
 
 	print 'Classes:'
 	for Class in all_classes:
+		print Class
 		Class.print_table()
 
 	print 'Venues:'
 	for venue in all_venues:
+		print venue
 		venue.print_table()
+
+def remove_lunch(Class, day, lecture):
+	global all_classes
+	Class = Class.split('-')
+	Class[0] = get_object(all_classes, Class[0], Classes)
+
+	Class[0].remove_entry(day, lecture, Class)
 
 def remove_all(teacher, venue, Class, day, lecture):
 	global all_teachers, all_venues, all_classes
@@ -284,6 +303,7 @@ def remove_all(teacher, venue, Class, day, lecture):
 
 
 def main(args): 
+	# global all_venues, all_classes, all_teachers
 	args = args.split()
 	print args
 	if len(args) == 5:
@@ -295,7 +315,12 @@ def main(args):
 		insert_lunch(args[1], int(args[2]), int(args[3]))
 	else:
 		args = args[0].split('-')
-		remove_all(args[0], args[1], args[2], int(args[3]), int(args[4]))
+		if len(args) == 5:
+			remove_all(args[0], args[1], args[2], int(args[3]), int(args[4]))
+		else:
+			remove_lunch(args[1], int(args[2]), int(args[3]))
+
+
 	# while(True):
 	# 	choice = input('choice>>')
 	# 	if choice == 1:
