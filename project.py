@@ -1,5 +1,6 @@
 #! /usr/bin/python
 from gui import *
+#globals to store all objects
 all_teachers = []
 all_venues = []
 all_classes = []
@@ -7,22 +8,26 @@ all_classes = []
 # each entry in tables is of the form :
 #	attr1 attr2 None : here None means whole of this object
 # 	attr1 attr2 b1 : here b1 means part of this object not whole Object 
-# 						this is done for creating batches.
+# 	this is done for creating batches.
 # you can create  batches of teachers, venues or classes in similar way
 # syc-b1 means b1 batch of syc class
 # ac201-a1 means part of ac201 (this way classroom can be shared at same time)
-# teacher-t1 means part of teacher (this way same teacher can teach on two classes)
+# teacher-t1 means part of teacher (this way same teacher can teach on two classes at same time)
 #
+
 class ExistingEntry(Exception):
 	def __init__(self, value):
 		self.value = value
 
+#we'll use it later maybe
 class ExtraWorkLoad(Exception):
 	def __init__(self, value):
 		self.value = value
 
 	# def __repr__(self):
 	# 	return str(self.value)
+
+#Base class (rename it)
 
 class Object(object):
 	def __init__(self, name):	
@@ -61,7 +66,8 @@ class Teacher(Object):
 	def __init__(self, name, load=15):
 		super(Teacher, self).__init__(name)
 		self.max_work_load = load
-	
+
+	#work on it later	
 	def check_workload(self):
 		count = 0
 		for row in self.mat:
@@ -129,7 +135,6 @@ class Classes(Object):
 
 				# print 'batches in this class'
 				# print self.batches						
-
 				for batch in self.batches:
 					print ('LUNCH', batch)
 
@@ -301,9 +306,8 @@ def remove_all(teacher, venue, Class, day, lecture):
 	venue[0].remove_entry(day, lecture, venue)
 	Class[0].remove_entry(day, lecture, Class)
 
-
+# poor argument fetching - change the way its done
 def main(args): 
-	# global all_venues, all_classes, all_teachers
 	args = args.split()
 	print args
 	if len(args) == 5:
