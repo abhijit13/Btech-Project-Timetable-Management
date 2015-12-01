@@ -11,10 +11,10 @@ class MyGrid(gridlib.Grid):
         gridlib.Grid.__init__(self, parent)
         self.CreateGrid(7, 11)
  
-        # self.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.OnCellLeftClick)
+        self.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.OnCellLeftClick)
         self.Bind(gridlib.EVT_GRID_LABEL_LEFT_CLICK, self.OnLabelLeftClick)
         self.Bind(gridlib.EVT_GRID_CELL_CHANGE, self.OnCellChange)
-        self.Bind(gridlib.EVT_GRID_SELECT_CELL, self.OnSelectCell)
+        # self.Bind(gridlib.EVT_GRID_SELECT_CELL, self.OnSelectCell)
         # self.Bind(gridlib.EVT_GRID_EDITOR_HIDDEN, self.OnEditorHidden)
         pub.subscribe(self.set_value, 'ENTRY') 
         # def OnCellLeftClick(self, evt):
@@ -62,10 +62,10 @@ class MyGrid(gridlib.Grid):
        
         evt.Skip()
 
-    def OnSelectCell(self, evt):
+    def OnCellLeftClick(self, evt):
         global backup   # very dirty fix this
-        if evt.Selecting():
-            print  'Selected'
+        # if evt.Selecting():
+        #     print  'Selected'
         if self.GetCellValue(evt.GetRow(), evt.GetCol()) != '':
             backup = self.GetCellValue(evt.GetRow(), evt.GetCol())
             # print 'backup', backup
