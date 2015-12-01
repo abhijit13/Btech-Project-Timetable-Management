@@ -1,18 +1,18 @@
 #! /usr/bin/python
-from gui import *
 #globals to store all objects
 all_teachers = []
 all_venues = []
 all_classes = []
 
-# each entry in tables is of the form :
+#	each entry in tables is of the form :
 #	attr1 attr2 None : here None means whole of this object
 # 	attr1 attr2 b1 : here b1 means part of this object not whole Object 
 # 	this is done for creating batches.
+# 
 # you can create  batches of teachers, venues or classes in similar way
-# syc-b1 means b1 batch of syc class
-# ac201-a1 means part of ac201 (this way classroom can be shared at same time)
-# teacher-t1 means part of teacher (this way same teacher can teach on two classes at same time)
+# 	syc-b1 means b1 batch of syc class
+# 	ac201-a1 means part of ac201 (this way classroom can be shared at same time)
+# 	teacher-t1 means part of teacher (this way same teacher can teach on two classes at same time)
 #
 
 class ExistingEntry(Exception):
@@ -24,11 +24,7 @@ class ExtraWorkLoad(Exception):
 	def __init__(self, value):
 		self.value = value
 
-	# def __repr__(self):
-	# 	return str(self.value)
-
 #Base class (rename it)
-
 class Object(object):
 	def __init__(self, name):	
 		self.mat = [[None for i in range(0, 11)] for i in range(0, 8)]
@@ -67,7 +63,7 @@ class Teacher(Object):
 		super(Teacher, self).__init__(name)
 		self.max_work_load = load
 
-	#work on it later	
+	#work on it later (constraints)	
 	def check_workload(self):
 		count = 0
 		for row in self.mat:
@@ -122,6 +118,7 @@ class Classes(Object):
 		super(Classes, self).__init__(name)
 		self.batches = []
 
+	#Constraints (compulsary lunch break) 
 	def valid_lunch_break(self):
 		errors = []
 		for row in self.mat:
@@ -133,8 +130,6 @@ class Classes(Object):
 					if entry != None:
 						entries.extend(entry)
 
-				# print 'batches in this class'
-				# print self.batches						
 				for batch in self.batches:
 					print ('LUNCH', batch)
 
@@ -246,11 +241,9 @@ def insert_lunch(batch, day, lecture):
 	except ExistingEntry as e:
 		print 'Entry already exists '
 		print e.value
+
 def print_table(choice):
 	global all_classes, all_teachers, all_venues
-
-	# if choice in all_teachers:
-	# 	print 'yes'
 
 	teacher = get_object(all_teachers, choice)
 	try:

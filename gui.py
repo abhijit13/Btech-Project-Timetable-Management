@@ -17,12 +17,7 @@ class MyGrid(gridlib.Grid):
         # self.Bind(gridlib.EVT_GRID_SELECT_CELL, self.OnSelectCell)
         # self.Bind(gridlib.EVT_GRID_EDITOR_HIDDEN, self.OnEditorHidden)
         pub.subscribe(self.set_value, 'ENTRY') 
-        # def OnCellLeftClick(self, evt):
-        #     print "OnCellLeftClick: (%d,%d) %s\n" % (evt.GetRow(),
-        #                                              evt.GetCol(),
-        #                                              evt.GetPosition())
-        #     evt.Skip()
- 
+        
     def set_value(self, value):
         value = value.data
         self.SetCellValue(value[0], value[1], value[2])
@@ -33,16 +28,10 @@ class MyGrid(gridlib.Grid):
                                                   evt.GetPosition())
         project.print_all_tables()
 
-        # MyForm().add_entry("aadesh")
         evt.Skip()
  
     def OnCellChange(self, evt):
-        # print "OnCellChange: (%d,%d) %s\n" % (evt.GetRow(), evt.GetCol(), evt.GetPosition())
  
-        # Show how to stay in a cell that has bad data.  We can't just
-        # call SetGridCursor here since we are nested inside one so it
-        # won't have any effect.  Instead, set coordinates to move to in
-        # idle time.
         self.value = self.GetCellValue(evt.GetRow(), evt.GetCol())
         if self.value == '':
             self.value = backup.split()
@@ -64,14 +53,11 @@ class MyGrid(gridlib.Grid):
 
     def OnCellLeftClick(self, evt):
         global backup   # very dirty fix this
-        # if evt.Selecting():
-        #     print  'Selected'
-        if self.GetCellValue(evt.GetRow(), evt.GetCol()) != '':
-            backup = self.GetCellValue(evt.GetRow(), evt.GetCol())
-            # print 'backup', backup
-        # print "OnSelectCell: %s (%d,%d) %s\n" % (msg, evt.GetRow(),
-        #                                          evt.GetCol(), evt.GetPosition())
  
+        if self.GetCellValue(evt.GetRow(), evt.GetCol()) != '':
+            backup = self.GetCellValue(evt.GetRow(), evt.GetCol()) 
+
+        evt.Skip()
 
     #     # Another way to stay in a cell that has a bad value...
     #     row = self.GetGridCursorRow()
@@ -86,8 +72,6 @@ class MyGrid(gridlib.Grid):
     #     if value == 'no good 2':
     #         return  # cancels the cell selection
  
-        evt.Skip()
- 
     # def OnEditorHidden(self, evt):
     #     if evt.GetRow() == 6 and evt.GetCol() == 3 and \
     #        wx.MessageBox("Are you sure you wish to  finish editing this cell?",
@@ -100,13 +84,6 @@ class MyGrid(gridlib.Grid):
     #                                             evt.GetPosition())
     #     evt.Skip()
  
-# def add_entry(yo, name):
-#     yo.panel1 = wx.Panel(yo.tabbed, -1)
-#     yo.name = MyGrid(yo.panel1)
-#     yo.sizer1 = wx.BoxSizer(wx.VERTICAL)
-#     yo.sizer1.Add(yo.name, 1, wx.EXPAND)
-#     yo.panel1.SetSizer(yo.sizer1)
-
 
 class MyForm(wx.Frame):
 
