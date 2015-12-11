@@ -5,8 +5,8 @@ import wx
 import wx.grid as gridlib
 from wx.lib.pubsub import Publisher as pub
 frame1 = None
+backup = ''
 class MyGrid(gridlib.Grid):
-    backup = ''
     def __init__(self, parent):
         gridlib.Grid.__init__(self, parent)
         self.CreateGrid(7, 11)
@@ -15,7 +15,7 @@ class MyGrid(gridlib.Grid):
         self.Bind(gridlib.EVT_GRID_LABEL_LEFT_CLICK, self.OnLabelLeftClick)
         self.Bind(gridlib.EVT_GRID_CELL_CHANGE, self.OnCellChange)
         # self.Bind(gridlib.EVT_GRID_SELECT_CELL, self.OnSelectCell)
-        # self.Bind(gridlib.EVT_GRID_EDITOR_HIDDEN, self.OnEditorHidden)
+        #self.Bind(gridlib.EVT_GRID_EDITOR_HIDDEN, self.OnEditorHidden)
         pub.subscribe(self.set_value, 'ENTRY') 
         
     def set_value(self, value):
@@ -31,7 +31,7 @@ class MyGrid(gridlib.Grid):
         evt.Skip()
  
     def OnCellChange(self, evt):
- 
+	global backup 
         self.value = self.GetCellValue(evt.GetRow(), evt.GetCol())
         if self.value == '':
             self.value = backup.split()
@@ -44,7 +44,6 @@ class MyGrid(gridlib.Grid):
                 project.main(self.value + ' ' +str(evt.GetRow()) + ' ' +str(evt.GetCol())) 
                 # super(self).SetCellValue(evt.GetRow(), evt.GetCol(), '')                
             except:
-                print 'invalid', backup
                 self.SetCellValue(evt.GetRow(), evt.GetCol(), backup)
             else:
                 pub.sendMessage('ENTRY', data = [evt.GetRow(), evt.GetCol(), self.value])
@@ -53,10 +52,9 @@ class MyGrid(gridlib.Grid):
 
     def OnCellLeftClick(self, evt):
         global backup   # very dirty fix this
- 
         if self.GetCellValue(evt.GetRow(), evt.GetCol()) != '':
             backup = self.GetCellValue(evt.GetRow(), evt.GetCol()) 
-
+	print backup
         evt.Skip()
 
     #     # Another way to stay in a cell that has a bad value...

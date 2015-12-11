@@ -59,7 +59,7 @@ class Object(object):
 		print	
 
 class Teacher(Object):
-	def __init__(self, name, load=15):
+	def __init__(self, name, load=5):
 		super(Teacher, self).__init__(name)
 		self.max_work_load = load
 
