@@ -30,6 +30,7 @@ class ExtraWorkLoad(Exception):
 #Base class (rename it)
 class Object(object):
 	def __init__(self, name):	
+
 		self.mat = [[None for i in range(0, lectures_per_day)] for i in range(0, days_per_week)]
 		self.name = name
 
@@ -91,6 +92,7 @@ class Teacher(Object):
 			return False
 
 	def add_entry(self, venue, Class, day, lecture, sub, List=''):
+
 		if self.check_workload() == False:
 			raise ExtraWorkLoad(self.max_work_load)
 		batch = None
@@ -111,7 +113,6 @@ class Teacher(Object):
 class Venue(Object):
 	def __init__(self, name):
 		super(Venue, self).__init__(name)
-
 
 	def print_table(self):
 		for i in range(0, days_per_week):
@@ -258,6 +259,7 @@ def insert_entry(teacher, venue, Class, sub, day, lecture):
 	else:
 		try:
 			venue[0].add_entry(teacher[0], Class[0], day, lecture, sub, venue)
+
 		except ExistingEntry as e:
 			print 'Entry already Exists '
 			print e.value
