@@ -9,7 +9,7 @@ backup = ''
 class MyGrid(gridlib.Grid):
     def __init__(self, parent):
         gridlib.Grid.__init__(self, parent)
-        self.CreateGrid(7, 11)
+        self.CreateGrid(project.days_per_week, project.lectures_per_day)
  
         self.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.OnCellLeftClick)
         self.Bind(gridlib.EVT_GRID_LABEL_LEFT_CLICK, self.OnLabelLeftClick)

@@ -29,10 +29,36 @@ class ExtraWorkLoad(Exception):
 
 #Base class (rename it)
 class Object(object):
+
 	def __init__(self, name):	
 
 		self.mat = [[None for i in range(0, lectures_per_day)] for i in range(0, days_per_week)]
 		self.name = name
+
+	#update existing object in case of days/week , lectures/day are changed.
+	def resize_matrix(self):
+		global days_per_week, lectures_per_day
+
+		old_days = len(self.mat)
+		old_lectures = len(self.mat[0])
+
+		#fixed rows
+		if old_days >= days_per_week:
+			for i in range(days_per_week, old_days):
+				del self.mat[-1]
+		else :
+			for i in range(old_days, days_per_week):
+				self.mat.append([None for j in range(0, old_lectures)]) 
+		
+		#fixed cols
+		if old_lectures >= lectures_per_day :
+			for i in range(0, days_per_week):
+				for j in range(lectures_per_day, old_lectures):
+						del self.mat[i][-1]
+		else:
+			for i in range(0, days_per_week):
+				for j in range(old_lectures, lectures_per_day):
+					self.mat[i].append(None)
 
 	def __repr__(self):
 		return str(self.name)
@@ -116,6 +142,7 @@ class Venue(Object):
 
 	def print_table(self):
 		for i in range(0, days_per_week):
+			print i,
 			for j in range(0, lectures_per_day):
 				try:
 					for data in self.mat[i][j]:
@@ -310,17 +337,22 @@ def print_all_tables():
 	print 'Teachers:'
 	for teacher in all_teachers:
 		print teacher
+		teacher.resize_matrix()
 		teacher.print_table()
 
 	print 'Classes:'
 	for Class in all_classes:
 		print Class
+		Class.resize_matrix()
 		Class.print_table()
 
 	print 'Venues:'
 	for venue in all_venues:
 		print venue
+		venue.resize_matrix()
 		venue.print_table()
+
+	print days_per_week, lectures_per_day
 
 def remove_lunch(Class, day, lecture):
 	global all_classes
@@ -344,6 +376,7 @@ def remove_all(teacher, venue, Class, day, lecture):
 
 # poor argument fetching - change the way its done
 def main(args): 
+	global days_per_week, lectures_per_day
 	args = args.split()
 	print args
 	if len(args) == 6:
@@ -353,6 +386,10 @@ def main(args):
 			raise
 	elif len(args) == 4:
 		insert_lunch(args[1], int(args[2]), int(args[3]))
+	elif len(args) == 5:
+		days_per_week = int(args[1])
+		lectures_per_day = int(args[2])
+		print days_per_week, lectures_per_day
 	else:
 		args = args[0].split('#')
 		if len(args) == 6:
