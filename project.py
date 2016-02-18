@@ -4,8 +4,13 @@
 all_teachers = []
 all_venues = []
 all_classes = []
+
+#fetch this data from UI
+subjects = {'dsa':3, 'ds':3, 'os':3, 'daa':3,'dbms':4}
 days_per_week = 7
 lectures_per_day = 10
+daily_max = 3
+daily_min = 1
 
 #	each entry in tables is of the form :
 #	attr1 attr2 None : here None means whole of this object
@@ -22,8 +27,15 @@ class ExistingEntry(Exception):
 	def __init__(self, value):
 		self.value = value
 
-#we'll use it later maybe
 class ExtraWorkLoad(Exception):
+	def __init__(self, value):
+		self.value = value
+
+class LimitForSubject(Exception):
+	def __init__(self, value):
+		self.value = value
+
+class DailyWorkLoadLimit(Exception):
 	def __init__(self, value):
 		self.value = value
 
@@ -81,16 +93,26 @@ class Object(object):
 			a = [x for x in self.mat[day][lecture] if x[-1] == batch]
 			if len(self.mat[day][lecture]) > 1:
 				self.mat[day][lecture].remove(a[0])
+				return False
 			else:
-				self.mat[day][lecture] = None	
+				self.mat[day][lecture] = None
+				return True	
 		else:		
 			self.mat[day][lecture] = None
-
+			return True	
 
 class Teacher(Object):
-	def __init__(self, name, load=5):
+	def __init__(self, name, max_load=10, min_load=1):
 		super(Teacher, self).__init__(name)
-		self.max_work_load = load
+		self.max_work_load = max_load
+		self.min_work_load = min_load
+		self.max_daily_load = daily_max
+		self.min_daily_load = daily_min
+		self.current_work_load = 0
+
+	def remove_entry(self, day, lecture, values=''):
+		self.current_work_load  -= 1
+		super(Teacher, self).remove_entry(day, lecture, values)
 
 	def print_table(self):
 		for i in range(0, days_per_week):
@@ -105,22 +127,38 @@ class Teacher(Object):
 			print
 		print	
 
-	#work on it later (constraints)	
-	def check_workload(self):
-		count = 0
+	def check_daily_workload(self):
+		errors = []
+		i = 0
 		for row in self.mat:
+			count = 0
 			for entry in row:
 				if entry != None:
 					count += 1
-		if count < self.max_work_load:
+			if count > self.max_daily_load:
+				errors.append(i)
+			i += 1
+		if len(errors) > 0 :
+			return errors
+		else:
+			return True
+
+	def check_workload(self):
+		#work load should be greater than min and less than max
+		if self.current_work_load <= self.max_work_load and self.current_work_load >= self.min_work_load:
 			return True
 		else:
 			return False
 
 	def add_entry(self, venue, Class, day, lecture, sub, List=''):
-
-		if self.check_workload() == False:
+		#check if we dont exceed max work load
+		if self.current_work_load >= self.max_work_load:
 			raise ExtraWorkLoad(self.max_work_load)
+		
+		temp = self.check_daily_workload()
+		if temp != True:
+			raise DailyWorkLoadLimit(temp)
+		
 		batch = None
 		if len(List) > 1:
 			batch = List[1]
@@ -135,6 +173,8 @@ class Teacher(Object):
 			if len(errors) > 0:
 				raise ExistingEntry(errors)				
 			self.mat[day][lecture].append((venue, Class, sub, batch))
+
+		self.current_work_load += 1
 
 class Venue(Object):
 	def __init__(self, name):
@@ -170,9 +210,43 @@ class Venue(Object):
 			self.mat[day][lecture].append((teacher, Class, sub, batch))
 
 class Classes(Object):
-	def __init__(self, name):
+	def __init__(self, name, max_load = 10, min_load = 1):
 		super(Classes, self).__init__(name)
+		self.subjects = {}
 		self.batches = []
+		self.max_work_load = max_load
+		self.min_work_load = min_load
+		self.current_work_load = 0
+	
+
+	def remove_entry(self, day, lecture, values=''):
+
+		#reduce the no of lectures of that subject
+		#for subject of a batch
+		if len(values) > 1:
+			batch = values[-1]
+			a = [x for x in self.mat[day][lecture] if x[-1] == batch]
+		#for subject of entire class
+		else:
+			a = self.mat[day][lecture]
+		try:
+			self.subjects[a[0][2]] -= 1
+		except:
+			pass #if its a lunch entry
+		#remove entry from matrix				
+		if super(Classes, self).remove_entry(day, lecture, values) == True :
+			#reduce workload of the class
+			try:
+				self.current_work_load  -= 1
+			except:
+				pass #if its lunch entry
+	
+	def check_workload(self):
+		#work load should be greater than min and less than max
+		if self.current_work_load <= self.max_work_load and self.current_work_load >= self.min_work_load:
+			return True
+		else:
+			return False
 
 	def print_table(self):
 		for i in range(0, days_per_week):
@@ -180,7 +254,10 @@ class Classes(Object):
 			for j in range(0, lectures_per_day):
 				try:
 					for data in self.mat[i][j]:
-						print data[2], '-', data[1],
+						if 'LUNCH' in data :
+							print data[0], '-', data[1],
+						else:
+							print data[2], '-', data[1],
 					print " ",
 				except:
 					print "None\t",
@@ -197,14 +274,23 @@ class Classes(Object):
 				entries = []
 				for entry in row:
 					if entry != None:
+						# print entry, 'yo'
 						entries.extend(entry)
 
-				for batch in self.batches:
-					print ('LUNCH', batch)
-
-					if ('LUNCH', batch) not in entries:
-						if batch not in errors:
-							errors.append(batch)
+				if len(entries) != 0:
+					if len(self.batches) != 0 : 
+						for batch in self.batches:
+							# print ('LUNCH', batch)
+							if ('LUNCH', batch) not in entries:
+								# print ('LUNCH', batch), 'not in ' ,entries
+								if batch not in errors:
+									errors.append(batch)
+					else:
+						batch = None
+						if ('LUNCH', batch) not in entries:
+							# print ('LUNCH', batch), 'not in ' ,entries
+							if self.name not in errors:
+								errors.append(self.name)
 
 	#every day should have (LUNCH, batch) entry for all batches else its like that day doesnt have
 	#lunch for that batch, None is treated as busy slot
@@ -234,6 +320,17 @@ class Classes(Object):
 			self.mat[day][lecture].append(('LUNCH', batch))
 
 	def add_entry(self, teacher, venue, day, lecture, sub, List=''):
+		#check if we dont exceed max work load
+		if self.current_work_load >= self.max_work_load:
+			raise ExtraWorkLoad(self.max_work_load)
+		if sub in subjects:
+			if sub in self.subjects:
+				if self.subjects[sub] >= subjects[sub]:
+					raise LimitForSubject(subjects[sub])
+				else:
+					self.subjects[sub] += 1;
+			else:
+				self.subjects[sub] = 1;
 		batch = None
 		if len(List) > 1:
 			batch = List[1]
@@ -251,6 +348,16 @@ class Classes(Object):
 			if len(errors) > 0:
 				raise ExistingEntry(errors)
 			self.mat[day][lecture].append((teacher, venue, sub, batch))
+		
+		if batch == None:
+			self.current_work_load += 1
+		else:
+			temp = [t[-1] for t in self.mat[day][lecture]]
+			for batch in self.batches:
+				if batch not in temp:
+					return
+			self.current_work_load += 1			
+
 
 def get_object(List, name, BaseClass=None):
 	entries = [t for t in List if t.name == name]
@@ -283,10 +390,13 @@ def insert_entry(teacher, venue, Class, sub, day, lecture):
 		print 'Teacher has got Extra WorkLoad '
 		print e.value
 		raise
+	except DailyWorkLoadLimit as e:
+		print 'Daily Limit for Teacher crossed on :'
+		print e.value
+		raise
 	else:
 		try:
 			venue[0].add_entry(teacher[0], Class[0], day, lecture, sub, venue)
-
 		except ExistingEntry as e:
 			print 'Entry already Exists '
 			print e.value
@@ -297,6 +407,18 @@ def insert_entry(teacher, venue, Class, sub, day, lecture):
 				Class[0].add_entry(teacher[0], venue[0], day, lecture, sub, Class)
 			except ExistingEntry as e:
 				print 'Entry already Exists '
+				print e.value
+				venue[0].remove_entry(day, lecture, venue)
+				teacher[0].remove_entry(day, lecture, teacher)
+				raise
+			except ExtraWorkLoad as e:
+				print ' Class has got Extra WorkLoad '
+				print e.value
+				venue[0].remove_entry(day, lecture, venue)
+				teacher[0].remove_entry(day, lecture, teacher)
+				raise
+			except LimitForSubject as e:
+				print ' Lecture Limit for Subject reached '
 				print e.value
 				venue[0].remove_entry(day, lecture, venue)
 				teacher[0].remove_entry(day, lecture, teacher)
@@ -312,24 +434,31 @@ def insert_lunch(batch, day, lecture):
 		print 'Entry already exists '
 		print e.value
 
-def print_table(choice):
-	global all_classes, all_teachers, all_venues
+def remove_lunch(Class, day, lecture):
+	global all_classes
+	Class = Class.split('-')
+	Class[0] = get_object(all_classes, Class[0], Classes)
+	Class[0].remove_entry(day, lecture, Class)
+	Class[0].current_work_load += 1 	#very dirty fix this; dont change attributes of object from non member function.
 
-	teacher = get_object(all_teachers, choice)
-	try:
-		teacher.print_table()
-	except:
-		venue = get_object(all_venues, choice)
-		try:
-			venue.print_table()
-		except:
-			Class = get_object(all_classes, choice)
-		try:
-			Class.print_table()
-			print 'Lunch Break for Class:'
-			print Class.valid_lunch_break()
-		except:
-			pass
+# def print_table(choice):
+# 	global all_classes, all_teachers, all_venues
+
+# 	teacher = get_object(all_teachers, choice)
+# 	try:
+# 		teacher.print_table()
+# 	except:
+# 		venue = get_object(all_venues, choice)
+# 		try:
+# 			venue.print_table()
+# 		except:
+# 			Class = get_object(all_classes, choice)
+# 		try:
+# 			Class.print_table()
+# 			print 'Lunch Break for Class:'
+# 			print Class.valid_lunch_break()
+# 		except:
+# 			pass
 
 def print_all_tables():
 	global all_teachers, all_classes, all_venues
@@ -344,6 +473,12 @@ def print_all_tables():
 	for Class in all_classes:
 		print Class
 		Class.resize_matrix()
+		res = Class.valid_lunch_break()
+		if res == True :
+			print 'Valid Lunch break for Class'
+		else:
+			print 'Invalid Lunch break'
+			print res
 		Class.print_table()
 
 	print 'Venues:'
@@ -354,12 +489,6 @@ def print_all_tables():
 
 	print days_per_week, lectures_per_day
 
-def remove_lunch(Class, day, lecture):
-	global all_classes
-	Class = Class.split('-')
-	Class[0] = get_object(all_classes, Class[0], Classes)
-
-	Class[0].remove_entry(day, lecture, Class)
 
 def remove_all(teacher, venue, Class, day, lecture):
 	global all_teachers, all_venues, all_classes

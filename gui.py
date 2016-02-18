@@ -4,6 +4,7 @@ import project
 import wx
 import wx.grid as gridlib
 from wx.lib.pubsub import Publisher as pub
+
 frame1 = None
 backup = ''
 class MyGrid(gridlib.Grid):
@@ -27,7 +28,7 @@ class MyGrid(gridlib.Grid):
                                                   evt.GetCol(),
                                                   evt.GetPosition())
         project.print_all_tables()
-
+        self.AutoSize()
         evt.Skip()
  
     def OnCellChange(self, evt):
@@ -47,7 +48,7 @@ class MyGrid(gridlib.Grid):
                 self.SetCellValue(evt.GetRow(), evt.GetCol(), backup)
             else:
                 pub.sendMessage('ENTRY', data = [evt.GetRow(), evt.GetCol(), self.value])
-       
+
         evt.Skip()
 
     def OnCellLeftClick(self, evt):
@@ -114,9 +115,9 @@ class MyForm(wx.Frame):
         self.book.AddPage(self.panel3, "Class")
 
 
-    def add_entry(self, name):
-        self.name = MyGrid(self.panel1)
-        self.sizer1.Add(self.name, 1, wx.EXPAND)
+    # def add_entry(self, name):
+    #     self.name = MyGrid(self.panel1)
+    #     self.sizer1.Add(self.name, 1, wx.EXPAND)
 
 if __name__ == "__main__":
     app = wx.PySimpleApp()
