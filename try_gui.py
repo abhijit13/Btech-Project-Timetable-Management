@@ -11,7 +11,7 @@ colLabels = ['9-10','10-11', '11-12', '12-1', '1-2', '2-3', '3-4', '4-5', '5-6',
 
 class Dialoge(wx.Dialog):
     def __init__(self, parent, id=-1, title="Enter Values"):
-        wx.Dialog.__init__(self, parent, id, title,size=(800,100))
+        wx.Dialog.__init__(self, parent, id, title,size=(600,50))
         self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
         # self.buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.mainSizer.AddSpacer(10)
@@ -26,19 +26,19 @@ class Dialoge(wx.Dialog):
                 
         self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
 
-        self.mainSizer.Add(self.label1, 1)
-        self.mainSizer.Add(self.field1, 1)
+        self.mainSizer.Add(self.label1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.Add(self.field1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.AddSpacer(10)
-        self.mainSizer.Add(self.label2, 1)
-        self.mainSizer.Add(self.field2, 1)
+        self.mainSizer.Add(self.label2, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.Add(self.field2, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.AddSpacer(10)
-        self.mainSizer.Add(self.label3, 1)
-        self.mainSizer.Add(self.field3, 1)
+        self.mainSizer.Add(self.label3, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.Add(self.field3, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.AddSpacer(10)
-        self.mainSizer.Add(self.label4, 1)
-        self.mainSizer.Add(self.field4, 1)
+        self.mainSizer.Add(self.label4, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.Add(self.field4, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.AddSpacer(10)
-        self.mainSizer.Add(self.okbutton, 1)
+        self.mainSizer.Add(self.okbutton, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.AddSpacer(10)
         
         self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
@@ -313,7 +313,7 @@ class MyForm(wx.Frame):
 
         # text = wx.StaticText(self.panel1, -1, 'College Of Engineering Pune', (20, 100))
         self.fonth1 = wx.Font(18, wx.DECORATIVE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
-        self.fonth2 = wx.Font(16, wx.DECORATIVE, wx.BOLD, wx.NORMAL)
+        self.fonth2 = wx.Font(16, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.fonth3 = wx.Font(16, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.fonth4 = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.fonth4.SetUnderlined(True)
