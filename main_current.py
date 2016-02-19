@@ -9,14 +9,11 @@ from GridTable import *
 from MyGrid import *
 
 class MyForm(wx.Frame):
-    def update(self, value):
-        # font = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
-        # font = wx.Font(12, wx.DECORATIVE, wx.BOLD, wx.NORMAL)
-        # font.SetPointSize(11)
-        
+    def update(self, value):        
         for teacher in project.all_teachers:
             name = teacher.name
             if not hasattr(self, name):
+                self.listboxTeacher.Append(name)
                 hfirst = wx.StaticText(self.panel1, label='College of Engineering, Pune - 05')
                 hsecond = wx.StaticText(self.panel1, label='Department of Computer Engineering and IT')
                 hthird = wx.StaticText(self.panel1, label='F.Y. Btech Computer Engineering')
@@ -41,6 +38,7 @@ class MyForm(wx.Frame):
 
                 vbox1 = wx.BoxSizer(wx.VERTICAL)
                 self.temp = MyGrid(self.panel1, teacher.mat)
+
                 setattr(self, name, self.temp)
                 vbox1.Add(getattr(self,name), 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox1.AddSpacer(20)
@@ -51,6 +49,7 @@ class MyForm(wx.Frame):
         for venue in project.all_venues:
             name = venue.name
             if not hasattr(self, name):
+                self.listboxVenue.Append(name)
                 self.temp = MyGrid(self.panel2, venue.mat)        
                 hfirst = wx.StaticText(self.panel2, label='College of Engineering, Pune - 05')
                 hsecond = wx.StaticText(self.panel2, label='Department of Computer Engineering and IT')
@@ -85,6 +84,7 @@ class MyForm(wx.Frame):
         for Class in project.all_classes:
             name = Class.name
             if not hasattr(self, name):
+                self.listboxClass.Append(name)
                 self.temp = MyGrid(self.panel3, Class.mat)        
                 hfirst = wx.StaticText(self.panel3, label='College of Engineering, Pune - 05')
                 hsecond = wx.StaticText(self.panel3, label='Department of Computer Engineering and IT')
@@ -128,13 +128,28 @@ class MyForm(wx.Frame):
         pub.sendMessage('RESIZE_CELLS', data = None)
 
     def OnListClick(self, evt):
-        sel = self.listbox.GetSelection()
-        text = self.listbox.GetString(sel)
-        print text
+        sel = self.listboxTeacher.GetSelection()
+        if sel == -1:
+            sel = self.listboxVenue.GetSelection()
+            if sel == -1:
+                sel = self.listboxClass.GetSelection()
+                text = self.listboxClass.GetString(sel)
+                self.panel3.Scroll(-1, 0)
+                self.panel3.ScrollChildIntoView(getattr(self,text))
+            else:
+                text = self.listboxVenue.GetString(sel)
+                self.panel2.Scroll(-1, 0)
+                self.panel2.ScrollChildIntoView(getattr(self,text))
+        else:
+            text = self.listboxTeacher.GetString(sel)
+            self.panel1.Scroll(-1, 0)
+            self.panel1.ScrollChildIntoView(getattr(self,text))
 
+        self.listboxTeacher.SetSelection(-1)
+        self.listboxVenue.SetSelection(-1)
+        self.listboxClass.SetSelection(-1)
+    
     def __init__(self):
-
-#Menu
 
         wx.Frame.__init__(self, parent=None, title="Timetable Management")
         self._init_menubar()
@@ -142,41 +157,43 @@ class MyForm(wx.Frame):
 
         self.mainPanel = wx.Panel(self, -1)
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
-
         self.book = wx.Notebook(self.mainPanel, -1, style=(wx.NB_BOTTOM))
 
-        self.panel1 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.book, id = -1)
+        self.page1 = wx.Panel(self.book, -1)
+        self.psizer1 = wx.BoxSizer(wx.HORIZONTAL)
+        self.left1 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.page1, id = -1)
+        self.left1.SetupScrolling()
+        self.lsizer1 = wx.BoxSizer(wx.VERTICAL)        
+        self.panel1 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.page1, id = -1)
         self.panel1.SetupScrolling()
-        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.book, id = -1)
-        self.panel2.SetupScrolling() 
-        self.panel3 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.book, id = -1)
-        self.panel3.SetupScrolling()
-
-        self.sizerside = wx.BoxSizer(wx.VERTICAL)
-        self.sizerBig = wx.BoxSizer(wx.HORIZONTAL)
-
         self.sizer1 = wx.BoxSizer(wx.VERTICAL)
+
+        self.page2 = wx.Panel(self.book, -1)
+        self.psizer2 = wx.BoxSizer(wx.HORIZONTAL)
+        self.left2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.page2, id = -1)
+        self.left2.SetupScrolling()
+        self.lsizer2 = wx.BoxSizer(wx.VERTICAL)
+        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.page2, id = -1)
+        self.panel2.SetupScrolling()
         self.sizer2 = wx.BoxSizer(wx.VERTICAL)
+
+        self.page3 = wx.Panel(self.book, -1)
+        self.psizer3 = wx.BoxSizer(wx.HORIZONTAL)
+        self.left3 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.page3, id = -1)
+        self.left3.SetupScrolling()
+        self.lsizer3 = wx.BoxSizer(wx.VERTICAL)
+        self.panel3 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.page3, id = -1)
+        self.panel3.SetupScrolling()
         self.sizer3 = wx.BoxSizer(wx.VERTICAL)
-        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
 
-        dummy = [[None for i in range(10)] for j in range(7)]
-        self.dummy = MyGrid(self.panel1, dummy)
-        # html = wx.html.HtmlWindow(self.panel1)
-        # text = wx.StaticText(self.panel1, label="Input:")
-        # width = 200  # panel width
-        # text.Wrap(width)
 
-        # text = wx.StaticText(self.panel1, -1, 'College Of Engineering Pune', (20, 100))
-        self.fonth1 = wx.Font(18, wx.DECORATIVE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+        global_input = [[None for i in range(10)] for j in range(7)]
+        self.global_input = MyGrid(self.panel1, global_input)
+
+        self.fonth1 = wx.Font(18, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.fonth2 = wx.Font(16, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.fonth3 = wx.Font(16, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.fonth4 = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
-        self.fonth4.SetUnderlined(True)
-
-        # fonth4 = wx.Font(16, wx.DECORATIVE, wx.BOLD, wx.NORMAL)
-        # text.SetFont(font)
-        # hbox1.Add(st1, flag=wx.RIGHT, border=8)
         sfont = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
         sfont.SetPointSize(10)
 
@@ -185,14 +202,10 @@ class MyForm(wx.Frame):
         hthird = wx.StaticText(self.panel1, label='S.Y. Btech Computer Engineering')
         hthird.SetForegroundColour(wx.Colour(255,55,125))
         hfourth = wx.StaticText(self.panel1, label='Global Input:')
-
         hfirst.SetFont(self.fonth1)
         hsecond.SetFont(self.fonth2)
         hthird.SetFont(self.fonth3)
         hfourth.SetFont(self.fonth4)
-
-        vbox1 = wx.BoxSizer(wx.VERTICAL)
-        vbox1.Add(self.dummy, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
         vbox = wx.BoxSizer(wx.VERTICAL)
         vbox.AddSpacer(150)
@@ -204,38 +217,89 @@ class MyForm(wx.Frame):
         vbox.AddSpacer(10)
         vbox.Add(hfourth, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
         vbox.AddSpacer(20)
-        self.sizer1.Add(vbox, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
-        self.sizer1.Add(vbox1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
-        self.sizer1.AddSpacer(200)
 
+        vbox1 = wx.BoxSizer(wx.VERTICAL)        
+        vbox1.Add(self.global_input, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        vbox1.AddSpacer(200)
+        
+        self.sizer1.Add(vbox, 1, wx.EXPAND)
+        self.sizer1.Add(vbox1, 1, wx.EXPAND)
+        self.panel1.SetSizer(self.sizer1)
 
-        self.listbox = wx.ListBox(self.panel1, -1,size=(90,400))
-        self.Bind(wx.EVT_LISTBOX_DCLICK, self.OnListClick)
-        libox = wx.BoxSizer(wx.VERTICAL)
-        libox.Add(self.listbox, 1, flag=wx.ALIGN_CENTER_VERTICAL)
-
-        labelside = wx.StaticText(self.panel1, label='Jump To:')
-        labelside.SetFont(sfont)
-        lbox = wx.BoxSizer(wx.VERTICAL)
-        lbox.Add(labelside, 1, flag=wx.ALIGN_CENTER_VERTICAL)
-
-        self.sizerside.AddSpacer(150)
-        self.sizerside.Add(libox, 1)
-        self.sizerside.AddSpacer(20)        
-        self.sizerside.Add(lbox, 1)
-
-        self.sizerBig.AddSpacer(20)
-        self.sizerBig.Add(self.sizerside, proportion=0)
-        self.sizerBig.AddSpacer(50)
-        self.sizerBig.Add(self.sizer1, flag=wx.ALIGN_CENTER_HORIZONTAL)
-
-        self.panel1.SetSizer(self.sizerBig)
         self.panel2.SetSizer(self.sizer2)
         self.panel3.SetSizer(self.sizer3)
-            
-        self.book.AddPage(self.panel1, "Teacher")
-        self.book.AddPage(self.panel2, "Venue") 
-        self.book.AddPage(self.panel3, "Class")
+
+
+        self.listboxTeacher = wx.ListBox(self.left1, -1,size=(90,400))
+        self.Bind(wx.EVT_LISTBOX_DCLICK, self.OnListClick)
+        self.listboxTeacher.Append("global_input")
+        libox = wx.BoxSizer(wx.VERTICAL)
+        libox.Add(self.listboxTeacher, 1, flag=wx.EXPAND)
+
+        labelside = wx.StaticText(self.left1, label='Jump To:')
+        labelside.SetFont(sfont)
+        lbox = wx.BoxSizer(wx.VERTICAL)
+        lbox.Add(labelside, 1, flag=wx.EXPAND)
+
+        self.lsizer1.AddSpacer(150)
+        self.lsizer1.Add(libox, 1,flag=wx.EXPAND)
+        self.lsizer1.AddSpacer(20)        
+        self.lsizer1.Add(lbox, 1, flag=wx.EXPAND)
+        self.left1.SetSizer(self.lsizer1)
+
+        self.psizer1.AddSpacer(20)
+        self.psizer1.Add(self.left1, 1, wx.ALIGN_CENTER|wx.EXPAND)
+        self.psizer1.AddSpacer(50)
+        self.psizer1.Add(self.panel1, 6, wx.ALIGN_CENTER|wx.EXPAND)
+        self.page1.SetSizer(self.psizer1)
+
+
+        self.listboxVenue = wx.ListBox(self.left2, -1,size=(90,400))
+        libox = wx.BoxSizer(wx.VERTICAL)
+        libox.Add(self.listboxVenue, 1, flag=wx.EXPAND)
+
+        labelside = wx.StaticText(self.left2, label='Jump To:')
+        labelside.SetFont(sfont)
+        lbox = wx.BoxSizer(wx.VERTICAL)
+        lbox.Add(labelside, 1, flag=wx.EXPAND)
+
+        self.lsizer2.AddSpacer(150)
+        self.lsizer2.Add(libox, 1, wx.EXPAND)
+        self.lsizer2.AddSpacer(20)        
+        self.lsizer2.Add(lbox, 1, wx.EXPAND)
+        self.left2.SetSizer(self.lsizer2)
+
+        self.psizer2.AddSpacer(20)
+        self.psizer2.Add(self.left2, 1, wx.ALIGN_CENTER|wx.EXPAND)
+        self.psizer2.AddSpacer(50)
+        self.psizer2.Add(self.panel2, 6, wx.EXPAND)
+        self.page2.SetSizer(self.psizer2)
+
+        self.listboxClass = wx.ListBox(self.left3, -1,size=(90,400))
+        libox = wx.BoxSizer(wx.VERTICAL)
+        libox.Add(self.listboxClass, 1, wx.EXPAND)
+
+        labelside = wx.StaticText(self.left3, label='Jump To:')
+        labelside.SetFont(sfont)
+        lbox = wx.BoxSizer(wx.VERTICAL)
+        lbox.Add(labelside, 1, wx.EXPAND)
+
+        self.lsizer3.AddSpacer(150)
+        self.lsizer3.Add(libox, 1, wx.EXPAND)
+        self.lsizer3.AddSpacer(20)        
+        self.lsizer3.Add(lbox, 1, wx.EXPAND)
+        self.left3.SetSizer(self.lsizer3)
+
+        self.psizer3.AddSpacer(20)
+        self.psizer3.Add(self.left3, 1, wx.ALIGN_CENTER|wx.EXPAND)
+        self.psizer3.AddSpacer(50)
+        self.psizer3.Add(self.panel3, 6, wx.EXPAND)
+        self.page3.SetSizer(self.psizer3)
+
+
+        self.book.AddPage(self.page1, "Teacher")
+        self.book.AddPage(self.page2, "Venue") 
+        self.book.AddPage(self.page3, "Class")
 
         self.mainSizer.Add(self.book, 1, wx.EXPAND)
         self.mainPanel.SetSizer(self.mainSizer)
@@ -244,9 +308,9 @@ class MyForm(wx.Frame):
         # self.Bind(gridlib.EVT_GRID_LABEL_RIGHT_CLICK, self.update)    
 
         self.Maximize(True)
-        self.sizerBig.Layout()
-        self.sizer2.Layout()
-        self.sizer3.Layout()
+        self.psizer1.Layout()
+        self.psizer2.Layout()
+        self.psizer3.Layout()
         self.mainSizer.Layout()
 
     def OnQuit(self, evt):
