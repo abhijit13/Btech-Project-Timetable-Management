@@ -1,5 +1,6 @@
 import wx
 import globaldata
+
 # class EditableListCtrl(wx.ListCtrl, listmix.TextEditMixin):
 #     def __init__(self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition,
 #                  size=wx.DefaultSize, style=0):
@@ -20,14 +21,18 @@ class ListView(wx.Dialog):
         self.list.InsertColumn(1,"Abbrevation", width=wx.LIST_AUTOSIZE_USEHEADER)
 
         if key == "Teacher" :
-            for i in range(len(globaldata.teacher_shortnames)):
-                self.list.Append([globaldata.teacher_fullnames[i],globaldata.teacher_shortnames[i]])
+            for i in range(len(globaldata.teacher_fullnames)):
+                self.list.Append([globaldata.teacher_fullnames[i],globaldata.teacher_shortnames[i+1]])
         if key == "Venue" :
-            for i in range(len(globaldata.venue_shortnames)):
-                self.list.Append([globaldata.venue_fullnames[i],globaldata.venue_shortnames[i]])
+            for i in range(len(globaldata.venue_fullnames)):
+                self.list.Append([globaldata.venue_fullnames[i],globaldata.venue_shortnames[i+1]])
         if key == "Class" :
-            for i in range(len(globaldata.class_shortnames)):
-                self.list.Append([globaldata.class_fullnames[i],globaldata.class_shortnames[i]])
+            for i in range(len(globaldata.class_fullnames)):
+                self.list.Append([globaldata.class_fullnames[i],globaldata.class_shortnames[i+1]])
+        if key == "Subject" :
+            self.list.InsertColumn(2,"Credits", width=wx.LIST_AUTOSIZE_USEHEADER)
+            for i in range(len(globaldata.subject_fullnames)):
+                self.list.Append([globaldata.subject_fullnames[i],globaldata.subject_shortnames[i+1],globaldata.subject_credits[i]])
 
         self.hh = wx.BoxSizer(wx.HORIZONTAL)
         self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)        
@@ -54,18 +59,32 @@ class ListView(wx.Dialog):
     def onAdd(self, event):
         dlg = TwoItemList(self, title=self.title, key=self.key)
         dlg.ShowModal()
-        self.list.Append([dlg.result1,dlg.result2])
+        if self.key == "Subject":
+            self.list.Append([dlg.result1,dlg.result2,dlg.result3])
+        else:
+            self.list.Append([dlg.result1,dlg.result2])
         # self.Destroy()
 
     def onOK(self, event):
         self.result1 = []
         self.result2 = []
+        self.result3 = []
         n = self.list.GetItemCount()
-        for i in range(n):
-            x = self.list.GetItem(i, 0)
-            y = self.list.GetItem(i, 1)
-            self.result1.append(x.GetText())
-            self.result2.append(y.GetText())
+        if self.key == "Subject":
+            for i in range(n):
+                x = self.list.GetItem(i, 0)
+                y = self.list.GetItem(i, 1)
+                z = self.list.GetItem(i, 2)
+                self.result1.append(x.GetText())
+                self.result2.append(y.GetText())
+                self.result3.append(int(z.GetText()))
+
+        else:
+            for i in range(n):
+                x = self.list.GetItem(i, 0)
+                y = self.list.GetItem(i, 1)
+                self.result1.append(x.GetText())
+                self.result2.append(y.GetText())
         self.Destroy()
 
     def onCancel(self, event):
@@ -73,6 +92,7 @@ class ListView(wx.Dialog):
 
 class TwoItemList(wx.Dialog):
     def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key='Name'):
+        self.key = key
         wx.Dialog.__init__(self, parent, id, title, size=(600,50))
         self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.mainSizer.AddSpacer(10)
@@ -81,7 +101,6 @@ class TwoItemList(wx.Dialog):
         self.field1 = wx.TextCtrl(self, value="")
         self.label2 = wx.StaticText(self, label="Abbrevation:")
         self.field2 = wx.TextCtrl(self, value="")                
-        self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
 
         self.mainSizer.Add(self.label1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.Add(self.field1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
@@ -89,6 +108,15 @@ class TwoItemList(wx.Dialog):
         self.mainSizer.Add(self.label2, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.Add(self.field2, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.AddSpacer(10)
+
+        if key == "Subject":
+            self.label3 = wx.StaticText(self, label="Credits:")
+            self.field3 = wx.TextCtrl(self, value="")                
+            self.mainSizer.Add(self.label3, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+            self.mainSizer.Add(self.field3, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+            self.mainSizer.AddSpacer(10)
+
+        self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
         self.mainSizer.Add(self.okbutton, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.AddSpacer(10)
         
@@ -101,6 +129,8 @@ class TwoItemList(wx.Dialog):
     def onOK(self, event):
         self.result1 = self.field1.GetValue()
         self.result2 = self.field2.GetValue()
+        if self.key == "Subject":
+            self.result3 = self.field3.GetValue()
         self.Destroy()
 
     def onCancel(self, event):
@@ -109,13 +139,45 @@ class TwoItemList(wx.Dialog):
 
 
 class PromptingComboBox(wx.ComboBox) :
-    def __init__(self, parent, value, choices=[], style=0, **par):
+    def __init__(self, parent, value, choices, name, style=0, **par):
         wx.ComboBox.__init__(self, parent, wx.ID_ANY, value, style=style|wx.CB_DROPDOWN, choices=choices, **par)
         self.choices = choices
+        self.name = name
         self.Bind(wx.EVT_COMBOBOX, self.EvtCombobox) 
                 
     def EvtCombobox(self, event):
         self.res = self.GetValue()
+        if self.res == "ADD NEW" :
+            if self.name == "Teacher":
+                dlg = TwoItemList(self, title="Enter Teacher Data", key="Teacher")
+                dlg.ShowModal()
+                globaldata.teacher_fullnames.append(dlg.result1)
+                globaldata.teacher_shortnames.append(dlg.result2)
+                self.Append(dlg.result2)
+                dlg.Destroy()
+            elif self.name == "Venue":
+                dlg = TwoItemList(self, title="Enter Venue Data", key="Venue")
+                dlg.ShowModal()
+                globaldata.venue_fullnames.append(dlg.result1)
+                globaldata.venue_shortnames.append(dlg.result2)
+                self.Append(dlg.result2)
+                dlg.Destroy()        
+            elif self.name == "Class":
+                dlg = TwoItemList(self, title="Enter Class Data", key="Class")
+                dlg.ShowModal()
+                globaldata.class_fullnames.append(dlg.result1)
+                globaldata.class_shortnames.append(dlg.result2)
+                self.Append(dlg.result2)
+                dlg.Destroy()
+            elif self.name == "Subject":
+                dlg = TwoItemList(self, title="Enter Subject Data", key="Subject")
+                dlg.ShowModal()
+                globaldata.subject_fullnames.append(dlg.result1)
+                globaldata.subject_shortnames.append(dlg.result2)
+                globaldata.subject_credits.append(dlg.result3)
+                self.Append(dlg.result2)
+                dlg.Destroy()
+            del self.res
         event.Skip()
 
 class Dialoge(wx.Dialog):
@@ -124,16 +186,16 @@ class Dialoge(wx.Dialog):
         self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.mainSizer.AddSpacer(10)
         self.label1 = wx.StaticText(self, label="Teacher:")
-        self.field1 = PromptingComboBox(self, "Choose", globaldata.teacher_shortnames) 
+        self.field1 = PromptingComboBox(self, "Choose", globaldata.teacher_shortnames,'Teacher') 
         # self.field1 = wx.TextCtrl(self, value="")
         self.label2 = wx.StaticText(self, label="Venue:")
-        self.field2 = PromptingComboBox(self, "Choose", globaldata.venue_shortnames) 
+        self.field2 = PromptingComboBox(self, "Choose", globaldata.venue_shortnames, 'Venue') 
         # self.field2 = wx.TextCtrl(self, value="")
         self.label3 = wx.StaticText(self, label="Class:")
-        self.field3 = PromptingComboBox(self, "Choose", globaldata.class_shortnames) 
+        self.field3 = PromptingComboBox(self, "Choose", globaldata.class_shortnames, 'Class') 
         # self.field3 = wx.TextCtrl(self, value="")
         self.label4 = wx.StaticText(self, label="Subject:")
-        self.field4 = wx.TextCtrl(self, value="")
+        self.field4 = PromptingComboBox(self, "Choose", globaldata.subject_shortnames, 'Subject') 
                 
         self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
 
@@ -164,8 +226,7 @@ class Dialoge(wx.Dialog):
         self.result1 = self.field1.res
         self.result2 = self.field2.res
         self.result3 = self.field3.res
-        self.result4 = self.field4.GetValue()
-        print self.result1
+        self.result4 = self.field4.res
         self.Destroy()
 
     def onCancel(self, event):

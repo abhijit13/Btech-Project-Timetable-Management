@@ -2,17 +2,14 @@ import wx
 import wx.grid as gridlib
 from wx.lib.pubsub import Publisher as pub
 import project
-
-#see if you need to import pub here as well
-rowLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-colLabels = ['9-10','10-11', '11-12', '12-1', '1-2', '2-3', '3-4', '4-5', '5-6', '6-7']
+import globaldata
 
 class GenericTable(wx.grid.PyGridTableBase):
     def __init__(self, data, rowLabels=None, colLabels=None):
         wx.grid.PyGridTableBase.__init__(self)
         self.data = data
-        self.rowLabels = rowLabels
-        self.colLabels = colLabels
+        self.rowLabels = globaldata.rowLabels
+        self.colLabels = globaldata.colLabels
         
     def GetNumberRows(self):
         return len(self.data)

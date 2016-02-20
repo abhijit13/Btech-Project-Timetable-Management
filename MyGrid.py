@@ -5,11 +5,12 @@ from wx.lib.pubsub import Publisher as pub
 import project
 from Dialouge import *
 from GridTable import *
+import globaldata
 
 class MyGrid(gridlib.Grid):
     def __init__(self, parent, data):
         gridlib.Grid.__init__(self, parent, -1)
-        tableBase = GenericTable(data, rowLabels, colLabels)
+        tableBase = GenericTable(data, globaldata.rowLabels, globaldata.colLabels)
         self.SetTable(tableBase)                    
         # self.SetGridLineColour(wx.RED)
         self.SetRowLabelSize(-1) 

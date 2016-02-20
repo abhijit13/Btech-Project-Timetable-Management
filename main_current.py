@@ -4,7 +4,6 @@ import wx
 import wx.grid as gridlib
 import wx.lib.scrolledpanel
 from wx.lib.pubsub import Publisher as pub
-import project
 from Dialouge import *
 from GridTable import *
 from MyGrid import *
@@ -12,7 +11,7 @@ import globaldata
 
 class MyForm(wx.Frame):
     def update(self, value):        
-        for teacher in project.all_teachers:
+        for teacher in globaldata.all_teachers:
             name = teacher.name
             if not hasattr(self, name):
                 self.listboxTeacher.Append(name)
@@ -48,7 +47,7 @@ class MyForm(wx.Frame):
                 self.sizer1.AddSpacer(200)
                 self.sizer1.Layout()
 
-        for venue in project.all_venues:
+        for venue in globaldata.all_venues:
             name = venue.name
             if not hasattr(self, name):
                 self.listboxVenue.Append(name)
@@ -83,7 +82,7 @@ class MyForm(wx.Frame):
                 self.sizer2.AddSpacer(200)
                 self.sizer2.Layout()
 
-        for Class in project.all_classes:
+        for Class in globaldata.all_classes:
             name = Class.name
             if not hasattr(self, name):
                 self.listboxClass.Append(name)
@@ -303,17 +302,17 @@ class MyForm(wx.Frame):
         dlg = BasicConstraint(self)
         dlg.ShowModal()
         # print dlg.daily_max, dlg.weekly_max, dlg.class_max
-        project.days_per_week = int(dlg.days)
-        project.lectures_per_day = int(dlg.lectures)
-        project.daily_max = int(dlg.daily_max)
-        project.daily_min = int(dlg.daily_min)
-        project.class_max = int(dlg.class_max)
-        project.class_min = int(dlg.class_min)
-        project.weekly_max = int(dlg.weekly_max)
-        project.weekly_min = int(dlg.weekly_min)
+        globaldata.days_per_week = int(dlg.days)
+        globaldata.lectures_per_day = int(dlg.lectures)
+        globaldata.daily_max = int(dlg.daily_max)
+        globaldata.daily_min = int(dlg.daily_min)
+        globaldata.class_max = int(dlg.class_max)
+        globaldata.class_min = int(dlg.class_min)
+        globaldata.weekly_max = int(dlg.weekly_max)
+        globaldata.weekly_min = int(dlg.weekly_min)
 
         if not hasattr(self, "GlobalInput"):
-            GlobalInput = [[None for i in range(project.lectures_per_day)] for j in range(project.days_per_week)]
+            GlobalInput = [[None for i in range(globaldata.lectures_per_day)] for j in range(globaldata.days_per_week)]
             self.GlobalInput = MyGrid(self.panel1, GlobalInput)
 
             hfirst = wx.StaticText(self.panel1, label=globaldata.header1)
@@ -367,23 +366,38 @@ class MyForm(wx.Frame):
         dlg = ListView(self, title='Add Teacher Data', key='Teacher')
         dlg.ShowModal()
         globaldata.teacher_fullnames = dlg.result1
-        globaldata.teacher_shortnames = dlg.result2
-        print globaldata.teacher_fullnames
+        temp = ["ADD NEW"]
+        temp.extend(dlg.result2)
+        globaldata.teacher_shortnames = temp
+        print globaldata.teacher_shortnames
 
     def VenueData(self, evt):
         # global venue_fullnames, venue_shortnames
         dlg = ListView(self, title='Add Venue Data', key='Venue')
         dlg.ShowModal()
         globaldata.venue_fullnames = dlg.result1
-        globaldata.venue_shortnames = dlg.result2        
+        temp = ["ADD NEW"]
+        temp.extend(dlg.result2) 
+        globaldata.venue_shortnames =  temp      
 
     def ClassData(self, evt):
         # global class_fullnames, class_shortnames
         dlg = ListView(self, title='Add Class Data', key='Class')
         dlg.ShowModal()
         globaldata.class_fullnames = dlg.result1
-        globaldata.class_shortnames = dlg.result2
- 
+        temp = ["ADD NEW"]
+        temp.extend(dlg.result2)
+        globaldata.class_shortnames = temp
+
+    def SubjectData(self, evt):
+        dlg = ListView(self, title='Add Subject Data', key='Subject')
+        dlg.ShowModal()
+        globaldata.subject_fullnames = dlg.result1
+        temp = ["ADD NEW"]  
+        temp.extend(dlg.result2)
+        globaldata.subject_shortnames = temp
+        globaldata.subject_credits = dlg.result3
+
     def _init_menubar(self):
 
         menubar = wx.MenuBar()
@@ -426,6 +440,8 @@ class MyForm(wx.Frame):
         self.Bind(wx.EVT_MENU, self.VenueData, venue)
         classes = data.Append(-1,'&Classes')
         self.Bind(wx.EVT_MENU, self.ClassData, classes)
+        sub = data.Append(-1,'&Subjects')
+        self.Bind(wx.EVT_MENU, self.SubjectData, sub)
 
         view = wx.Menu()
         view.Append(-1,'&Toolbar')
@@ -455,10 +471,10 @@ class MyForm(wx.Frame):
         self.toolbar.AddLabelTool(wx.ID_PASTE, '',wx.Bitmap('icons/paste.png'))
         self.toolbar.AddLabelTool(wx.ID_EXIT, '',wx.Bitmap('icons/exit.png'))
 
-        self.Bind(wx.EVT_TOOL,self.OnUndo, id=wx.ID_UNDO)
-              #  self.Bind(wx.EVT_TOOL,self.OnRedo, id=wx.ID_REDO)
-              #  self.Bind(wx.EVT_TOOL,self.OnSave, id=wx.ID_SAVE)
-              #  self.Bind(wx.EVT_TOOL,self.OnQuit, id=wx.ID_EXIT)
+        # self.Bind(wx.EVT_TOOL,self.OnUndo, id=wx.ID_UNDO)
+        # self.Bind(wx.EVT_TOOL,self.OnRedo, id=wx.ID_REDO)
+        # self.Bind(wx.EVT_TOOL,self.OnSave, id=wx.ID_SAVE)
+        self.Bind(wx.EVT_TOOL,self.OnQuit, id=wx.ID_EXIT)
 
         self.toolbar.Realize()
         self.Show(True)
