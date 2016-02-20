@@ -1,17 +1,137 @@
 import wx
+import globaldata
+# class EditableListCtrl(wx.ListCtrl, listmix.TextEditMixin):
+#     def __init__(self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition,
+#                  size=wx.DefaultSize, style=0):
+#         """Constructor"""
+#         wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
+#         listmix.TextEditMixin.__init__(self)
+
+class ListView(wx.Dialog):
+    def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key=''):
+        wx.Dialog.__init__(self, parent, id, title, size=(400,500))
+        self.title = title
+        self.key = key
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
+
+        self.list = wx.ListCtrl(self,id, style=wx.LC_REPORT|wx.SUNKEN_BORDER, size=(300, 400))
+        self.list.Show(True)
+        self.list.InsertColumn(0, key + " Name", width=wx.LIST_AUTOSIZE_USEHEADER)
+        self.list.InsertColumn(1,"Abbrevation", width=wx.LIST_AUTOSIZE_USEHEADER)
+
+        if key == "Teacher" :
+            for i in range(len(globaldata.teacher_shortnames)):
+                self.list.Append([globaldata.teacher_fullnames[i],globaldata.teacher_shortnames[i]])
+        if key == "Venue" :
+            for i in range(len(globaldata.venue_shortnames)):
+                self.list.Append([globaldata.venue_fullnames[i],globaldata.venue_shortnames[i]])
+        if key == "Class" :
+            for i in range(len(globaldata.class_shortnames)):
+                self.list.Append([globaldata.class_fullnames[i],globaldata.class_shortnames[i]])
+
+        self.hh = wx.BoxSizer(wx.HORIZONTAL)
+        self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)        
+        self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
+
+        self.addbutton = wx.Button(self, label="Add", id=wx.ID_ADD)        
+        self.Bind(wx.EVT_BUTTON, self.onAdd, id=wx.ID_ADD)
+
+        self.delbutton = wx.Button(self, label="Remove")        
+        self.Bind(wx.EVT_BUTTON, self.onDel, self.delbutton)
+
+        self.hh.Add(self.okbutton, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.hh.Add(self.addbutton, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.hh.Add(self.delbutton, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+
+        self.mainSizer.Add(self.list, 0, flag=wx.EXPAND|wx.ALIGN_CENTER)
+        self.mainSizer.Add(self.hh, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.SetSizer(self.mainSizer)
+
+    def onDel(self, event):
+        i = self.list.GetFirstSelected()
+        self.list.DeleteItem(i)
+
+    def onAdd(self, event):
+        dlg = TwoItemList(self, title=self.title, key=self.key)
+        dlg.ShowModal()
+        self.list.Append([dlg.result1,dlg.result2])
+        # self.Destroy()
+
+    def onOK(self, event):
+        self.result1 = []
+        self.result2 = []
+        n = self.list.GetItemCount()
+        for i in range(n):
+            x = self.list.GetItem(i, 0)
+            y = self.list.GetItem(i, 1)
+            self.result1.append(x.GetText())
+            self.result2.append(y.GetText())
+        self.Destroy()
+
+    def onCancel(self, event):
+        self.Destroy()
+
+class TwoItemList(wx.Dialog):
+    def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key='Name'):
+        wx.Dialog.__init__(self, parent, id, title, size=(600,50))
+        self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.mainSizer.AddSpacer(10)
+
+        self.label1 = wx.StaticText(self, label=key + ' Name :')
+        self.field1 = wx.TextCtrl(self, value="")
+        self.label2 = wx.StaticText(self, label="Abbrevation:")
+        self.field2 = wx.TextCtrl(self, value="")                
+        self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
+
+        self.mainSizer.Add(self.label1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.Add(self.field1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.AddSpacer(10)
+        self.mainSizer.Add(self.label2, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.Add(self.field2, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.AddSpacer(10)
+        self.mainSizer.Add(self.okbutton, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.AddSpacer(10)
+        
+        self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
+        self.Bind(wx.EVT_TEXT_ENTER, self.onOK)
+
+        self.SetSizer(self.mainSizer)
+        self.result = None
+
+    def onOK(self, event):
+        self.result1 = self.field1.GetValue()
+        self.result2 = self.field2.GetValue()
+        self.Destroy()
+
+    def onCancel(self, event):
+        self.result = None
+        self.Destroy()
+
+
+class PromptingComboBox(wx.ComboBox) :
+    def __init__(self, parent, value, choices=[], style=0, **par):
+        wx.ComboBox.__init__(self, parent, wx.ID_ANY, value, style=style|wx.CB_DROPDOWN, choices=choices, **par)
+        self.choices = choices
+        self.Bind(wx.EVT_COMBOBOX, self.EvtCombobox) 
+                
+    def EvtCombobox(self, event):
+        self.res = self.GetValue()
+        event.Skip()
 
 class Dialoge(wx.Dialog):
     def __init__(self, parent, id=-1, title="Enter Values"):
-        wx.Dialog.__init__(self, parent, id, title,size=(700,50))
+        wx.Dialog.__init__(self, parent, id, title,size=(900,50))
         self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
-        # self.buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.mainSizer.AddSpacer(10)
         self.label1 = wx.StaticText(self, label="Teacher:")
-        self.field1 = wx.TextCtrl(self, value="")
+        self.field1 = PromptingComboBox(self, "Choose", globaldata.teacher_shortnames) 
+        # self.field1 = wx.TextCtrl(self, value="")
         self.label2 = wx.StaticText(self, label="Venue:")
-        self.field2 = wx.TextCtrl(self, value="")
+        self.field2 = PromptingComboBox(self, "Choose", globaldata.venue_shortnames) 
+        # self.field2 = wx.TextCtrl(self, value="")
         self.label3 = wx.StaticText(self, label="Class:")
-        self.field3 = wx.TextCtrl(self, value="")
+        self.field3 = PromptingComboBox(self, "Choose", globaldata.class_shortnames) 
+        # self.field3 = wx.TextCtrl(self, value="")
         self.label4 = wx.StaticText(self, label="Subject:")
         self.field4 = wx.TextCtrl(self, value="")
                 
@@ -41,15 +161,77 @@ class Dialoge(wx.Dialog):
         self.result = None
 
     def onOK(self, event):
-        self.result1 = self.field1.GetValue()
-        self.result2 = self.field2.GetValue()
-        self.result3 = self.field3.GetValue()
+        self.result1 = self.field1.res
+        self.result2 = self.field2.res
+        self.result3 = self.field3.res
         self.result4 = self.field4.GetValue()
+        print self.result1
         self.Destroy()
 
     def onCancel(self, event):
         self.result = None
         self.Destroy()
+
+class HeaderInfo(wx.Dialog):
+    def __init__(self, parent, id=-1, title="Enter Values"):
+        wx.Dialog.__init__(self, parent, id, title,size=(700,400))
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
+        self.mainSizer.AddSpacer(10)
+        self.heading_font = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
+
+        self.label1 = wx.StaticText(self, label="Enter Header Information:")
+        self.label1.SetFont(self.heading_font)
+        self.label2 = wx.StaticText(self, label="(It will be displayed above the timetable)")
+
+        self.h1 = wx.BoxSizer(wx.VERTICAL)
+        self.h1.Add(self.label1, 1)
+        self.h1.Add(self.label2, 1)
+        self.mainSizer.Add(self.h1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+
+        self.l1 = wx.StaticText(self, label="Heading 1:")
+        self.l2 = wx.StaticText(self, label="Heading 2:")
+        self.l3 = wx.StaticText(self, label="Heading 3:")
+
+        self.f1 = wx.TextCtrl(self, value="", size=(150,-1))
+        self.f2 = wx.TextCtrl(self, value="", size=(150,-1))
+        self.f3 = wx.TextCtrl(self, value="", size=(150,-1))
+
+        self.h1 = wx.BoxSizer(wx.HORIZONTAL)
+        self.h1.Add(self.l1, 1)
+        self.h1.Add(self.f1, 1)
+        self.mainSizer.Add(self.h1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+
+        self.h1 = wx.BoxSizer(wx.HORIZONTAL)
+        self.h1.Add(self.l2, 1)
+        self.h1.Add(self.f2, 1)
+        self.mainSizer.Add(self.h1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+
+        self.h1 = wx.BoxSizer(wx.HORIZONTAL)
+        self.h1.Add(self.l3, 1)
+        self.h1.Add(self.f3, 1)        
+        self.mainSizer.Add(self.h1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.mainSizer.AddSpacer(10)
+
+        self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
+        self.mainSizer.Add(self.okbutton, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.mainSizer.AddSpacer(10)
+        
+        self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
+        self.Bind(wx.EVT_TEXT_ENTER, self.onOK)
+
+        self.SetSizer(self.mainSizer)
+        self.result = None
+
+    def onOK(self, event):
+        self.result1 = self.f1.GetValue()
+        self.result2 = self.f2.GetValue()
+        self.result3 = self.f3.GetValue()
+        self.Destroy()
+
+    def onCancel(self, event):
+        self.result = None
+        self.Destroy()
+
 
 class BasicConstraint(wx.Dialog):
 
@@ -71,7 +253,7 @@ class BasicConstraint(wx.Dialog):
 
         self.h1 = wx.BoxSizer(wx.HORIZONTAL)
         self.ldays = wx.StaticText(self, label="Working days per week:")
-        self.tdays = wx.TextCtrl(self, value="7")
+        self.tdays = wx.TextCtrl(self, value="7", size=(140,-1))
         self.h1.AddSpacer(10)
         self.h1.Add(self.ldays, 1)
         self.h1.AddSpacer(10)
@@ -79,7 +261,7 @@ class BasicConstraint(wx.Dialog):
         self.h1.AddSpacer(10)
 
         self.llectures = wx.StaticText(self, label="Lectures per day:")
-        self.tlectures = wx.TextCtrl(self, value="10")
+        self.tlectures = wx.TextCtrl(self, value="10",size=(140,-1))
         self.h1.AddSpacer(40)
         self.h1.Add(self.llectures, 1)
         self.h1.Add(self.tlectures, 1)
@@ -97,9 +279,9 @@ class BasicConstraint(wx.Dialog):
 
         self.h2 = wx.BoxSizer(wx.HORIZONTAL)
         self.ldailymax = wx.StaticText(self, label="Daily Maximum Workload:")
-        self.tdailymax = wx.TextCtrl(self, value="5")
+        self.tdailymax = wx.TextCtrl(self, value="5",size=(140,-1))
         self.ldailymin = wx.StaticText(self, label="Daily Minimum Workload:")
-        self.tdailymin = wx.TextCtrl(self, value="1")
+        self.tdailymin = wx.TextCtrl(self, value="1",size=(140,-1))
         self.h2.AddSpacer(10)
         self.h2.Add(self.ldailymax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
         self.h2.Add(self.tdailymax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
@@ -113,9 +295,9 @@ class BasicConstraint(wx.Dialog):
 
         self.h3 = wx.BoxSizer(wx.HORIZONTAL)
         self.lweeklymax = wx.StaticText(self, label="Weekly Maximum Workload:")
-        self.tweeklymax = wx.TextCtrl(self, value="20")
+        self.tweeklymax = wx.TextCtrl(self, value="20",size=(140,-1))
         self.lweeklymin = wx.StaticText(self, label="Weekly Minimum Workload:")
-        self.tweeklymin = wx.TextCtrl(self, value="5")
+        self.tweeklymin = wx.TextCtrl(self, value="5",size=(140,-1))
         self.h3.AddSpacer(10)
         self.h3.Add(self.lweeklymax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
         self.h3.Add(self.tweeklymax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
@@ -133,9 +315,9 @@ class BasicConstraint(wx.Dialog):
 
         self.h4 = wx.BoxSizer(wx.HORIZONTAL)
         self.lclassmax = wx.StaticText(self, label="Weekly Maximum Workload:")
-        self.tclassmax = wx.TextCtrl(self, value="30")
+        self.tclassmax = wx.TextCtrl(self, value="30",size=(140,-1))
         self.lclassmin = wx.StaticText(self, label="Weekly Minimum Workload:")
-        self.tclassmin = wx.TextCtrl(self, value="15")
+        self.tclassmin = wx.TextCtrl(self, value="15",size=(140,-1))
         self.h4.AddSpacer(10)
         self.h4.Add(self.lclassmax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
         self.h4.Add(self.tclassmax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)

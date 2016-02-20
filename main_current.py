@@ -1,4 +1,5 @@
-#!/usr/bin/python
+# !/usr/bin/python
+
 import wx
 import wx.grid as gridlib
 import wx.lib.scrolledpanel
@@ -7,6 +8,7 @@ import project
 from Dialouge import *
 from GridTable import *
 from MyGrid import *
+import globaldata
 
 class MyForm(wx.Frame):
     def update(self, value):        
@@ -14,9 +16,9 @@ class MyForm(wx.Frame):
             name = teacher.name
             if not hasattr(self, name):
                 self.listboxTeacher.Append(name)
-                hfirst = wx.StaticText(self.panel1, label='College of Engineering, Pune - 05')
-                hsecond = wx.StaticText(self.panel1, label='Department of Computer Engineering and IT')
-                hthird = wx.StaticText(self.panel1, label='F.Y. Btech Computer Engineering')
+                hfirst = wx.StaticText(self.panel1, label=globaldata.header1)
+                hsecond = wx.StaticText(self.panel1, label=globaldata.header2)
+                hthird = wx.StaticText(self.panel1, label=globaldata.header3)
                 hfourth = wx.StaticText(self.panel1, label=teacher.name)
                 hthird.SetForegroundColour(wx.Colour(255,55,125))
                 hfirst.SetFont(self.fonth1)
@@ -26,23 +28,23 @@ class MyForm(wx.Frame):
 
                 vbox = wx.BoxSizer(wx.VERTICAL)
                 vbox.AddSpacer(150)
-                vbox.Add(hfirst, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hfirst, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(10)
-                vbox.Add(hsecond, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hsecond, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(2)
-                vbox.Add(hthird, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hthird, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(10)
-                vbox.Add(hfourth, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hfourth, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(20)
-                self.sizer1.Add(vbox, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                self.sizer1.Add(vbox, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
                 vbox1 = wx.BoxSizer(wx.VERTICAL)
                 self.temp = MyGrid(self.panel1, teacher.mat)
 
                 setattr(self, name, self.temp)
-                vbox1.Add(getattr(self,name), 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox1.Add(getattr(self,name), 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox1.AddSpacer(20)
-                self.sizer1.Add(vbox1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                self.sizer1.Add(vbox1, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 self.sizer1.AddSpacer(200)
                 self.sizer1.Layout()
 
@@ -51,9 +53,9 @@ class MyForm(wx.Frame):
             if not hasattr(self, name):
                 self.listboxVenue.Append(name)
                 self.temp = MyGrid(self.panel2, venue.mat)        
-                hfirst = wx.StaticText(self.panel2, label='College of Engineering, Pune - 05')
-                hsecond = wx.StaticText(self.panel2, label='Department of Computer Engineering and IT')
-                hthird = wx.StaticText(self.panel2, label='F.Y. Btech Computer Engineering')
+                hfirst = wx.StaticText(self.panel2, label=globaldata.header1)
+                hsecond = wx.StaticText(self.panel2, label=globaldata.header2)
+                hthird = wx.StaticText(self.panel2, label=globaldata.header3)
                 hfourth = wx.StaticText(self.panel2, label=venue.name)
                 hthird.SetForegroundColour(wx.Colour(255,55,125))
                 hfirst.SetFont(self.fonth1)
@@ -63,21 +65,21 @@ class MyForm(wx.Frame):
 
                 vbox = wx.BoxSizer(wx.VERTICAL)
                 vbox.AddSpacer(150)
-                vbox.Add(hfirst, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hfirst, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(10)
-                vbox.Add(hsecond, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hsecond, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(2)
-                vbox.Add(hthird, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hthird, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(10)
-                vbox.Add(hfourth, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hfourth, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(20)
-                self.sizer2.Add(vbox, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                self.sizer2.Add(vbox, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
                 vbox1 = wx.BoxSizer(wx.VERTICAL)
                 setattr(self, name, self.temp)
-                vbox1.Add(getattr(self,name), 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox1.Add(getattr(self,name), 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox1.AddSpacer(20)
-                self.sizer2.Add(vbox1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                self.sizer2.Add(vbox1, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 self.sizer2.AddSpacer(200)
                 self.sizer2.Layout()
 
@@ -86,9 +88,9 @@ class MyForm(wx.Frame):
             if not hasattr(self, name):
                 self.listboxClass.Append(name)
                 self.temp = MyGrid(self.panel3, Class.mat)        
-                hfirst = wx.StaticText(self.panel3, label='College of Engineering, Pune - 05')
-                hsecond = wx.StaticText(self.panel3, label='Department of Computer Engineering and IT')
-                hthird = wx.StaticText(self.panel3, label='F.Y. Btech Computer Engineering')
+                hfirst = wx.StaticText(self.panel3, label=globaldata.header1)
+                hsecond = wx.StaticText(self.panel3, label=globaldata.header2)
+                hthird = wx.StaticText(self.panel3, label=globaldata.header3)
                 hfourth = wx.StaticText(self.panel3, label=Class.name)
                 hthird.SetForegroundColour(wx.Colour(255,55,125))
                 hfirst.SetFont(self.fonth1)
@@ -98,21 +100,21 @@ class MyForm(wx.Frame):
                 
                 vbox = wx.BoxSizer(wx.VERTICAL)
                 vbox.AddSpacer(150)
-                vbox.Add(hfirst, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hfirst, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(10)
-                vbox.Add(hsecond, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hsecond, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(2)
-                vbox.Add(hthird, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hthird, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(10)
-                vbox.Add(hfourth, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox.Add(hfourth, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(20)
-                self.sizer3.Add(vbox, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                self.sizer3.Add(vbox, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
                 vbox1 = wx.BoxSizer(wx.VERTICAL)
                 setattr(self, name, self.temp)
-                vbox1.Add(getattr(self,name), 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox1.Add(getattr(self,name), 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox1.AddSpacer(20)
-                self.sizer3.Add(vbox1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                self.sizer3.Add(vbox1, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 self.sizer3.AddSpacer(200)
                 self.sizer3.Layout()
 
@@ -283,7 +285,7 @@ class MyForm(wx.Frame):
         self.psizer3.Layout()
         self.mainSizer.Layout()
 
-        dlg = wx.MessageDialog(None, "Add Basic Constraints in\nData -> Basic Constraints.\nAnd Start Working.","Notice", wx.OK|wx.ICON_INFORMATION)
+        dlg = wx.MessageDialog(None, "Create a New Project:\nFile -> New\nOr Open an Existing one:\nFile -> Open","Notice", wx.OK|wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
 
@@ -310,13 +312,13 @@ class MyForm(wx.Frame):
         project.weekly_max = int(dlg.weekly_max)
         project.weekly_min = int(dlg.weekly_min)
 
-        if not hasattr(self, "global_input"):
-            global_input = [[None for i in range(project.lectures_per_day)] for j in range(project.days_per_week)]
-            self.global_input = MyGrid(self.panel1, global_input)
+        if not hasattr(self, "GlobalInput"):
+            GlobalInput = [[None for i in range(project.lectures_per_day)] for j in range(project.days_per_week)]
+            self.GlobalInput = MyGrid(self.panel1, GlobalInput)
 
-            hfirst = wx.StaticText(self.panel1, label='College of Engineering, Pune - 05')
-            hsecond = wx.StaticText(self.panel1, label='Department of Computer Engineering and IT')
-            hthird = wx.StaticText(self.panel1, label='S.Y. Btech Computer Engineering')
+            hfirst = wx.StaticText(self.panel1, label=globaldata.header1)
+            hsecond = wx.StaticText(self.panel1, label=globaldata.header2)
+            hthird = wx.StaticText(self.panel1, label=globaldata.header3)
             hthird.SetForegroundColour(wx.Colour(255,55,125))
             hfourth = wx.StaticText(self.panel1, label='Global Input:')
             hfirst.SetFont(self.fonth1)
@@ -326,31 +328,68 @@ class MyForm(wx.Frame):
 
             vbox = wx.BoxSizer(wx.VERTICAL)
             vbox.AddSpacer(150)
-            vbox.Add(hfirst, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox.Add(hfirst, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
             vbox.AddSpacer(10)
-            vbox.Add(hsecond, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox.Add(hsecond, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
             vbox.AddSpacer(2)
-            vbox.Add(hthird, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox.Add(hthird, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
             vbox.AddSpacer(10)
-            vbox.Add(hfourth, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox.Add(hfourth, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
             vbox.AddSpacer(20)
 
             vbox1 = wx.BoxSizer(wx.VERTICAL)        
-            vbox1.Add(self.global_input, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox1.Add(self.GlobalInput, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
             vbox1.AddSpacer(200)
             
             self.sizer1.Add(vbox, 1, wx.EXPAND)
             self.sizer1.Add(vbox1, 1, wx.EXPAND)
             self.sizer1.Layout()
             # self.Close()
-            self.listboxTeacher.Append("global_input")
+            self.listboxTeacher.Append("GlobalInput")
 
+    def File_New(self, evt):
+        dlg = HeaderInfo(self)
+        dlg.ShowModal()
+        # global header1, header2, header3
+
+        globaldata.header1 = dlg.result1
+        globaldata.header2 = dlg.result2
+        globaldata.header3 = dlg.result3  
+
+        self.GetBasicConstraints(evt)
+
+        dlg = wx.MessageDialog(None, "For ease of use add Teacher, Venue and Class data under:\nData->Teacher\nData->Venue\nData->Class","Notice", wx.OK|wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
+
+    def TeacherData(self, evt):
+        # global teacher_fullnames, teacher_shortnames
+        dlg = ListView(self, title='Add Teacher Data', key='Teacher')
+        dlg.ShowModal()
+        globaldata.teacher_fullnames = dlg.result1
+        globaldata.teacher_shortnames = dlg.result2
+        print globaldata.teacher_fullnames
+
+    def VenueData(self, evt):
+        # global venue_fullnames, venue_shortnames
+        dlg = ListView(self, title='Add Venue Data', key='Venue')
+        dlg.ShowModal()
+        globaldata.venue_fullnames = dlg.result1
+        globaldata.venue_shortnames = dlg.result2        
+
+    def ClassData(self, evt):
+        # global class_fullnames, class_shortnames
+        dlg = ListView(self, title='Add Class Data', key='Class')
+        dlg.ShowModal()
+        globaldata.class_fullnames = dlg.result1
+        globaldata.class_shortnames = dlg.result2
+ 
     def _init_menubar(self):
 
         menubar = wx.MenuBar()
         file = wx.Menu()
-
-        file.Append(-1,'&New')
+        file_new = file.Append(-1,'&New')
+        self.Bind(wx.EVT_MENU, self.File_New, file_new)
         file.Append(-1,'&Open')
         file.Append(-1,'&Save As')
         file.Append(-1,'&Save')
@@ -379,9 +418,14 @@ class MyForm(wx.Frame):
 
 
         data = wx.Menu()
-                #ADD BASED ON CONSTRAINTS
         basic = data.Append(-1,'&Basic Constraints')
         self.Bind(wx.EVT_MENU, self.GetBasicConstraints, basic)
+        teacher = data.Append(-1,'&Teachers')
+        self.Bind(wx.EVT_MENU, self.TeacherData, teacher)
+        venue = data.Append(-1,'&Venues')
+        self.Bind(wx.EVT_MENU, self.VenueData, venue)
+        classes = data.Append(-1,'&Classes')
+        self.Bind(wx.EVT_MENU, self.ClassData, classes)
 
         view = wx.Menu()
         view.Append(-1,'&Toolbar')

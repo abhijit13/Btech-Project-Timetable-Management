@@ -1,0 +1,22 @@
+	//new wizard -> headers, basic constraints, 
+	//data
+saving on disk and opening
+
+	export as pdf, xls//
+
+//header info - at start and 
+during runtime
+undo / redo
+preferences - think
+data -> abbrevations
+	subjects 
+	teachers
+	venue
+	class
+Fullscreen / on off
+Help / About
+suggestions dropdown box for teacher/venue/class names
+in grid display style
+colour scheme
+
+arrange globals in global file
