@@ -187,9 +187,6 @@ class MyForm(wx.Frame):
         self.sizer3 = wx.BoxSizer(wx.VERTICAL)
 
 
-        global_input = [[None for i in range(10)] for j in range(7)]
-        self.global_input = MyGrid(self.panel1, global_input)
-
         self.fonth1 = wx.Font(18, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.fonth2 = wx.Font(16, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.fonth3 = wx.Font(16, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
@@ -197,42 +194,15 @@ class MyForm(wx.Frame):
         sfont = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
         sfont.SetPointSize(10)
 
-        hfirst = wx.StaticText(self.panel1, label='College of Engineering, Pune - 05')
-        hsecond = wx.StaticText(self.panel1, label='Department of Computer Engineering and IT')
-        hthird = wx.StaticText(self.panel1, label='S.Y. Btech Computer Engineering')
-        hthird.SetForegroundColour(wx.Colour(255,55,125))
-        hfourth = wx.StaticText(self.panel1, label='Global Input:')
-        hfirst.SetFont(self.fonth1)
-        hsecond.SetFont(self.fonth2)
-        hthird.SetFont(self.fonth3)
-        hfourth.SetFont(self.fonth4)
 
-        vbox = wx.BoxSizer(wx.VERTICAL)
-        vbox.AddSpacer(150)
-        vbox.Add(hfirst, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
-        vbox.AddSpacer(10)
-        vbox.Add(hsecond, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
-        vbox.AddSpacer(2)
-        vbox.Add(hthird, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
-        vbox.AddSpacer(10)
-        vbox.Add(hfourth, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
-        vbox.AddSpacer(20)
 
-        vbox1 = wx.BoxSizer(wx.VERTICAL)        
-        vbox1.Add(self.global_input, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
-        vbox1.AddSpacer(200)
-        
-        self.sizer1.Add(vbox, 1, wx.EXPAND)
-        self.sizer1.Add(vbox1, 1, wx.EXPAND)
         self.panel1.SetSizer(self.sizer1)
-
         self.panel2.SetSizer(self.sizer2)
         self.panel3.SetSizer(self.sizer3)
 
 
         self.listboxTeacher = wx.ListBox(self.left1, -1,size=(90,400))
         self.Bind(wx.EVT_LISTBOX_DCLICK, self.OnListClick)
-        self.listboxTeacher.Append("global_input")
         libox = wx.BoxSizer(wx.VERTICAL)
         libox.Add(self.listboxTeacher, 1, flag=wx.EXPAND)
 
@@ -313,6 +283,10 @@ class MyForm(wx.Frame):
         self.psizer3.Layout()
         self.mainSizer.Layout()
 
+        dlg = wx.MessageDialog(None, "Add Basic Constraints in\nData -> Basic Constraints.\nAnd Start Working.","Notice", wx.OK|wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
+
     def OnQuit(self, evt):
             self.Close()
     def OnRedo(self, evt):
@@ -321,6 +295,55 @@ class MyForm(wx.Frame):
             self.Close()
     def OnSave(self, evt):
             self.Close()
+
+    def GetBasicConstraints(self, evt):
+        # print 'ccliked'
+        dlg = BasicConstraint(self)
+        dlg.ShowModal()
+        # print dlg.daily_max, dlg.weekly_max, dlg.class_max
+        project.days_per_week = int(dlg.days)
+        project.lectures_per_day = int(dlg.lectures)
+        project.daily_max = int(dlg.daily_max)
+        project.daily_min = int(dlg.daily_min)
+        project.class_max = int(dlg.class_max)
+        project.class_min = int(dlg.class_min)
+        project.weekly_max = int(dlg.weekly_max)
+        project.weekly_min = int(dlg.weekly_min)
+
+        if not hasattr(self, "global_input"):
+            global_input = [[None for i in range(project.lectures_per_day)] for j in range(project.days_per_week)]
+            self.global_input = MyGrid(self.panel1, global_input)
+
+            hfirst = wx.StaticText(self.panel1, label='College of Engineering, Pune - 05')
+            hsecond = wx.StaticText(self.panel1, label='Department of Computer Engineering and IT')
+            hthird = wx.StaticText(self.panel1, label='S.Y. Btech Computer Engineering')
+            hthird.SetForegroundColour(wx.Colour(255,55,125))
+            hfourth = wx.StaticText(self.panel1, label='Global Input:')
+            hfirst.SetFont(self.fonth1)
+            hsecond.SetFont(self.fonth2)
+            hthird.SetFont(self.fonth3)
+            hfourth.SetFont(self.fonth4)
+
+            vbox = wx.BoxSizer(wx.VERTICAL)
+            vbox.AddSpacer(150)
+            vbox.Add(hfirst, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox.AddSpacer(10)
+            vbox.Add(hsecond, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox.AddSpacer(2)
+            vbox.Add(hthird, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox.AddSpacer(10)
+            vbox.Add(hfourth, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox.AddSpacer(20)
+
+            vbox1 = wx.BoxSizer(wx.VERTICAL)        
+            vbox1.Add(self.global_input, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox1.AddSpacer(200)
+            
+            self.sizer1.Add(vbox, 1, wx.EXPAND)
+            self.sizer1.Add(vbox1, 1, wx.EXPAND)
+            self.sizer1.Layout()
+            # self.Close()
+            self.listboxTeacher.Append("global_input")
 
     def _init_menubar(self):
 
@@ -357,6 +380,8 @@ class MyForm(wx.Frame):
 
         data = wx.Menu()
                 #ADD BASED ON CONSTRAINTS
+        basic = data.Append(-1,'&Basic Constraints')
+        self.Bind(wx.EVT_MENU, self.GetBasicConstraints, basic)
 
         view = wx.Menu()
         view.Append(-1,'&Toolbar')

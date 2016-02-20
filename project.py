@@ -7,11 +7,15 @@ all_classes = []
 
 #fetch this data from UI
 subjects = {'dsa':3, 'ds':3, 'os':3, 'daa':3,'dbms':4}
-days_per_week = 7
-lectures_per_day = 10
-daily_max = 3
-daily_min = 1
 
+days_per_week = None
+lectures_per_day = None
+daily_max = None
+daily_min = None
+class_max = None
+class_min = None
+weekly_max = None
+weekly_min = None
 #	each entry in tables is of the form :
 #	attr1 attr2 None : here None means whole of this object
 # 	attr1 attr2 b1 : here b1 means part of this object not whole Object 
@@ -102,10 +106,10 @@ class Object(object):
 			return True	
 
 class Teacher(Object):
-	def __init__(self, name, max_load=10, min_load=1):
+	def __init__(self, name):
 		super(Teacher, self).__init__(name)
-		self.max_work_load = max_load
-		self.min_work_load = min_load
+		self.max_work_load = weekly_max
+		self.min_work_load = weekly_min
 		self.max_daily_load = daily_max
 		self.min_daily_load = daily_min
 		self.current_work_load = 0
@@ -210,17 +214,16 @@ class Venue(Object):
 			self.mat[day][lecture].append((teacher, Class, sub, batch))
 
 class Classes(Object):
-	def __init__(self, name, max_load = 10, min_load = 1):
+	def __init__(self, name):
 		super(Classes, self).__init__(name)
 		self.subjects = {}
 		self.batches = []
-		self.max_work_load = max_load
-		self.min_work_load = min_load
+		self.max_work_load = class_max
+		self.min_work_load = class_min
 		self.current_work_load = 0
 	
 
 	def remove_entry(self, day, lecture, values=''):
-
 		#reduce the no of lectures of that subject
 		#for subject of a batch
 		if len(values) > 1:
