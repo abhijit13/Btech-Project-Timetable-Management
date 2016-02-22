@@ -11,8 +11,7 @@ class MyForm(wx.Frame):
         panel = wx.Panel(self, wx.ID_ANY)
         self.grid = gridlib.Grid(panel)
         self.grid.CreateGrid(25,8)
-        self.grid.Bind(gridlib.EVT_GRID_CELL_RIGHT_CLICK,
-                       self.showPopupMenu)
+        self.grid.Bind(gridlib.EVT_GRID_CELL_RIGHT_CLICK, self.showPopupMenu)
  
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.grid, 1, wx.EXPAND, 5)
@@ -20,6 +19,7 @@ class MyForm(wx.Frame):
  
     #----------------------------------------------------------------------
     def showPopupMenu(self, event):
+ 
         """
         Create and display a popup menu on right-click event
         """

@@ -8,7 +8,7 @@ all_venues = []
 all_classes = []
 
 
-subjects = {}
+subjects = {'dsa':3, 'ds':3}
 
 days_per_week = 0
 lectures_per_day = 0

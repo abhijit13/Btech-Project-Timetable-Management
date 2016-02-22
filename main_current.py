@@ -8,7 +8,11 @@ from Dialouge import *
 from GridTable import *
 from MyGrid import *
 import globaldata
+import pickle
 
+class SaveClass(object):
+    pass
+    
 class MyForm(wx.Frame):
     def update(self, value):        
         for teacher in globaldata.all_teachers:
@@ -150,9 +154,8 @@ class MyForm(wx.Frame):
         self.listboxVenue.SetSelection(-1)
         self.listboxClass.SetSelection(-1)
     
-    def __init__(self):
+    def RenewUI(self):
 
-        wx.Frame.__init__(self, parent=None, title="Timetable Management")
         self._init_menubar()
         self._init_toolbar()
 
@@ -288,29 +291,129 @@ class MyForm(wx.Frame):
         dlg.ShowModal()
         dlg.Destroy()
 
+    def __init__(self):
+        wx.Frame.__init__(self, parent=None, title="Timetable Management")
+        self.RenewUI()
+
     def OnQuit(self, evt):
-            self.Close()
+        self.Close()
     def OnRedo(self, evt):
-            self.Close()
+        self.Close()
     def OnUndo(self, evt):
-            self.Close()
-    def OnSave(self, evt):
-            self.Close()
+        self.Close()
+    def OnOpen(self, evt):
+        openFileDialog = wx.FileDialog(self, "Open Project File", "", "",
+                                       "tt files (*.tt)|*.tt", wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+        if openFileDialog.ShowModal() == wx.ID_CANCEL:
+            return 
+        
+        self.savefilepath = openFileDialog.GetPath()
 
-    def GetBasicConstraints(self, evt):
-        # print 'ccliked'
-        dlg = BasicConstraint(self)
+        with open(self.savefilepath, 'rb') as handle:
+            try:
+                saveObject = pickle.load(handle)
+            except:
+                dlg = wx.MessageDialog(None, "Could Not Open File", "Error", wx.OK|wx.ICON_ERROR)
+                dlg.ShowModal()
+                dlg.Destroy()
+                return
+
+        globaldata.header1 = saveObject.header1
+        globaldata.header2 = saveObject.header2
+        globaldata.header3 = saveObject.header3
+
+        globaldata.all_teachers = saveObject.all_teachers
+        globaldata.all_venues = saveObject.all_venues
+        globaldata.all_classes = saveObject.all_classes
+
+        globaldata.days_per_week = saveObject.days_per_week
+        globaldata.lectures_per_day = saveObject.lectures_per_day
+        globaldata.daily_max = saveObject.daily_max
+        globaldata.daily_min = saveObject.daily_min
+        globaldata.class_max = saveObject.class_max
+        globaldata.class_min = saveObject.class_min
+        globaldata.weekly_max = saveObject.weekly_max
+        globaldata.weekly_min = saveObject.weekly_min
+
+        globaldata.rowLabels = saveObject.rowLabels
+        globaldata.colLables = saveObject.colLables
+
+        globaldata.teacher_fullnames = saveObject.teacher_fullnames
+        globaldata.teacher_shortnames = saveObject.teacher_shortnames
+        globaldata.venue_fullnames = saveObject.venue_fullnames
+        globaldata.venue_shortnames = saveObject.venue_shortnames
+        globaldata.class_fullnames = saveObject.class_fullnames
+        globaldata.class_shortnames = saveObject.class_shortnames
+        globaldata.subject_fullnames = saveObject.subject_fullnames
+        globaldata.subject_shortnames =saveObject.subject_shortnames
+        globaldata.subject_credits =saveObject.subject_credits
+        self.AppendGlobalInput(None)
+        self.update(None)
+        dlg = wx.MessageDialog(None, "Loaded Successfully", "Notice", wx.OK|wx.ICON_INFORMATION)
         dlg.ShowModal()
-        # print dlg.daily_max, dlg.weekly_max, dlg.class_max
-        globaldata.days_per_week = int(dlg.days)
-        globaldata.lectures_per_day = int(dlg.lectures)
-        globaldata.daily_max = int(dlg.daily_max)
-        globaldata.daily_min = int(dlg.daily_min)
-        globaldata.class_max = int(dlg.class_max)
-        globaldata.class_min = int(dlg.class_min)
-        globaldata.weekly_max = int(dlg.weekly_max)
-        globaldata.weekly_min = int(dlg.weekly_min)
+        dlg.Destroy()
 
+    def OnSaveAs(self, evt):
+        saveFileDialog = wx.FileDialog(self, "Save Project File As", "", ".tt",
+                                               "tt files (*.tt)|*.tt", wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        if saveFileDialog.ShowModal() == wx.ID_CANCEL:
+            return
+        self.savefilepath = saveFileDialog.GetPath()
+        self.OnSave(None)
+
+    def OnSave(self, evt):
+        saveObject = SaveClass()
+        saveObject.header1 = globaldata.header1
+        saveObject.header2 = globaldata.header2
+        saveObject.header3 = globaldata.header3
+
+        saveObject.all_teachers = globaldata.all_teachers
+        saveObject.all_venues = globaldata.all_venues
+        saveObject.all_classes = globaldata.all_classes
+
+        saveObject.days_per_week = globaldata.days_per_week
+        saveObject.lectures_per_day = globaldata.lectures_per_day
+        saveObject.daily_max = globaldata.daily_max
+        saveObject.daily_min = globaldata.daily_min
+        saveObject.class_max = globaldata.class_max
+        saveObject.class_min = globaldata.class_min
+        saveObject.weekly_max = globaldata.weekly_max
+        saveObject.weekly_min = globaldata.weekly_min
+
+        saveObject.rowLabels = globaldata.rowLabels
+        saveObject.colLables = globaldata.colLabels
+
+        saveObject.teacher_fullnames = globaldata.teacher_fullnames
+        saveObject.teacher_shortnames = globaldata.teacher_shortnames
+        saveObject.venue_fullnames = globaldata.venue_fullnames
+        saveObject.venue_shortnames = globaldata.venue_shortnames
+        saveObject.class_fullnames = globaldata.class_fullnames
+        saveObject.class_shortnames = globaldata.class_shortnames
+        saveObject.subject_fullnames = globaldata.subject_fullnames
+        saveObject.subject_shortnames =globaldata.subject_shortnames
+        saveObject.subject_credits =globaldata.subject_credits
+
+        if not hasattr(self, "savefilepath"):
+            saveFileDialog = wx.FileDialog(self, "Save Project File", "", ".tt",
+                                               "tt files (*.tt)|*.tt", wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+            if saveFileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            self.savefilepath = saveFileDialog.GetPath()
+
+        with open(self.savefilepath, 'wb') as handle:
+            try :
+                pickle.dump(saveObject, handle)
+            except:
+                dlg = wx.MessageDialog(None, "Could Not Save File", "Error", wx.OK|wx.ICON_ERROR)
+                dlg.ShowModal()
+                dlg.Destroy()
+                return
+
+        dlg = wx.MessageDialog(None, "Saved Successfully", "Notice", wx.OK|wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
+
+    def AppendGlobalInput(self, evt):
         if not hasattr(self, "GlobalInput"):
             GlobalInput = [[None for i in range(globaldata.lectures_per_day)] for j in range(globaldata.days_per_week)]
             self.GlobalInput = MyGrid(self.panel1, GlobalInput)
@@ -346,7 +449,26 @@ class MyForm(wx.Frame):
             # self.Close()
             self.listboxTeacher.Append("GlobalInput")
 
-    def File_New(self, evt):
+    def GetBasicConstraints(self, evt):
+        # print 'ccliked'
+        dlg = BasicConstraint(self)
+        dlg.ShowModal()
+        # print dlg.daily_max, dlg.weekly_max, dlg.class_max
+        globaldata.days_per_week = int(dlg.days)
+        globaldata.lectures_per_day = int(dlg.lectures)
+        globaldata.daily_max = int(dlg.daily_max)
+        globaldata.daily_min = int(dlg.daily_min)
+        globaldata.class_max = int(dlg.class_max)
+        globaldata.class_min = int(dlg.class_min)
+        globaldata.weekly_max = int(dlg.weekly_max)
+        globaldata.weekly_min = int(dlg.weekly_min)
+        self.AppendGlobalInput(None)
+    
+    def OnNew(self, evt):
+        # if hasattr(self, "aadesh"):
+        #     del self.mainPanel
+        #     self.Layout()
+        #     self.RenewUI()
         dlg = HeaderInfo(self)
         dlg.ShowModal()
         # global header1, header2, header3
@@ -397,16 +519,21 @@ class MyForm(wx.Frame):
         temp.extend(dlg.result2)
         globaldata.subject_shortnames = temp
         globaldata.subject_credits = dlg.result3
+        for i in range(len(dlg.result2)):
+            globaldata.subjects[dlg.result2[i]] = dlg.result3[i]
 
     def _init_menubar(self):
 
         menubar = wx.MenuBar()
         file = wx.Menu()
-        file_new = file.Append(-1,'&New')
-        self.Bind(wx.EVT_MENU, self.File_New, file_new)
-        file.Append(-1,'&Open')
-        file.Append(-1,'&Save As')
-        file.Append(-1,'&Save')
+        fnew = file.Append(-1,'&New')
+        self.Bind(wx.EVT_MENU, self.OnNew, fnew)
+        fopen = file.Append(-1,'&Open')
+        self.Bind(wx.EVT_MENU, self.OnOpen, fopen)
+        save = file.Append(-1,'&Save')
+        self.Bind(wx.EVT_MENU, self.OnSave, save)
+        saveas = file.Append(-1,'&Save As')
+        self.Bind(wx.EVT_MENU, self.OnSaveAs, saveas)
 
         imp = wx.Menu()
         imp.Append(-1,'Import csv')
@@ -414,10 +541,10 @@ class MyForm(wx.Frame):
         file.AppendMenu(-1,'Import', imp)
         file.AppendSeparator()
 
-        quit = wx.MenuItem(file, 1, '&Quit\tCtrl+Q')
-        #quit.SetBitmap(wx.ArtProvider.GetBitmap(id=wx.ART_PRINT, client=client))
-        file.AppendItem(quit)
-        self.Bind(wx.EVT_MENU, self.OnQuit, id=1)
+        quit = file.Append(wx.ID_EXIT, 'Quit', '&Quit\tCtrl+Q')
+        # quit.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_QUIT))
+        # quit.SetBitmap(wx.Bitmap('exit.png'))
+        self.Bind(wx.EVT_MENU, self.OnQuit, quit)
 
 
         edit = wx.Menu()
@@ -444,8 +571,14 @@ class MyForm(wx.Frame):
         self.Bind(wx.EVT_MENU, self.SubjectData, sub)
 
         view = wx.Menu()
-        view.Append(-1,'&Toolbar')
-        view.Append(-1,'Fullscreen')
+        self.toolbarBoolean = view.Append(-1,'&Show Toolbar', kind=wx.ITEM_CHECK)
+        self.fullscreenBoolean = view.Append(-1,'Fullscreen', kind=wx.ITEM_CHECK)
+
+        view.Check(self.toolbarBoolean.GetId(), True)
+        view.Check(self.fullscreenBoolean.GetId(), False)
+
+        self.Bind(wx.EVT_MENU, self.ToggleToolbar, self.toolbarBoolean)
+        self.Bind(wx.EVT_MENU, self.ToggleFullscreen, self.fullscreenBoolean)
 
 
         help = wx.Menu()
@@ -461,22 +594,47 @@ class MyForm(wx.Frame):
         self.SetMenuBar(menubar)
         self.Center()
 
-    def _init_toolbar(self):
-        self.toolbar = self.CreateToolBar()
-        #self.toolbar.SetToolBitmapSize((1,1))
-        self.toolbar.AddLabelTool(wx.ID_NEW, '',wx.Bitmap('icons/new.png'))
-        self.toolbar.AddLabelTool(wx.ID_UNDO, '',wx.Bitmap('icons/undo.png'))
-        self.toolbar.AddLabelTool(wx.ID_REDO, '',wx.Bitmap('icons/redo.png'))
-        self.toolbar.AddLabelTool(wx.ID_CUT, '',wx.Bitmap('icons/cut.png'))
-        self.toolbar.AddLabelTool(wx.ID_PASTE, '',wx.Bitmap('icons/paste.png'))
-        self.toolbar.AddLabelTool(wx.ID_EXIT, '',wx.Bitmap('icons/exit.png'))
+    def ToggleFullscreen(self, evt):
 
-        # self.Bind(wx.EVT_TOOL,self.OnUndo, id=wx.ID_UNDO)
-        # self.Bind(wx.EVT_TOOL,self.OnRedo, id=wx.ID_REDO)
-        # self.Bind(wx.EVT_TOOL,self.OnSave, id=wx.ID_SAVE)
+        if self.fullscreenBoolean.IsChecked():
+            pass
+            # self.ShowFullScreen(True)
+        else:
+            pass
+            # self.ShowFullScreen(False)
+             # self.toolbar.Hide()
+
+    def ToggleToolbar(self, evt):
+
+        if self.toolbarBoolean.IsChecked():
+            self.toolbar.Show()
+        else:
+            self.toolbar.Hide()
+
+    def _init_toolbar(self):
+        iconSize= (24,24)
+        self.toolbar = self.CreateToolBar()
+        self.toolbar.AddLabelTool(wx.ID_NEW, '',wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, iconSize))
+        self.toolbar.AddLabelTool(wx.ID_OPEN, '',wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_TOOLBAR, iconSize))
+        self.toolbar.AddLabelTool(wx.ID_SAVE, '',wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE, wx.ART_TOOLBAR, iconSize))
+        self.toolbar.AddLabelTool(wx.ID_SAVEAS, '',wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE_AS, wx.ART_TOOLBAR, iconSize))
+        self.toolbar.AddLabelTool(wx.ID_EXIT, '',wx.ArtProvider.GetBitmap(wx.ART_QUIT, wx.ART_TOOLBAR, iconSize))
+
+        self.Bind(wx.EVT_TOOL,self.OnNew, id=wx.ID_NEW)
+        self.Bind(wx.EVT_TOOL,self.OnOpen, id=wx.ID_OPEN)
+        self.Bind(wx.EVT_TOOL,self.OnSave, id=wx.ID_SAVE)
+        self.Bind(wx.EVT_TOOL,self.OnSaveAs, id=wx.ID_SAVEAS)
         self.Bind(wx.EVT_TOOL,self.OnQuit, id=wx.ID_EXIT)
 
-        self.toolbar.Realize()
+        self.toolbar.SetToolBitmapSize((24,24))
+        # self.toolbar.AddLabelTool(wx.ID_NEW, '',wx.Bitmap('icons/new.png'))
+        # self.toolbar.AddLabelTool(wx.ID_UNDO, '',wx.Bitmap('icons/undo.png'))
+        # self.toolbar.AddLabelTool(wx.ID_REDO, '',wx.Bitmap('icons/redo.png'))
+        # self.toolbar.AddLabelTool(wx.ID_CUT, '',wx.Bitmap('icons/cut.png'))
+        # self.toolbar.AddLabelTool(wx.ID_SAVE, '',wx.Bitmap('icons/save.png'))
+        # self.toolbar.AddLabelTool(wx.ID_EXIT, '',wx.Bitmap('icons/exit.png'))
+        # self.toolbar.Realize()
+        self.toolbar.Show()
         self.Show(True)
 
 if __name__ == "__main__":

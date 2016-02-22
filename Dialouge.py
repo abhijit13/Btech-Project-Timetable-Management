@@ -151,31 +151,45 @@ class PromptingComboBox(wx.ComboBox) :
             if self.name == "Teacher":
                 dlg = TwoItemList(self, title="Enter Teacher Data", key="Teacher")
                 dlg.ShowModal()
-                globaldata.teacher_fullnames.append(dlg.result1)
-                globaldata.teacher_shortnames.append(dlg.result2)
-                self.Append(dlg.result2)
+                try:
+                    globaldata.teacher_fullnames.append(dlg.result1)
+                    globaldata.teacher_shortnames.append(dlg.result2)
+                    self.Append(dlg.result2)
+                except:
+                    self.SetValue('Choose')
                 dlg.Destroy()
             elif self.name == "Venue":
                 dlg = TwoItemList(self, title="Enter Venue Data", key="Venue")
                 dlg.ShowModal()
-                globaldata.venue_fullnames.append(dlg.result1)
-                globaldata.venue_shortnames.append(dlg.result2)
-                self.Append(dlg.result2)
+                try:
+                    globaldata.venue_fullnames.append(dlg.result1)
+                    globaldata.venue_shortnames.append(dlg.result2)
+                    self.Append(dlg.result2)
+                except:
+                    self.SetValue('Choose')
                 dlg.Destroy()        
             elif self.name == "Class":
                 dlg = TwoItemList(self, title="Enter Class Data", key="Class")
                 dlg.ShowModal()
-                globaldata.class_fullnames.append(dlg.result1)
-                globaldata.class_shortnames.append(dlg.result2)
-                self.Append(dlg.result2)
+                try:
+                    globaldata.class_fullnames.append(dlg.result1)
+                    globaldata.class_shortnames.append(dlg.result2)
+                    self.Append(dlg.result2)
+                except:
+                    self.SetValue('Choose')
                 dlg.Destroy()
             elif self.name == "Subject":
                 dlg = TwoItemList(self, title="Enter Subject Data", key="Subject")
                 dlg.ShowModal()
-                globaldata.subject_fullnames.append(dlg.result1)
-                globaldata.subject_shortnames.append(dlg.result2)
-                globaldata.subject_credits.append(dlg.result3)
-                self.Append(dlg.result2)
+                try:
+                    globaldata.subject_fullnames.append(dlg.result1)
+                    globaldata.subject_shortnames.append(dlg.result2)
+                    globaldata.subject_credits.append(dlg.result3)
+                    globaldata.subjects[dlg.result2] = int(dlg.result3)
+                    self.Append(dlg.result2)
+                    print globaldata.subjects
+                except:
+                    self.SetValue('Choose')
                 dlg.Destroy()
             del self.res
         event.Skip()
@@ -223,10 +237,13 @@ class Dialoge(wx.Dialog):
         self.result = None
 
     def onOK(self, event):
+        if self.field1.res == "ADD NEW" or self.field2.res == "ADD NEW" or self.field3.res == "ADD NEW" or self.field4.res == "ADD NEW":
+            return
         self.result1 = self.field1.res
         self.result2 = self.field2.res
         self.result3 = self.field3.res
         self.result4 = self.field4.res
+        
         self.Destroy()
 
     def onCancel(self, event):
@@ -298,7 +315,7 @@ class BasicConstraint(wx.Dialog):
 
     def __init__(self, parent, id=-1, title="Enter Values"):
 
-        wx.Dialog.__init__(self, parent, id, title,size=(800,600))
+        wx.Dialog.__init__(self, parent, id, title,size=(900,600))
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
 
         self.mainSizer.AddSpacer(10)        
@@ -306,92 +323,118 @@ class BasicConstraint(wx.Dialog):
         
         self.label1 = wx.StaticText(self, label="Enter Basic Constraints:")
         self.label1.SetFont(self.heading_font)
-        
-        self.hh = wx.BoxSizer(wx.HORIZONTAL)
-        self.hh.Add(self.label1, 1)
-        self.mainSizer.Add(self.hh, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.vv = wx.BoxSizer(wx.VERTICAL)
+        self.vv.Add(self.label1, 1, wx.EXPAND)
+        self.mainSizer.Add(self.vv, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
 
-        self.h1 = wx.BoxSizer(wx.HORIZONTAL)
-        self.ldays = wx.StaticText(self, label="Working days per week:")
-        self.tdays = wx.TextCtrl(self, value="7", size=(140,-1))
-        self.h1.AddSpacer(10)
-        self.h1.Add(self.ldays, 1)
-        self.h1.AddSpacer(10)
-        self.h1.Add(self.tdays, 1)
-        self.h1.AddSpacer(10)
+        self.v1 = wx.BoxSizer(wx.HORIZONTAL)
+        self.ldays = wx.StaticText(self, label="Working days per week")
+        self.tdays = wx.TextCtrl(self, value="7")
+        self.v1.Add(self.ldays, 1, wx.EXPAND|wx.ALIGN_CENTER)
+        self.v1.AddSpacer(10)
+        self.v1.Add(self.tdays, 1, wx.EXPAND)
 
-        self.llectures = wx.StaticText(self, label="Lectures per day:")
-        self.tlectures = wx.TextCtrl(self, value="10",size=(140,-1))
-        self.h1.AddSpacer(40)
-        self.h1.Add(self.llectures, 1)
-        self.h1.Add(self.tlectures, 1)
-        self.h1.AddSpacer(10)
+        self.v2 = wx.BoxSizer(wx.HORIZONTAL)
+        self.llectures = wx.StaticText(self, label="Lectures per day")
+        self.tlectures = wx.TextCtrl(self, value="10")
+        self.v2.Add(self.llectures, 1, wx.EXPAND)
+        self.v2.Add(self.tlectures, 1, wx.EXPAND)
+
+        self.h1 = wx.BoxSizer(wx.VERTICAL)
+        self.h1.Add(self.v1, 1, wx.EXPAND)
+        self.h1.AddSpacer(10)        
+        self.h1.Add(self.v2, 1, wx.EXPAND)
         self.mainSizer.Add(self.h1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
 
         self.label2 = wx.StaticText(self, label="Teacher:")
         self.label2.SetFont(self.heading_font)
-
         self.hh = wx.BoxSizer(wx.HORIZONTAL)
         self.hh.Add(self.label2, 1)
+        self.mainSizer.AddSpacer(10)        
         self.mainSizer.Add(self.hh, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
 
+
         self.h2 = wx.BoxSizer(wx.HORIZONTAL)
-        self.ldailymax = wx.StaticText(self, label="Daily Maximum Workload:")
+        self.ldailymax = wx.StaticText(self, label="Daily Maximum Workload")
         self.tdailymax = wx.TextCtrl(self, value="5",size=(140,-1))
-        self.ldailymin = wx.StaticText(self, label="Daily Minimum Workload:")
-        self.tdailymin = wx.TextCtrl(self, value="1",size=(140,-1))
-        self.h2.AddSpacer(10)
-        self.h2.Add(self.ldailymax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h2.Add(self.tdailymax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h2.AddSpacer(10)
-        self.h2.Add(self.ldailymin, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h2.Add(self.tdailymin, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h2.AddSpacer(10)
-        self.mainSizer.Add(self.h2, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.mainSizer.AddSpacer(10)
-
-
+        self.h2.Add(self.ldailymax, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
+        self.h2.Add(self.tdailymax, 1, flag=wx.EXPAND)
+       
         self.h3 = wx.BoxSizer(wx.HORIZONTAL)
-        self.lweeklymax = wx.StaticText(self, label="Weekly Maximum Workload:")
+        self.ldailymin = wx.StaticText(self, label="Daily Minimum Workload")
+        self.tdailymin = wx.TextCtrl(self, value="1",size=(140,-1))
+        self.h3.Add(self.ldailymin, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
+        self.h3.Add(self.tdailymin, 1, flag=wx.EXPAND)
+
+        self.v1 = wx.BoxSizer(wx.VERTICAL)
+        self.v1.Add(self.h2, 1, flag=wx.EXPAND)
+        self.v1.AddSpacer(10)
+        self.v1.Add(self.h3, 1, flag=wx.EXPAND)
+
+
+        self.h5 = wx.BoxSizer(wx.HORIZONTAL)
+        self.lweeklymax = wx.StaticText(self, label="Weekly Maximum Workload")
         self.tweeklymax = wx.TextCtrl(self, value="20",size=(140,-1))
-        self.lweeklymin = wx.StaticText(self, label="Weekly Minimum Workload:")
+        self.h5.Add(self.lweeklymax, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
+        self.h5.AddSpacer(10)
+        self.h5.Add(self.tweeklymax, 1, flag=wx.EXPAND)
+
+        self.h4 = wx.BoxSizer(wx.HORIZONTAL)
+        self.lweeklymin = wx.StaticText(self, label="Weekly Minimum Workload")
         self.tweeklymin = wx.TextCtrl(self, value="5",size=(140,-1))
-        self.h3.AddSpacer(10)
-        self.h3.Add(self.lweeklymax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h3.Add(self.tweeklymax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h3.AddSpacer(10)
-        self.h3.Add(self.lweeklymin, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h3.Add(self.tweeklymin, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h3.AddSpacer(10)
-        self.mainSizer.Add(self.h3, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
+        self.h4.Add(self.lweeklymin, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
+        self.h5.AddSpacer(10)
+        self.h4.Add(self.tweeklymin, 1, flag=wx.EXPAND)
+
+        self.v2 = wx.BoxSizer(wx.VERTICAL)
+        self.v2.Add(self.h5, 1, flag=wx.EXPAND)
+        self.v2.AddSpacer(10)
+        self.v2.Add(self.h4, 1, flag=wx.EXPAND)
+
+        self.hh = wx.BoxSizer(wx.HORIZONTAL)
+        self.hh.Add(self.v1, 1, flag=wx.EXPAND)
+        self.hh.AddSpacer(10)
+        self.hh.Add(self.v2, 1, flag=wx.EXPAND)
+
+        self.mainSizer.Add(self.hh, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
         self.mainSizer.AddSpacer(10)
+
 
         self.label3 = wx.StaticText(self, label="Class:")
         self.label3.SetFont(self.heading_font)
-        self.mainSizer.Add(self.label3, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.mainSizer.AddSpacer(10)
+
+        self.hh = wx.BoxSizer(wx.VERTICAL)
+        self.hh.Add(self.label3, 1, flag=wx.EXPAND)
+        self.mainSizer.Add(self.hh, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+
+
+
 
         self.h4 = wx.BoxSizer(wx.HORIZONTAL)
-        self.lclassmax = wx.StaticText(self, label="Weekly Maximum Workload:")
+        self.lclassmax = wx.StaticText(self, label="Weekly Maximum Workload ")
         self.tclassmax = wx.TextCtrl(self, value="30",size=(140,-1))
-        self.lclassmin = wx.StaticText(self, label="Weekly Minimum Workload:")
+        self.h4.Add(self.lclassmax, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
+        self.h4.Add(self.tclassmax, 1, flag=wx.EXPAND)
+ 
+        self.h5 = wx.BoxSizer(wx.HORIZONTAL)
+        self.lclassmin = wx.StaticText(self, label="Weekly Minimum Workload ")
         self.tclassmin = wx.TextCtrl(self, value="15",size=(140,-1))
-        self.h4.AddSpacer(10)
-        self.h4.Add(self.lclassmax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h4.Add(self.tclassmax, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h4.AddSpacer(10)
-        self.h4.Add(self.lclassmin, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h4.Add(self.tclassmin, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.h4.AddSpacer(10)
-        self.mainSizer.Add(self.h4, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
-        self.mainSizer.AddSpacer(10)
+        self.h5.Add(self.lclassmin, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
+        self.h5.Add(self.tclassmin, 1, flag=wx.EXPAND)
 
+        self.vv = wx.BoxSizer(wx.VERTICAL)
+        self.vv.Add(self.h4, 1, flag=wx.EXPAND)
+        self.vv.AddSpacer(10)
+        self.vv.Add(self.h5, 1, flag=wx.EXPAND)
+        self.mainSizer.Add(self.vv, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.mainSizer.AddSpacer(10)
                 
         self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
-        self.mainSizer.Add(self.okbutton, 1, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL)
+        self.mainSizer.Add(self.okbutton, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.mainSizer.AddSpacer(20)
 
         self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
         self.Bind(wx.EVT_TEXT_ENTER, self.onOK)

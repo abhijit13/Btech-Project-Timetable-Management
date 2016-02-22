@@ -1,22 +1,38 @@
-	//new wizard -> headers, basic constraints, 
-	//data
-saving on disk and opening
+	//new wizard -> headers, basic constraints, popup for data
+	//saving on disk and opening 
+		after opeing a file when you do new, old should disappear
+	//header info - at start
+		during runtime
+	//data --> teachers, venue, classes, subjects
+	//suggestions dropdown box for teacher/venue/class names
+	//subject credits = max lectures 
+	//arrange globals in global file
 
+deleting entries from grid
+what aboout batches
 	export as pdf, xls//
-
-//header info - at start and 
-during runtime
 undo / redo
 preferences - think
-data -> abbrevations
-	subjects 
-	teachers
-	venue
-	class
 Fullscreen / on off
 Help / About
-suggestions dropdown box for teacher/venue/class names
 in grid display style
 colour scheme
 
-arrange globals in global file
+
+
+//////////////
+
+teacher load individually
+cell- display formatting / add colors
+export as ods - nice form
+master view of tt 
+venue capacity checking (soft constraint)
+statistics venue utilization - day/week wise
+heading of tt -- as tt of teacher / heading
+lunch check add to ui
+	//mail git link
+faculty subject or batch mapping
+and auto completion 
+venue class tentative mapping
+e.g. syc - 201 / by default venue will be 201
+slot merging -  think

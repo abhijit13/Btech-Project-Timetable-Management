@@ -31,6 +31,6 @@ class MyGrid(gridlib.Grid):
         evt.Skip()
 
     def Resize(self, evt):
-        # self.AutoSize()
-        self.AutoSizeColumns(setAsMin=False)
+        self.AutoSize()
+        # self.AutoSizeColumns(setAsMin=False)
         # evt.Skip()
