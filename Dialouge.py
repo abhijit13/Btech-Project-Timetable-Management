@@ -10,7 +10,7 @@ import globaldata
 
 class ListView(wx.Dialog):
     def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key=''):
-        wx.Dialog.__init__(self, parent, id, title, size=(400,500))
+        wx.Dialog.__init__(self, parent, id, title, size=(500,500))
         self.title = title
         self.key = key
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
@@ -21,14 +21,18 @@ class ListView(wx.Dialog):
         self.list.InsertColumn(1,"Abbrevation", width=wx.LIST_AUTOSIZE_USEHEADER)
 
         if key == "Teacher" :
+            self.list.InsertColumn(2,"WeeklyMax Load", width=wx.LIST_AUTOSIZE_USEHEADER)
+            self.list.InsertColumn(3,"DailyMax Load", width=wx.LIST_AUTOSIZE_USEHEADER)
             for i in range(len(globaldata.teacher_fullnames)):
-                self.list.Append([globaldata.teacher_fullnames[i],globaldata.teacher_shortnames[i+1]])
+                self.list.Append([globaldata.teacher_fullnames[i],globaldata.teacher_shortnames[i+1], globaldata.teacher_weeklymax[i], globaldata.teacher_dailymax[i]])
         if key == "Venue" :
+            self.list.InsertColumn(2,"Capacity", width=wx.LIST_AUTOSIZE_USEHEADER)
             for i in range(len(globaldata.venue_fullnames)):
-                self.list.Append([globaldata.venue_fullnames[i],globaldata.venue_shortnames[i+1]])
+                self.list.Append([globaldata.venue_fullnames[i],globaldata.venue_shortnames[i+1],globaldata.venue_capacity[i]])
         if key == "Class" :
+            self.list.InsertColumn(2,"Capacity", width=wx.LIST_AUTOSIZE_USEHEADER)
             for i in range(len(globaldata.class_fullnames)):
-                self.list.Append([globaldata.class_fullnames[i],globaldata.class_shortnames[i+1]])
+                self.list.Append([globaldata.class_fullnames[i],globaldata.class_shortnames[i+1],globaldata.class_capacity[i]])
         if key == "Subject" :
             self.list.InsertColumn(2,"Credits", width=wx.LIST_AUTOSIZE_USEHEADER)
             for i in range(len(globaldata.subject_fullnames)):
@@ -57,20 +61,31 @@ class ListView(wx.Dialog):
         self.list.DeleteItem(i)
 
     def onAdd(self, event):
-        dlg = TwoItemList(self, title=self.title, key=self.key)
+        dlg = ThreeItemList(self, title=self.title, key=self.key)
         dlg.ShowModal()
-        if self.key == "Subject":
-            self.list.Append([dlg.result1,dlg.result2,dlg.result3])
+        if self.key == "Teacher":
+            self.list.Append([dlg.result1, dlg.result2, dlg.result3, dlg.result4])
         else:
-            self.list.Append([dlg.result1,dlg.result2])
-        # self.Destroy()
+            self.list.Append([dlg.result1, dlg.result2, dlg.result3])
 
     def onOK(self, event):
         self.result1 = []
         self.result2 = []
         self.result3 = []
+        self.result4 = []
+
         n = self.list.GetItemCount()
-        if self.key == "Subject":
+        if self.key == "Teacher":
+            for i in range(n):
+                x = self.list.GetItem(i, 0)
+                y = self.list.GetItem(i, 1)
+                z = self.list.GetItem(i, 2)
+                w = self.list.GetItem(i, 3)
+                self.result1.append(x.GetText())
+                self.result2.append(y.GetText())
+                self.result3.append(int(z.GetText()))
+                self.result4.append(int(w.GetText()))
+        else:
             for i in range(n):
                 x = self.list.GetItem(i, 0)
                 y = self.list.GetItem(i, 1)
@@ -78,22 +93,15 @@ class ListView(wx.Dialog):
                 self.result1.append(x.GetText())
                 self.result2.append(y.GetText())
                 self.result3.append(int(z.GetText()))
-
-        else:
-            for i in range(n):
-                x = self.list.GetItem(i, 0)
-                y = self.list.GetItem(i, 1)
-                self.result1.append(x.GetText())
-                self.result2.append(y.GetText())
         self.Destroy()
 
     def onCancel(self, event):
         self.Destroy()
 
-class TwoItemList(wx.Dialog):
+class ThreeItemList(wx.Dialog):
     def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key='Name'):
         self.key = key
-        wx.Dialog.__init__(self, parent, id, title, size=(600,50))
+        wx.Dialog.__init__(self, parent, id, title, size=(800,50))
         self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.mainSizer.AddSpacer(10)
 
@@ -116,6 +124,25 @@ class TwoItemList(wx.Dialog):
             self.mainSizer.Add(self.field3, 1, flag=wx.ALIGN_CENTER_VERTICAL)
             self.mainSizer.AddSpacer(10)
 
+        elif key == "Teacher":
+            self.label3 = wx.StaticText(self, label="WeeklyMax Load:")
+            self.field3 = wx.TextCtrl(self, value="")                
+            self.label4 = wx.StaticText(self, label="DailyMax Load:")
+            self.field4 = wx.TextCtrl(self, value="")                
+            self.mainSizer.Add(self.label3, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+            self.mainSizer.Add(self.field3, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+            self.mainSizer.AddSpacer(10)
+            self.mainSizer.Add(self.label4, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+            self.mainSizer.Add(self.field4, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+            self.mainSizer.AddSpacer(10)
+
+        else:
+            self.label3 = wx.StaticText(self, label="Capacity:")
+            self.field3 = wx.TextCtrl(self, value="")                
+            self.mainSizer.Add(self.label3, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+            self.mainSizer.Add(self.field3, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+            self.mainSizer.AddSpacer(10)
+
         self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
         self.mainSizer.Add(self.okbutton, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.AddSpacer(10)
@@ -129,8 +156,9 @@ class TwoItemList(wx.Dialog):
     def onOK(self, event):
         self.result1 = self.field1.GetValue()
         self.result2 = self.field2.GetValue()
-        if self.key == "Subject":
-            self.result3 = self.field3.GetValue()
+        self.result3 = self.field3.GetValue()
+        if self.key == "Teacher":
+            self.result4 = self.field4.GetValue()
         self.Destroy()
 
     def onCancel(self, event):
@@ -149,37 +177,44 @@ class PromptingComboBox(wx.ComboBox) :
         self.res = self.GetValue()
         if self.res == "ADD NEW" :
             if self.name == "Teacher":
-                dlg = TwoItemList(self, title="Enter Teacher Data", key="Teacher")
+                dlg = ThreeItemList(self, title="Enter Teacher Data", key="Teacher")
                 dlg.ShowModal()
                 try:
                     globaldata.teacher_fullnames.append(dlg.result1)
                     globaldata.teacher_shortnames.append(dlg.result2)
+                    globaldata.teacher_weeklymax.append(int(dlg.result3))
+                    globaldata.teacher_dailymax.append(int(dlg.result4))
                     self.Append(dlg.result2)
                 except:
                     self.SetValue('Choose')
                 dlg.Destroy()
+
             elif self.name == "Venue":
-                dlg = TwoItemList(self, title="Enter Venue Data", key="Venue")
+                dlg = ThreeItemList(self, title="Enter Venue Data", key="Venue")
                 dlg.ShowModal()
                 try:
                     globaldata.venue_fullnames.append(dlg.result1)
                     globaldata.venue_shortnames.append(dlg.result2)
+                    globaldata.venue_capacity.append(int(dlg.result3))
+
                     self.Append(dlg.result2)
                 except:
                     self.SetValue('Choose')
                 dlg.Destroy()        
             elif self.name == "Class":
-                dlg = TwoItemList(self, title="Enter Class Data", key="Class")
+                dlg = ThreeItemList(self, title="Enter Class Data", key="Class")
                 dlg.ShowModal()
                 try:
                     globaldata.class_fullnames.append(dlg.result1)
                     globaldata.class_shortnames.append(dlg.result2)
+                    globaldata.class_capacity.append(int(dlg.result3))
+
                     self.Append(dlg.result2)
                 except:
                     self.SetValue('Choose')
                 dlg.Destroy()
             elif self.name == "Subject":
-                dlg = TwoItemList(self, title="Enter Subject Data", key="Subject")
+                dlg = ThreeItemList(self, title="Enter Subject Data", key="Subject")
                 dlg.ShowModal()
                 try:
                     globaldata.subject_fullnames.append(dlg.result1)
@@ -187,7 +222,6 @@ class PromptingComboBox(wx.ComboBox) :
                     globaldata.subject_credits.append(dlg.result3)
                     globaldata.subjects[dlg.result2] = int(dlg.result3)
                     self.Append(dlg.result2)
-                    print globaldata.subjects
                 except:
                     self.SetValue('Choose')
                 dlg.Destroy()

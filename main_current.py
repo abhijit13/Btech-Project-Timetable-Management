@@ -1,5 +1,5 @@
 # !/usr/bin/python
-
+import os, sys
 import wx
 import wx.grid as gridlib
 import wx.lib.scrolledpanel
@@ -22,7 +22,7 @@ class MyForm(wx.Frame):
                 hfirst = wx.StaticText(self.panel1, label=globaldata.header1)
                 hsecond = wx.StaticText(self.panel1, label=globaldata.header2)
                 hthird = wx.StaticText(self.panel1, label=globaldata.header3)
-                hfourth = wx.StaticText(self.panel1, label=teacher.name)
+                hfourth = wx.StaticText(self.panel1, label= 'Timetable For Teacher: ' + teacher.name)
                 hthird.SetForegroundColour(wx.Colour(255,55,125))
                 hfirst.SetFont(self.fonth1)
                 hsecond.SetFont(self.fonth2)
@@ -59,7 +59,7 @@ class MyForm(wx.Frame):
                 hfirst = wx.StaticText(self.panel2, label=globaldata.header1)
                 hsecond = wx.StaticText(self.panel2, label=globaldata.header2)
                 hthird = wx.StaticText(self.panel2, label=globaldata.header3)
-                hfourth = wx.StaticText(self.panel2, label=venue.name)
+                hfourth = wx.StaticText(self.panel2, label='Timetable For Venue: ' + venue.name)
                 hthird.SetForegroundColour(wx.Colour(255,55,125))
                 hfirst.SetFont(self.fonth1)
                 hsecond.SetFont(self.fonth2)
@@ -94,7 +94,7 @@ class MyForm(wx.Frame):
                 hfirst = wx.StaticText(self.panel3, label=globaldata.header1)
                 hsecond = wx.StaticText(self.panel3, label=globaldata.header2)
                 hthird = wx.StaticText(self.panel3, label=globaldata.header3)
-                hfourth = wx.StaticText(self.panel3, label=Class.name)
+                hfourth = wx.StaticText(self.panel3, label='Timetable For Class: ' + Class.name)
                 hthird.SetForegroundColour(wx.Colour(255,55,125))
                 hfirst.SetFont(self.fonth1)
                 hsecond.SetFont(self.fonth2)
@@ -155,9 +155,6 @@ class MyForm(wx.Frame):
         self.listboxClass.SetSelection(-1)
     
     def RenewUI(self):
-
-        self._init_menubar()
-        self._init_toolbar()
 
         self.mainPanel = wx.Panel(self, -1)
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
@@ -293,12 +290,33 @@ class MyForm(wx.Frame):
 
     def __init__(self):
         wx.Frame.__init__(self, parent=None, title="Timetable Management")
+        self._init_menubar()
+        self._init_toolbar()
         self.RenewUI()
 
     def OnQuit(self, evt):
         self.Close()
     def OnRedo(self, evt):
         self.Close()
+    def OnRefresh(self, evt):
+        for c in globaldata.all_classes:
+            res = c.valid_lunch_break()
+            if res == True:
+                continue
+            s = ''
+            for m in res:
+                for key in m:
+                    if c.name == key:
+                        s += "No Lunch Breaks for %s on %s\n" % (key, m[key])
+                    else:
+                        s += "No Lunch Breaks for %s-%s on %s\n" % (c.name, key, m[key])
+            # print 'lunch for %s on ' % c.name, 
+            dlg = wx.MessageDialog(None, s, "Error", wx.OK|wx.ICON_ERROR)
+            dlg.ShowModal()
+            dlg.Destroy()
+
+        # pass
+        # self.Close()
     def OnUndo(self, evt):
         self.Close()
     def OnOpen(self, evt):
@@ -326,6 +344,8 @@ class MyForm(wx.Frame):
         globaldata.all_venues = saveObject.all_venues
         globaldata.all_classes = saveObject.all_classes
 
+        globaldata.subjects = saveObject.subjects
+
         globaldata.days_per_week = saveObject.days_per_week
         globaldata.lectures_per_day = saveObject.lectures_per_day
         globaldata.daily_max = saveObject.daily_max
@@ -335,18 +355,29 @@ class MyForm(wx.Frame):
         globaldata.weekly_max = saveObject.weekly_max
         globaldata.weekly_min = saveObject.weekly_min
 
+        globaldata.venueCapacity = saveObject.venueCapacity
+        globaldata.classCapacity = saveObject.classCapacity
+
         globaldata.rowLabels = saveObject.rowLabels
         globaldata.colLables = saveObject.colLables
 
         globaldata.teacher_fullnames = saveObject.teacher_fullnames
         globaldata.teacher_shortnames = saveObject.teacher_shortnames
+        globaldata.teacher_weeklymax = saveObject.teacher_weeklymax
+        globaldata.teacher_dailymax = saveObject.teacher_dailymax
+
         globaldata.venue_fullnames = saveObject.venue_fullnames
         globaldata.venue_shortnames = saveObject.venue_shortnames
+        globaldata.venue_capacity = saveObject.venue_capacity
+
         globaldata.class_fullnames = saveObject.class_fullnames
         globaldata.class_shortnames = saveObject.class_shortnames
+        globaldata.class_capacity = saveObject.class_capacity
+
         globaldata.subject_fullnames = saveObject.subject_fullnames
         globaldata.subject_shortnames =saveObject.subject_shortnames
         globaldata.subject_credits =saveObject.subject_credits
+        
         self.AppendGlobalInput(None)
         self.update(None)
         dlg = wx.MessageDialog(None, "Loaded Successfully", "Notice", wx.OK|wx.ICON_INFORMATION)
@@ -371,6 +402,8 @@ class MyForm(wx.Frame):
         saveObject.all_venues = globaldata.all_venues
         saveObject.all_classes = globaldata.all_classes
 
+        saveObject.subjects = globaldata.subjects
+
         saveObject.days_per_week = globaldata.days_per_week
         saveObject.lectures_per_day = globaldata.lectures_per_day
         saveObject.daily_max = globaldata.daily_max
@@ -379,19 +412,30 @@ class MyForm(wx.Frame):
         saveObject.class_min = globaldata.class_min
         saveObject.weekly_max = globaldata.weekly_max
         saveObject.weekly_min = globaldata.weekly_min
+        saveObject.venueCapacity = globaldata.venueCapacity
+        saveObject.classCapacity = globaldata.classCapacity
+
 
         saveObject.rowLabels = globaldata.rowLabels
         saveObject.colLables = globaldata.colLabels
 
         saveObject.teacher_fullnames = globaldata.teacher_fullnames
         saveObject.teacher_shortnames = globaldata.teacher_shortnames
+        saveObject.teacher_weeklymax = globaldata.teacher_weeklymax
+        saveObject.teacher_dailymax = globaldata.teacher_dailymax
+
+
         saveObject.venue_fullnames = globaldata.venue_fullnames
         saveObject.venue_shortnames = globaldata.venue_shortnames
+        saveObject.venue_capacity = globaldata.venue_capacity
+
         saveObject.class_fullnames = globaldata.class_fullnames
         saveObject.class_shortnames = globaldata.class_shortnames
+        saveObject.class_capacity = globaldata.class_capacity
+
         saveObject.subject_fullnames = globaldata.subject_fullnames
-        saveObject.subject_shortnames =globaldata.subject_shortnames
-        saveObject.subject_credits =globaldata.subject_credits
+        saveObject.subject_shortnames = globaldata.subject_shortnames
+        saveObject.subject_credits = globaldata.subject_credits
 
         if not hasattr(self, "savefilepath"):
             saveFileDialog = wx.FileDialog(self, "Save Project File", "", ".tt",
@@ -422,7 +466,7 @@ class MyForm(wx.Frame):
             hsecond = wx.StaticText(self.panel1, label=globaldata.header2)
             hthird = wx.StaticText(self.panel1, label=globaldata.header3)
             hthird.SetForegroundColour(wx.Colour(255,55,125))
-            hfourth = wx.StaticText(self.panel1, label='Global Input:')
+            hfourth = wx.StaticText(self.panel1, label='Global Input Screen :')
             hfirst.SetFont(self.fonth1)
             hsecond.SetFont(self.fonth2)
             hthird.SetFont(self.fonth3)
@@ -464,14 +508,50 @@ class MyForm(wx.Frame):
         globaldata.weekly_min = int(dlg.weekly_min)
         self.AppendGlobalInput(None)
     
+    # def ClearGlobalData(self):
+        
+    #     globaldata.header1 = ''
+    #     globaldata.header2 = ''
+    #     globaldata.header3 = ''
+
+    #     #globals to store all objects
+    #     globaldata.all_teachers = []
+    #     globaldata.all_venues = []
+    #     globaldata.all_classes = []
+
+
+    #     globaldata.subjects = {}
+
+    #     globaldata.days_per_week = 0
+    #     globaldata.lectures_per_day = 0
+    #     globaldata.daily_max = 0
+    #     globaldata.daily_min = 0
+    #     globaldata.class_max = 0
+    #     globaldata.class_min = 0
+    #     globaldata.weekly_max = 0
+    #     globaldata.weekly_min = 0
+
+
+    #     globaldata.rowLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    #     globaldata.colLabels = ['9-10','10-11', '11-12', '12-1', '1-2', '2-3', '3-4', '4-5', '5-6', '6-7']
+
+    #     globaldata.teacher_fullnames = []
+    #     globaldata.teacher_shortnames = ['ADD NEW']
+    #     globaldata.venue_fullnames = []
+    #     globaldata.venue_shortnames = ['ADD NEW']
+    #     globaldata.class_fullnames = []
+    #     globaldata.class_shortnames = ['ADD NEW']
+    #     globaldata.subject_fullnames = []
+    #     globaldata.subject_shortnames = ['ADD NEW']
+    #     globaldata.subject_credits = []
+
+
     def OnNew(self, evt):
-        # if hasattr(self, "aadesh"):
-        #     del self.mainPanel
-        #     self.Layout()
-        #     self.RenewUI()
+        if len(self.__dict__) > 33:    #default attr are 33
+            os.execl(sys.executable, sys.executable, *sys.argv)
+
         dlg = HeaderInfo(self)
         dlg.ShowModal()
-        # global header1, header2, header3
 
         globaldata.header1 = dlg.result1
         globaldata.header2 = dlg.result2
@@ -491,7 +571,9 @@ class MyForm(wx.Frame):
         temp = ["ADD NEW"]
         temp.extend(dlg.result2)
         globaldata.teacher_shortnames = temp
-        print globaldata.teacher_shortnames
+        globaldata.teacher_weeklymax = dlg.result3
+        globaldata.teacher_dailymax = dlg.result4
+
 
     def VenueData(self, evt):
         # global venue_fullnames, venue_shortnames
@@ -501,6 +583,7 @@ class MyForm(wx.Frame):
         temp = ["ADD NEW"]
         temp.extend(dlg.result2) 
         globaldata.venue_shortnames =  temp      
+        globaldata.venue_capacity = dlg.result3
 
     def ClassData(self, evt):
         # global class_fullnames, class_shortnames
@@ -510,6 +593,7 @@ class MyForm(wx.Frame):
         temp = ["ADD NEW"]
         temp.extend(dlg.result2)
         globaldata.class_shortnames = temp
+        globaldata.class_capacity = dlg.result3
 
     def SubjectData(self, evt):
         dlg = ListView(self, title='Add Subject Data', key='Subject')
@@ -572,13 +656,13 @@ class MyForm(wx.Frame):
 
         view = wx.Menu()
         self.toolbarBoolean = view.Append(-1,'&Show Toolbar', kind=wx.ITEM_CHECK)
-        self.fullscreenBoolean = view.Append(-1,'Fullscreen', kind=wx.ITEM_CHECK)
+        #chuck it isnt much useful -- lot of work
+        # self.fullscreenBoolean = view.Append(-1,'Fullscreen', kind=wx.ITEM_CHECK)
+        # view.Check(self.fullscreenBoolean.GetId(), False)
+        # self.Bind(wx.EVT_MENU, self.ToggleFullscreen, self.fullscreenBoolean)
 
         view.Check(self.toolbarBoolean.GetId(), True)
-        view.Check(self.fullscreenBoolean.GetId(), False)
-
         self.Bind(wx.EVT_MENU, self.ToggleToolbar, self.toolbarBoolean)
-        self.Bind(wx.EVT_MENU, self.ToggleFullscreen, self.fullscreenBoolean)
 
 
         help = wx.Menu()
@@ -594,14 +678,14 @@ class MyForm(wx.Frame):
         self.SetMenuBar(menubar)
         self.Center()
 
-    def ToggleFullscreen(self, evt):
+    # def ToggleFullscreen(self, evt):
 
-        if self.fullscreenBoolean.IsChecked():
-            pass
-            # self.ShowFullScreen(True)
-        else:
-            pass
-            # self.ShowFullScreen(False)
+    #     if self.fullscreenBoolean.IsChecked():
+    #         pass
+    #         # self.ShowFullScreen(True)
+    #     else:
+    #         pass
+    #         # self.ShowFullScreen(False)
              # self.toolbar.Hide()
 
     def ToggleToolbar(self, evt):
@@ -619,12 +703,14 @@ class MyForm(wx.Frame):
         self.toolbar.AddLabelTool(wx.ID_SAVE, '',wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE, wx.ART_TOOLBAR, iconSize))
         self.toolbar.AddLabelTool(wx.ID_SAVEAS, '',wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE_AS, wx.ART_TOOLBAR, iconSize))
         self.toolbar.AddLabelTool(wx.ID_EXIT, '',wx.ArtProvider.GetBitmap(wx.ART_QUIT, wx.ART_TOOLBAR, iconSize))
+        self.toolbar.AddLabelTool(wx.ID_REFRESH, '',wx.ArtProvider.GetBitmap(wx.ART_UNDO, wx.ART_TOOLBAR, iconSize))
 
         self.Bind(wx.EVT_TOOL,self.OnNew, id=wx.ID_NEW)
         self.Bind(wx.EVT_TOOL,self.OnOpen, id=wx.ID_OPEN)
         self.Bind(wx.EVT_TOOL,self.OnSave, id=wx.ID_SAVE)
         self.Bind(wx.EVT_TOOL,self.OnSaveAs, id=wx.ID_SAVEAS)
         self.Bind(wx.EVT_TOOL,self.OnQuit, id=wx.ID_EXIT)
+        self.Bind(wx.EVT_TOOL,self.OnRefresh, id=wx.ID_REFRESH)
 
         self.toolbar.SetToolBitmapSize((24,24))
         # self.toolbar.AddLabelTool(wx.ID_NEW, '',wx.Bitmap('icons/new.png'))

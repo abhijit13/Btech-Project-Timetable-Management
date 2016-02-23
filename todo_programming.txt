@@ -1,38 +1,40 @@
 	//new wizard -> headers, basic constraints, popup for data
 	//saving on disk and opening 
-		after opeing a file when you do new, old should disappear
+	//after opeing a file when you do new, old should disappear
+		restarting program to do this... find better way
 	//header info - at start
 		during runtime
 	//data --> teachers, venue, classes, subjects
 	//suggestions dropdown box for teacher/venue/class names
 	//subject credits = max lectures 
 	//arrange globals in global file
-
-deleting entries from grid
-what aboout batches
-	export as pdf, xls//
-undo / redo
-preferences - think
-Fullscreen / on off
-Help / About
-in grid display style
-colour scheme
+	//what aboout batches
+		in the format as syc-b1, syc-b2
 
 
-
-//////////////
-
-teacher load individually
-cell- display formatting / add colors
-export as ods - nice form
-master view of tt 
-venue capacity checking (soft constraint)
-statistics venue utilization - day/week wise
-heading of tt -- as tt of teacher / heading
-lunch check add to ui
+////////////////////////////////////////////////////////////////////////////////////
+	
+	//heading of tt -- as tt of teacher / tt of venue / tt of class
+	//teacher load individually
 	//mail git link
+	//lunch check add to ui
+
+
+deleting entries from grid with ui
+master view of tt 
+venue capacity checking (soft constraint) venue of 70 cap and class of 90 not fair
+statistics venue utilization - day/week wise
 faculty subject or batch mapping
 and auto completion 
 venue class tentative mapping
 e.g. syc - 201 / by default venue will be 201
+cell- display formatting / add colors
 slot merging -  think
+export as ods - nice form
+export as pdf, ods
+undo / redo
+preferences - think
+Help / About
+
+
+////////////////////////////////////////////////////////////////////////////////////

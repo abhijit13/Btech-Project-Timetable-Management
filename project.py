@@ -26,7 +26,7 @@ class LimitForSubject(Exception):
 
 class DailyWorkLoadLimit(Exception):
 	def __init__(self, value):
-		self.value = value
+		self.value = value		
 
 #Base class (rename it)
 class BaseStructure(object):
@@ -90,11 +90,11 @@ class BaseStructure(object):
 			return True	
 
 class Teacher(BaseStructure):
-	def __init__(self, name):
+	def __init__(self, name, weekly_max=globaldata.weekly_max, daily_max=globaldata.daily_max):
 		super(Teacher, self).__init__(name)
-		self.max_work_load = globaldata.weekly_max
+		self.max_work_load = weekly_max
 		self.min_work_load = globaldata.weekly_min
-		self.max_daily_load = globaldata.daily_max
+		self.max_daily_load = daily_max
 		self.min_daily_load = globaldata.daily_min
 		self.current_work_load = 0
 
@@ -123,7 +123,7 @@ class Teacher(BaseStructure):
 			for entry in row:
 				if entry != None:
 					count += 1
-			if count > self.max_daily_load:
+			if count >= self.max_daily_load:
 				errors.append(i)
 			i += 1
 		if len(errors) > 0 :
@@ -144,7 +144,7 @@ class Teacher(BaseStructure):
 			raise ExtraWorkLoad(self.max_work_load)
 		
 		temp = self.check_daily_workload()
-		if temp != True:
+		if temp != True and day in temp:
 			raise DailyWorkLoadLimit(temp)
 		
 		batch = None
@@ -165,8 +165,9 @@ class Teacher(BaseStructure):
 		self.current_work_load += 1
 
 class Venue(BaseStructure):
-	def __init__(self, name):
+	def __init__(self, name, capacity=globaldata.venueCapacity, placeholder=None):
 		super(Venue, self).__init__(name)
+		self.capacity = capacity
 
 	def print_table(self):
 		for i in range(0, globaldata.days_per_week):
@@ -198,13 +199,14 @@ class Venue(BaseStructure):
 			self.mat[day][lecture].append((teacher, Class, sub, batch))
 
 class Classes(BaseStructure):
-	def __init__(self, name):
+	def __init__(self, name,capacity=globaldata.classCapacity, placeholder=None):
 		super(Classes, self).__init__(name)
 		self.subjects = {}
 		self.batches = []
 		self.max_work_load = globaldata.class_max
 		self.min_work_load = globaldata.class_min
 		self.current_work_load = 0
+		self.capacity = capacity
 	
 
 	def remove_entry(self, day, lecture, values=''):
@@ -271,13 +273,16 @@ class Classes(BaseStructure):
 							if ('LUNCH', batch) not in entries:
 								# print ('LUNCH', batch), 'not in ' ,entries
 								if batch not in errors:
-									errors.append(batch)
+									i = self.mat.index(row)
+									day = globaldata.rowLabels[i]
+									errors.append({batch:day})
 					else:
 						batch = None
 						if ('LUNCH', batch) not in entries:
 							# print ('LUNCH', batch), 'not in ' ,entries
 							if self.name not in errors:
-								errors.append(self.name)
+								i = self.mat.index(row)
+								errors.append({self.name:globaldata.rowLabels[i]})
 
 	#every day should have (LUNCH, batch) entry for all batches else its like that day doesnt have
 	#lunch for that batch, None is treated as busy slot
@@ -350,8 +355,17 @@ def get_object(List, name, BaseClass=None):
 	entries = [t for t in List if t.name == name]
 	entry = None
 	if len(entries) == 0 :
-		if BaseClass != None:
-			entry = BaseClass(name)
+		if BaseClass == Teacher:
+			i = globaldata.teacher_shortnames.index(name)
+			entry = BaseClass(name, globaldata.teacher_weeklymax[i-1], globaldata.teacher_dailymax[i-1])
+			List.append(entry)
+		elif BaseClass == Venue:
+			i = globaldata.venue_shortnames.index(name)
+			entry = BaseClass(name, globaldata.venue_capacity[i-1])
+			List.append(entry)
+		elif BaseClass == Classes:
+			i = globaldata.class_shortnames.index(name)
+			entry = BaseClass(name, globaldata.class_capacity[i-1])
 			List.append(entry)
 	else:
 		entry = entries[0]
@@ -371,15 +385,14 @@ def insert_entry(teacher, venue, Class, sub, day, lecture):
 	except ExistingEntry as e:
 		print 'Entry already Exists '
 		print e.value
-		raise 	
+		raise e	
 	except ExtraWorkLoad as e:
 		print 'Teacher has got Extra WorkLoad '
 		print e.value
-		raise
+		raise e
 	except DailyWorkLoadLimit as e:
-		print 'Daily Limit for Teacher crossed on :'
-		print e.value
-		raise
+		print 'Daily Limit crossed for :', e.value
+		raise e
 	else:
 		try:
 			venue[0].add_entry(teacher[0], Class[0], day, lecture, sub, venue)
@@ -387,7 +400,7 @@ def insert_entry(teacher, venue, Class, sub, day, lecture):
 			print 'Entry already Exists '
 			print e.value
 			teacher[0].remove_entry(day, lecture, teacher)
-			raise
+			raise e
 		else:
 			try:
 				Class[0].add_entry(teacher[0], venue[0], day, lecture, sub, Class)
@@ -396,19 +409,19 @@ def insert_entry(teacher, venue, Class, sub, day, lecture):
 				print e.value
 				venue[0].remove_entry(day, lecture, venue)
 				teacher[0].remove_entry(day, lecture, teacher)
-				raise
+				raise e
 			except ExtraWorkLoad as e:
 				print ' Class has got Extra WorkLoad '
 				print e.value
 				venue[0].remove_entry(day, lecture, venue)
 				teacher[0].remove_entry(day, lecture, teacher)
-				raise
+				raise e
 			except LimitForSubject as e:
 				print ' Lecture Limit for Subject reached '
 				print e.value
 				venue[0].remove_entry(day, lecture, venue)
 				teacher[0].remove_entry(day, lecture, teacher)
-				raise
+				raise e
 
 def insert_lunch(batch, day, lecture):
 	batch = batch.split('-')
@@ -505,6 +518,8 @@ def main(args):
 		else:
 			remove_lunch(args[1], int(args[2]), int(args[3]))
 
+
 if __name__ == "__main__":
-	main()
+	pass
+	# main()
 	# main("ABHI AC201 SYC DSA 0 1")

@@ -17,9 +17,13 @@ class MyForm(wx.Frame):
         sizer.Add(self.grid, 1, wx.EXPAND, 5)
         panel.SetSizer(sizer)
  
+    def OnClick(self, i, j, e):
+        print i, j
+        # print ar.GetRow(), ar.GetCol()
+        print 'yo'
     #----------------------------------------------------------------------
     def showPopupMenu(self, event):
- 
+            
         """
         Create and display a popup menu on right-click event
         """
@@ -31,9 +35,15 @@ class MyForm(wx.Frame):
  
         menu = wx.Menu()
         # Show how to put an icon in the menu
+        i = event.GetRow()
+        j = event.GetCol()
+
         item = wx.MenuItem(menu, self.popupID1,"One")
         menu.AppendItem(item)
-        menu.Append(self.popupID2, "Two")
+        p = menu.Append(self.popupID2, "Two")
+
+        self.Bind(wx.EVT_MENU, lambda event, a=i, b=j: self.OnClick(a, b, event) , p)
+        
         menu.Append(self.popupID3, "Three")
  
         # Popup the menu.  If an item is selected then its handler
