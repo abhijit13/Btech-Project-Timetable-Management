@@ -78,6 +78,7 @@ class BaseStructure(object):
 	def remove_entry(self, day, lecture, values=''):
 		if len(values) > 1:
 			batch = values[-1]
+			
 			a = [x for x in self.mat[day][lecture] if x[-1] == batch]
 			if len(self.mat[day][lecture]) > 1:
 				self.mat[day][lecture].remove(a[0])
@@ -141,7 +142,7 @@ class Teacher(BaseStructure):
 	def add_entry(self, venue, Class, day, lecture, sub, List=''):
 		#check if we dont exceed max work load
 		if self.current_work_load >= self.max_work_load:
-			raise ExtraWorkLoad(self.max_work_load)
+			raise ExtraWorkLoad([(self.name, self.max_work_load)])
 		
 		temp = self.check_daily_workload()
 		if temp != True and day in temp:
@@ -222,7 +223,7 @@ class Classes(BaseStructure):
 			self.subjects[a[0][2]] -= 1
 		except:
 			pass #if its a lunch entry
-		#remove entry from matrix				
+
 		if super(Classes, self).remove_entry(day, lecture, values) == True :
 			#reduce workload of the class
 			try:
@@ -314,7 +315,7 @@ class Classes(BaseStructure):
 	def add_entry(self, teacher, venue, day, lecture, sub, List=''):
 		#check if we dont exceed max work load
 		if self.current_work_load >= self.max_work_load:
-			raise ExtraWorkLoad(self.max_work_load)
+			raise ExtraWorkLoad([(self.name, self.max_work_load)])
 		if sub in globaldata.subjects:
 			if sub in self.subjects:
 				if self.subjects[sub] >= globaldata.subjects[sub]:
@@ -431,6 +432,7 @@ def insert_lunch(batch, day, lecture):
 	except ExistingEntry as e:
 		print 'Entry already exists '
 		print e.value
+		raise e
 
 def remove_lunch(Class, day, lecture):
 	Class = Class.split('-')
@@ -483,6 +485,23 @@ def print_all_tables():
 
 	print globaldata.days_per_week, globaldata.lectures_per_day
 
+def FindVenueUtilization():
+	result = {}
+	for v in globaldata.all_venues:
+		res = []
+		total = 0
+		# print len(v.mat)
+		for day in range(len(v.mat)):
+			count = 0
+			for entry in v.mat[day]:
+				if entry != None:
+					count += 1
+			res.append(count)
+			total += count
+		res.append(str(total) + ' / ' + str(len(v.mat) * len(v.mat[0])))
+		result[v.name] = res
+	# print result
+	return result
 
 def remove_all(teacher, venue, Class, day, lecture):
 	teacher = teacher.split('-')

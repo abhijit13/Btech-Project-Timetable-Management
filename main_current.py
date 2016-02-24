@@ -42,12 +42,12 @@ class MyForm(wx.Frame):
                 self.sizer1.Add(vbox, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
                 vbox1 = wx.BoxSizer(wx.VERTICAL)
-                self.temp = MyGrid(self.panel1, teacher.mat)
+                self.temp = MyGrid(self.panel1, teacher.mat, teacher.name)
 
                 setattr(self, name, self.temp)
-                vbox1.Add(getattr(self,name), 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox1.Add(getattr(self,name), 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox1.AddSpacer(20)
-                self.sizer1.Add(vbox1, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                self.sizer1.Add(vbox1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 self.sizer1.AddSpacer(200)
                 self.sizer1.Layout()
 
@@ -55,7 +55,7 @@ class MyForm(wx.Frame):
             name = venue.name
             if not hasattr(self, name):
                 self.listboxVenue.Append(name)
-                self.temp = MyGrid(self.panel2, venue.mat)        
+                self.temp = MyGrid(self.panel2, venue.mat, venue.name)        
                 hfirst = wx.StaticText(self.panel2, label=globaldata.header1)
                 hsecond = wx.StaticText(self.panel2, label=globaldata.header2)
                 hthird = wx.StaticText(self.panel2, label=globaldata.header3)
@@ -80,9 +80,9 @@ class MyForm(wx.Frame):
 
                 vbox1 = wx.BoxSizer(wx.VERTICAL)
                 setattr(self, name, self.temp)
-                vbox1.Add(getattr(self,name), 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox1.Add(getattr(self,name), 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox1.AddSpacer(20)
-                self.sizer2.Add(vbox1, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                self.sizer2.Add(vbox1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 self.sizer2.AddSpacer(200)
                 self.sizer2.Layout()
 
@@ -90,7 +90,7 @@ class MyForm(wx.Frame):
             name = Class.name
             if not hasattr(self, name):
                 self.listboxClass.Append(name)
-                self.temp = MyGrid(self.panel3, Class.mat)        
+                self.temp = MyGrid(self.panel3, Class.mat, Class.name)        
                 hfirst = wx.StaticText(self.panel3, label=globaldata.header1)
                 hsecond = wx.StaticText(self.panel3, label=globaldata.header2)
                 hthird = wx.StaticText(self.panel3, label=globaldata.header3)
@@ -115,9 +115,9 @@ class MyForm(wx.Frame):
 
                 vbox1 = wx.BoxSizer(wx.VERTICAL)
                 setattr(self, name, self.temp)
-                vbox1.Add(getattr(self,name), 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                vbox1.Add(getattr(self,name), 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox1.AddSpacer(20)
-                self.sizer3.Add(vbox1, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+                self.sizer3.Add(vbox1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 self.sizer3.AddSpacer(200)
                 self.sizer3.Layout()
 
@@ -127,10 +127,9 @@ class MyForm(wx.Frame):
         self.panel2.Layout()
         self.panel3.SendSizeEvent()
         self.panel3.Layout()
+        pub.sendMessage('RESIZE_CELLS', data = None)
         self.SendSizeEvent()        
         self.Layout()
-
-        pub.sendMessage('RESIZE_CELLS', data = None)
 
     def OnListClick(self, evt):
         sel = self.listboxTeacher.GetSelection()
@@ -192,8 +191,8 @@ class MyForm(wx.Frame):
         self.fonth2 = wx.Font(16, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.fonth3 = wx.Font(16, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.fonth4 = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
-        sfont = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
-        sfont.SetPointSize(10)
+        self.sfont = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
+        self.sfont.SetPointSize(10)
 
 
 
@@ -208,7 +207,7 @@ class MyForm(wx.Frame):
         libox.Add(self.listboxTeacher, 1, flag=wx.EXPAND)
 
         labelside = wx.StaticText(self.left1, label='Jump To:')
-        labelside.SetFont(sfont)
+        labelside.SetFont(self.sfont)
         lbox = wx.BoxSizer(wx.VERTICAL)
         lbox.Add(labelside, 1, flag=wx.EXPAND)
 
@@ -230,7 +229,7 @@ class MyForm(wx.Frame):
         libox.Add(self.listboxVenue, 1, flag=wx.EXPAND)
 
         labelside = wx.StaticText(self.left2, label='Jump To:')
-        labelside.SetFont(sfont)
+        labelside.SetFont(self.sfont)
         lbox = wx.BoxSizer(wx.VERTICAL)
         lbox.Add(labelside, 1, flag=wx.EXPAND)
 
@@ -251,7 +250,7 @@ class MyForm(wx.Frame):
         libox.Add(self.listboxClass, 1, wx.EXPAND)
 
         labelside = wx.StaticText(self.left3, label='Jump To:')
-        labelside.SetFont(sfont)
+        labelside.SetFont(self.sfont)
         lbox = wx.BoxSizer(wx.VERTICAL)
         lbox.Add(labelside, 1, wx.EXPAND)
 
@@ -460,7 +459,7 @@ class MyForm(wx.Frame):
     def AppendGlobalInput(self, evt):
         if not hasattr(self, "GlobalInput"):
             GlobalInput = [[None for i in range(globaldata.lectures_per_day)] for j in range(globaldata.days_per_week)]
-            self.GlobalInput = MyGrid(self.panel1, GlobalInput)
+            self.GlobalInput = MyGrid(self.panel1, GlobalInput, "GlobalInput")
 
             hfirst = wx.StaticText(self.panel1, label=globaldata.header1)
             hsecond = wx.StaticText(self.panel1, label=globaldata.header2)
@@ -484,7 +483,7 @@ class MyForm(wx.Frame):
             vbox.AddSpacer(20)
 
             vbox1 = wx.BoxSizer(wx.VERTICAL)        
-            vbox1.Add(self.GlobalInput, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+            vbox1.Add(self.GlobalInput, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
             vbox1.AddSpacer(200)
             
             self.sizer1.Add(vbox, 1, wx.EXPAND)
@@ -606,6 +605,35 @@ class MyForm(wx.Frame):
         for i in range(len(dlg.result2)):
             globaldata.subjects[dlg.result2[i]] = dlg.result3[i]
 
+    def TeacherClass(self, evt):
+        pass
+    def TeacherSubject(self, evt):
+        pass
+    def VenueClass(self, evt):
+        pass
+    def VenueUtilization(self, evt):
+        res = project.FindVenueUtilization()
+        vDialouge = wx.Dialog(self, -1, title='Venue Utilization', size=(500,500))
+        lables = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun",]
+        vList = wx.ListCtrl(vDialouge, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER, size=(300, 400))
+        vList.Show(True)
+        vList.InsertColumn(0,"Venue Name", width=wx.LIST_AUTOSIZE_USEHEADER) 
+        vList.InsertColumn(1,"WeeklyUtil", width=wx.LIST_AUTOSIZE_USEHEADER)
+        vList.InsertColumn(2,"Mon", width=wx.LIST_AUTOSIZE_USEHEADER)
+        vList.InsertColumn(3,"Tue", width=wx.LIST_AUTOSIZE_USEHEADER)
+        vList.InsertColumn(4,"Wed", width=wx.LIST_AUTOSIZE_USEHEADER)
+        vList.InsertColumn(5,"Thu", width=wx.LIST_AUTOSIZE_USEHEADER)
+        vList.InsertColumn(6,"Fri", width=wx.LIST_AUTOSIZE_USEHEADER)
+        vList.InsertColumn(7,"Sat", width=wx.LIST_AUTOSIZE_USEHEADER)
+        vList.InsertColumn(7,"Sun", width=wx.LIST_AUTOSIZE_USEHEADER)
+        for key in res:
+            val = res[key]
+            l = [key, res[key][-1]]
+            for i in range(len(val) - 1):
+                l.append(val[i])
+            vList.Append(l)
+        vDialouge.ShowModal()
+
     def _init_menubar(self):
 
         menubar = wx.MenuBar()
@@ -614,7 +642,7 @@ class MyForm(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnNew, fnew)
         fopen = file.Append(-1,'&Open')
         self.Bind(wx.EVT_MENU, self.OnOpen, fopen)
-        save = file.Append(-1,'&Save')
+        save = file.Append(wx.ID_SAVE,'&Save', '&Save\tCtrl+S')
         self.Bind(wx.EVT_MENU, self.OnSave, save)
         saveas = file.Append(-1,'&Save As')
         self.Bind(wx.EVT_MENU, self.OnSaveAs, saveas)
@@ -654,15 +682,28 @@ class MyForm(wx.Frame):
         sub = data.Append(-1,'&Subjects')
         self.Bind(wx.EVT_MENU, self.SubjectData, sub)
 
+        mp = wx.Menu()
+        ts = mp.Append(-1,'Teacher -> Subject')
+        self.Bind(wx.EVT_MENU, self.TeacherSubject, ts)
+        tc = mp.Append(-1,'Teacher -> Class')
+        self.Bind(wx.EVT_MENU, self.TeacherClass, tc)
+        vc = mp.Append(-1,'Venue -> Class')
+        self.Bind(wx.EVT_MENU, self.VenueClass, vc)
+        data.AppendMenu(-1,'Mapping', mp)
+
+
         view = wx.Menu()
         self.toolbarBoolean = view.Append(-1,'&Show Toolbar', kind=wx.ITEM_CHECK)
+        view.Check(self.toolbarBoolean.GetId(), True)
+        self.Bind(wx.EVT_MENU, self.ToggleToolbar, self.toolbarBoolean)
+
+        venueUtil = view.Append(-1,'&Venue Utilization')
+        self.Bind(wx.EVT_MENU, self.VenueUtilization, venueUtil)
         #chuck it isnt much useful -- lot of work
         # self.fullscreenBoolean = view.Append(-1,'Fullscreen', kind=wx.ITEM_CHECK)
         # view.Check(self.fullscreenBoolean.GetId(), False)
         # self.Bind(wx.EVT_MENU, self.ToggleFullscreen, self.fullscreenBoolean)
 
-        view.Check(self.toolbarBoolean.GetId(), True)
-        self.Bind(wx.EVT_MENU, self.ToggleToolbar, self.toolbarBoolean)
 
 
         help = wx.Menu()

@@ -4,13 +4,16 @@ import project
 import wx
 import wx.grid as gridlib
 from wx.lib.pubsub import Publisher as pub
+import globaldata
 
 frame1 = None
 backup = ''
+globaldata.days_per_week = 7
+globaldata.lectures_per_day = 10
 class MyGrid(gridlib.Grid):
     def __init__(self, parent):
         gridlib.Grid.__init__(self, parent)
-        self.CreateGrid(project.days_per_week, project.lectures_per_day)
+        self.CreateGrid(globaldata.days_per_week, globaldata.lectures_per_day)
  
         self.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.OnCellLeftClick)
         self.Bind(gridlib.EVT_GRID_LABEL_LEFT_CLICK, self.OnLabelLeftClick)
@@ -55,7 +58,7 @@ class MyGrid(gridlib.Grid):
         global backup   # very dirty fix this
         if self.GetCellValue(evt.GetRow(), evt.GetCol()) != '':
             backup = self.GetCellValue(evt.GetRow(), evt.GetCol()) 
-	print backup
+        print backup
         evt.Skip()
 
     #     # Another way to stay in a cell that has a bad value...

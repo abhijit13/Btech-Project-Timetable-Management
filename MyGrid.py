@@ -8,14 +8,16 @@ from GridTable import *
 import globaldata
 
 class MyGrid(gridlib.Grid):
-    def __init__(self, parent, data):
+    def __init__(self, parent, data, name):
         gridlib.Grid.__init__(self, parent, -1)
+        self.data = data
+        self.name = name
         tableBase = GenericTable(data, globaldata.rowLabels, globaldata.colLabels)
         self.SetTable(tableBase)                    
         # self.SetGridLineColour(wx.RED)
         self.SetRowLabelSize(-1) 
         self.SetColLabelSize(-1) 
-        self.SetColMinimalAcceptableWidth(150)
+        self.SetColMinimalAcceptableWidth(100)
         # self.SetColMinimalWidth(1,150)
         # self.EnableCellEditControl(False)   
         self.Bind(gridlib.EVT_GRID_EDITOR_SHOWN, self.OnCellDoubleClick)
@@ -70,12 +72,63 @@ class MyGrid(gridlib.Grid):
     def onCancel(self, event):
         self.Destroy()
 
+    def OnDeleteEntry(self, a, b, event):
+        print self.name
+        entry = self.data[a][b]
+        itemId = event.GetId()
+        menu = event.GetEventObject()
+        menuItem = menu.FindItemById(itemId)
+        deleteId = int(menuItem.GetLabel().split()[2]) - 1
+        entryLength = len(entry[deleteId]) 
+        print 'to delete', entry[deleteId]
+        if entryLength < 3:
+            if entry[deleteId][1] == None:
+                project.remove_lunch(self.name, a, b)
+            else:
+                project.remove_lunch(self.name+'-'+entry[deleteId][1] , a, b)
+        else:
+            if entry[deleteId][3] == None:
+                f = str(entry[deleteId][0])
+                if f not in globaldata.all_teachers:
+                    project.remove_all(self.name, f, str(entry[deleteId][1]), a, b)
+                else:
+                    g = str(entry[deleteId][1])
+                    if g not in globaldata.all_venues:
+                        project.remove_all(f, self.name, g, a, b)
+                    else:
+                        project.remove_all(f, g, self.name, a, b)
+            else:   #let's hope it is class's matrix due to use of batches
+                project.remove_all(str(entry[deleteId][0]), str(entry[deleteId][1]), self.name+'-'+ str(entry[deleteId][3]), a, b)
+
+        pub.sendMessage('UPDATE_VIEW', data = None)
+
     def ShowPopupMenu(self, evt):
-        menu = wx.Menu()
         i = evt.GetRow()
         j = evt.GetCol()
+
+        menu = wx.Menu()
         l = menu.Append(-1, "Insert Lunch")
         self.Bind(wx.EVT_MENU, lambda evt, a=i, b=j: self.OnLunchClick(a, b, evt) , l)
+
+###### see how submenu works
+   
+        entry = self.data[i][j]
+        # print entry
+        # entry = entry.split('\n')[:-1]
+        # print entry
+        # imp = wx.Menu()        
+        # for i in range(len(entry)):
+            # imp.Append(-1,'Delete Entry '+ str(i+1))
+        # m = menu.AppendMenu(104,'Delete Entry', imp)
+        try:
+            for n in range(len(entry)):
+                l = menu.Append(-1, "Delete Entry " + str(n+1))
+                self.Bind(wx.EVT_MENU, lambda evt, a=i, b=j: self.OnDeleteEntry(a, b, evt) , l)
+            # self.Bind(wx.EVT_MENU, self.OnDeleteEntry , l)
+#############
+        except:
+            pass
+
         self.PopupMenu(menu)
         menu.Destroy()
 
@@ -100,6 +153,6 @@ class MyGrid(gridlib.Grid):
         evt.Skip()
 
     def Resize(self, evt):
+        self.AutoSizeColumns()
         self.AutoSize()
-        # self.AutoSizeColumns()
         # evt.Skip()

@@ -231,6 +231,7 @@ class PromptingComboBox(wx.ComboBox) :
 class Dialoge(wx.Dialog):
     def __init__(self, parent, id=-1, title="Enter Values"):
         wx.Dialog.__init__(self, parent, id, title,size=(900,50))
+        self.warn = True
         self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.mainSizer.AddSpacer(10)
         self.label1 = wx.StaticText(self, label="Teacher:")
@@ -273,6 +274,22 @@ class Dialoge(wx.Dialog):
     def onOK(self, event):
         if self.field1.res == "ADD NEW" or self.field2.res == "ADD NEW" or self.field3.res == "ADD NEW" or self.field4.res == "ADD NEW":
             return
+        if self.warn:
+            venueIn = globaldata.venue_shortnames.index(self.field2.res) - 1
+            venueCap = globaldata.venue_capacity[venueIn]
+
+            classIn = globaldata.class_shortnames.index(self.field3.res) - 1
+            classCap = globaldata.class_capacity[classIn]
+
+            if venueCap < classCap:
+                dlg = wx.MessageDialog(None, "Venue Capacity not sufficient for Class\nChange the venue or Click OK to continue anyway", "Notice", wx.OK|wx.CANCEL|wx.ICON_INFORMATION)
+                ret = dlg.ShowModal()
+                dlg.Destroy()
+                if ret == wx.ID_OK:
+                    print  'OK'
+                elif ret == wx.ID_CANCEL:
+                    return
+
         self.result1 = self.field1.res
         self.result2 = self.field2.res
         self.result3 = self.field3.res

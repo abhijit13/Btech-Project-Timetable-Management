@@ -40,7 +40,7 @@ class GenericTable(wx.grid.PyGridTableBase):
                         res += t
                 res += '\n'
 
-        #to fix - there's some garbage at the end of line
+            #to fix - there's some garbage at the end of line
             # print res    
             return res
             # return self.data[row][col]
