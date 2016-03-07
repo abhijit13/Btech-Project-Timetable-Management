@@ -40,3 +40,10 @@ class_capacity = []
 subject_fullnames = []
 subject_shortnames = ['ADD NEW']
 subject_credits = []
+
+teacher_class_map = {}
+class_teacher_map = {}
+teacher_subject_map = {}
+subject_teacher_map = {}
+venue_class_map = {}
+class_venue_map = {}

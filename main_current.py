@@ -1,4 +1,5 @@
 # !/usr/bin/python
+
 import os, sys
 import wx
 import wx.grid as gridlib
@@ -12,7 +13,7 @@ import pickle
 
 class SaveClass(object):
     pass
-    
+
 class MyForm(wx.Frame):
     def update(self, value):        
         for teacher in globaldata.all_teachers:
@@ -297,7 +298,8 @@ class MyForm(wx.Frame):
         self.Close()
     def OnRedo(self, evt):
         self.Close()
-    def OnRefresh(self, evt):
+    def CheckConstraints(self, evt):
+        
         for c in globaldata.all_classes:
             res = c.valid_lunch_break()
             if res == True:
@@ -313,9 +315,9 @@ class MyForm(wx.Frame):
             dlg = wx.MessageDialog(None, s, "Error", wx.OK|wx.ICON_ERROR)
             dlg.ShowModal()
             dlg.Destroy()
-
         # pass
         # self.Close()
+
     def OnUndo(self, evt):
         self.Close()
     def OnOpen(self, evt):
@@ -606,11 +608,42 @@ class MyForm(wx.Frame):
             globaldata.subjects[dlg.result2[i]] = dlg.result3[i]
 
     def TeacherClass(self, evt):
-        pass
+        dlg = ListView(self, title='Add Mapping', label1="Teacher", label2="Class / Batch")
+        dlg.ShowModal()
+        teacher_class_map = {}
+        class_teacher_map = {}
+
+        for i in range(len(dlg.result1)):
+            teacher_class_map[dlg.result1[i]] = dlg.result2[i]
+            class_teacher_map[dlg.result2[i]] = dlg.result1[i]
+
+        globaldata.teacher_class_map = teacher_class_map
+        globaldata.class_teacher_map = class_teacher_map
+
     def TeacherSubject(self, evt):
-        pass
+        dlg = ListView(self, title='Add Mapping', label1="Teacher", label2="Subject")
+        dlg.ShowModal()
+        teacher_subject_map = {}
+        subject_teacher_map = {}
+        for i in range(len(dlg.result1)):
+            teacher_subject_map[dlg.result1[i]] = dlg.result2[i]
+            subject_teacher_map[dlg.result2[i]] = dlg.result1[i]
+
+        globaldata.teacher_subject_map = teacher_subject_map
+        globaldata.subject_teacher_map = subject_teacher_map
+
     def VenueClass(self, evt):
-        pass
+        dlg = ListView(self, title='Add Mapping', label1="Venue", label2="Class / Batch")
+        dlg.ShowModal()
+        venue_class_map = {}
+        class_venue_map = {}
+        for i in range(len(dlg.result1)):
+            venue_class_map[dlg.result1[i]] = dlg.result2[i]
+            class_venue_map[dlg.result2[i]] = dlg.result1[i]
+
+        globaldata.venue_class_map = venue_class_map
+        globaldata.class_venue_map = class_venue_map
+
     def VenueUtilization(self, evt):
         res = project.FindVenueUtilization()
         vDialouge = wx.Dialog(self, -1, title='Venue Utilization', size=(500,500))
@@ -638,13 +671,13 @@ class MyForm(wx.Frame):
 
         menubar = wx.MenuBar()
         file = wx.Menu()
-        fnew = file.Append(-1,'&New')
+        fnew = file.Append(wx.ID_NEW,'&New', '&New\tCtrl+N')
         self.Bind(wx.EVT_MENU, self.OnNew, fnew)
-        fopen = file.Append(-1,'&Open')
+        fopen = file.Append(wx.ID_OPEN,'&Open', '&Open\tCtrl+O')
         self.Bind(wx.EVT_MENU, self.OnOpen, fopen)
         save = file.Append(wx.ID_SAVE,'&Save', '&Save\tCtrl+S')
         self.Bind(wx.EVT_MENU, self.OnSave, save)
-        saveas = file.Append(-1,'&Save As')
+        saveas = file.Append(wx.ID_SAVEAS,'&Save As')
         self.Bind(wx.EVT_MENU, self.OnSaveAs, saveas)
 
         imp = wx.Menu()
@@ -661,6 +694,8 @@ class MyForm(wx.Frame):
 
         edit = wx.Menu()
         edit.Append(-1,'&Header Info')
+        checkC = edit.Append(-1,'&Check Constraints')
+        self.Bind(wx.EVT_MENU, self.CheckConstraints, checkC)
         edit.Append(-1,'&Undo')
         edit.Append(-1,'&Redo')
         edit.Append(-1,'&Cut')
@@ -683,11 +718,11 @@ class MyForm(wx.Frame):
         self.Bind(wx.EVT_MENU, self.SubjectData, sub)
 
         mp = wx.Menu()
-        ts = mp.Append(-1,'Teacher -> Subject')
+        ts = mp.Append(-1,'Teacher <-> Subject')
         self.Bind(wx.EVT_MENU, self.TeacherSubject, ts)
-        tc = mp.Append(-1,'Teacher -> Class')
+        tc = mp.Append(-1,'Teacher <-> Class')
         self.Bind(wx.EVT_MENU, self.TeacherClass, tc)
-        vc = mp.Append(-1,'Venue -> Class')
+        vc = mp.Append(-1,'Venue <-> Class')
         self.Bind(wx.EVT_MENU, self.VenueClass, vc)
         data.AppendMenu(-1,'Mapping', mp)
 
@@ -743,16 +778,15 @@ class MyForm(wx.Frame):
         self.toolbar.AddLabelTool(wx.ID_OPEN, '',wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_TOOLBAR, iconSize))
         self.toolbar.AddLabelTool(wx.ID_SAVE, '',wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE, wx.ART_TOOLBAR, iconSize))
         self.toolbar.AddLabelTool(wx.ID_SAVEAS, '',wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE_AS, wx.ART_TOOLBAR, iconSize))
+        self.toolbar.AddLabelTool(wx.ID_FIND, '',wx.ArtProvider.GetBitmap(wx.ART_FIND, wx.ART_TOOLBAR, iconSize))
         self.toolbar.AddLabelTool(wx.ID_EXIT, '',wx.ArtProvider.GetBitmap(wx.ART_QUIT, wx.ART_TOOLBAR, iconSize))
-        self.toolbar.AddLabelTool(wx.ID_REFRESH, '',wx.ArtProvider.GetBitmap(wx.ART_UNDO, wx.ART_TOOLBAR, iconSize))
 
         self.Bind(wx.EVT_TOOL,self.OnNew, id=wx.ID_NEW)
         self.Bind(wx.EVT_TOOL,self.OnOpen, id=wx.ID_OPEN)
         self.Bind(wx.EVT_TOOL,self.OnSave, id=wx.ID_SAVE)
         self.Bind(wx.EVT_TOOL,self.OnSaveAs, id=wx.ID_SAVEAS)
+        self.Bind(wx.EVT_TOOL,self.CheckConstraints, id=wx.ID_FIND)
         self.Bind(wx.EVT_TOOL,self.OnQuit, id=wx.ID_EXIT)
-        self.Bind(wx.EVT_TOOL,self.OnRefresh, id=wx.ID_REFRESH)
-
         self.toolbar.SetToolBitmapSize((24,24))
         # self.toolbar.AddLabelTool(wx.ID_NEW, '',wx.Bitmap('icons/new.png'))
         # self.toolbar.AddLabelTool(wx.ID_UNDO, '',wx.Bitmap('icons/undo.png'))

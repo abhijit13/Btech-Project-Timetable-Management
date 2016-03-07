@@ -90,6 +90,7 @@ class MyGrid(gridlib.Grid):
             if entry[deleteId][3] == None:
                 f = str(entry[deleteId][0])
                 if f not in globaldata.all_teachers:
+                    #it means its teachers table
                     project.remove_all(self.name, f, str(entry[deleteId][1]), a, b)
                 else:
                     g = str(entry[deleteId][1])

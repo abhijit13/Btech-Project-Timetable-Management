@@ -1,5 +1,6 @@
+/////////////////////////////////////////////////////////////////////////////////////////
+
 	//new wizard -> headers, basic constraints, popup for data
-	//saving on disk and opening 
 	//data --> teachers, venue, classes, subjects
 	//suggestions dropdown box for teacher/venue/class names
 	//subject credits = max lectures 
@@ -7,34 +8,36 @@
 	//what aboout batches - in the format as syc-b1, syc-b2
 	//heading of tt -- as tt of teacher / tt of venue / tt of class
 	//teacher load individually
-	//mail git link
-	//lunch check add to ui
 	//venue capacity checking (soft constraint) venue of 70 cap and class of 90 not fair
-	//deleting entries from grid with ui
-		cant delete batches properly
-	//after opeing a file when you do new, old should disappear
-		restarting program to do this... find better way (checked with default # of args might change over time change it at last)
-	//header info - at start
-		during runtime
 	//statistics venue utilization - day/week wise
+	//lunch check add to ui
+		lunch is explicit i.e. empty slot does not mean its lunch time
+	//default entry from which we got popup	
 
-
-faculty subject or batch mapping and auto completion 
-venue class tentative mapping
-
-
-////////////////////////////////////////////////////////////////////////////////////
-	
-
+/////////////////////////////////////////////////////////////////////////////////////////
 
 cell- display formatting / add colors
-slot merging -  think
-export as ods - nice form
-export as pdf, ods
-
-master view of tt 
-undo / redo
+	export as ods - nice form, pdf//
 preferences - think
-Help / About
+slot merging -  think
+master view of tt 
+Help / About - think
+undo / redo - think
 
-////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////
+	
+									***bugs***
+		saving on disk and opening 
+			changed globals, so wont work properly
+		deleting entries from grid with ui
+			cant delete batches properly
+			batches can be deleted from class only, from teacher, venue entire slot will be emptied
+		header info
+			cant change during runtime
+		after opeing a file when you do new, old tt should disappear
+			restarting program to do this... find better way (checked with default # of args might change over time change it at last)
+		faculty subject/batch mapping, venue class mapping
+			1-1 mapping, cant map faculty to mulitple subjects
+
+/////////////////////////////////////////////////////////////////////////////////////////

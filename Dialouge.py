@@ -9,16 +9,33 @@ import globaldata
 #         listmix.TextEditMixin.__init__(self)
 
 class ListView(wx.Dialog):
-    def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key=''):
+    def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key='', label1= " Name", label2= "Abbrevation"):
         wx.Dialog.__init__(self, parent, id, title, size=(500,500))
         self.title = title
         self.key = key
+        self.label1 = label1
+        self.label2 = label2
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
 
         self.list = wx.ListCtrl(self,id, style=wx.LC_REPORT|wx.SUNKEN_BORDER, size=(300, 400))
         self.list.Show(True)
-        self.list.InsertColumn(0, key + " Name", width=wx.LIST_AUTOSIZE_USEHEADER)
-        self.list.InsertColumn(1,"Abbrevation", width=wx.LIST_AUTOSIZE_USEHEADER)
+        self.list.InsertColumn(0, key + label1, width=wx.LIST_AUTOSIZE_USEHEADER)
+        self.list.InsertColumn(1, label2, width=wx.LIST_AUTOSIZE_USEHEADER)
+
+        if key == '' :
+            if label1 == "Teacher":
+                if label2 == "Subject":
+                    keys = globaldata.teacher_subject_map.keys()
+                    for k in keys:
+                        self.list.Append([k, globaldata.teacher_subject_map[k]])
+                else:
+                    keys = globaldata.teacher_class_map.keys()
+                    for k in keys:
+                        self.list.Append([k, globaldata.teacher_class_map[k]])                    
+            else:
+                keys = globaldata.venue_class_map.keys()
+                for k in keys:
+                    self.list.Append([k, globaldata.venue_class_map[k]])
 
         if key == "Teacher" :
             self.list.InsertColumn(2,"WeeklyMax Load", width=wx.LIST_AUTOSIZE_USEHEADER)
@@ -61,13 +78,17 @@ class ListView(wx.Dialog):
         self.list.DeleteItem(i)
 
     def onAdd(self, event):
-        dlg = ThreeItemList(self, title=self.title, key=self.key)
-        dlg.ShowModal()
-        if self.key == "Teacher":
-            self.list.Append([dlg.result1, dlg.result2, dlg.result3, dlg.result4])
+        if self.key == '':
+            dlg = TwoItemList(self, title=self.title, key=self.key, label1=self.label1, label2=self.label2)
+            dlg.ShowModal()
+            self.list.Append([dlg.result1, dlg.result2])
         else:
-            self.list.Append([dlg.result1, dlg.result2, dlg.result3])
-
+            dlg = ThreeItemList(self, title=self.title, key=self.key, label1=self.label1, label2=self.label2)
+            dlg.ShowModal()
+            if self.key == "Teacher":
+                self.list.Append([dlg.result1, dlg.result2, dlg.result3, dlg.result4])
+            else:
+                self.list.Append([dlg.result1, dlg.result2, dlg.result3])
     def onOK(self, event):
         self.result1 = []
         self.result2 = []
@@ -85,6 +106,12 @@ class ListView(wx.Dialog):
                 self.result2.append(y.GetText())
                 self.result3.append(int(z.GetText()))
                 self.result4.append(int(w.GetText()))
+        elif self.key == '':
+            for i in range(n):
+                x = self.list.GetItem(i, 0)
+                y = self.list.GetItem(i, 1)
+                self.result1.append(x.GetText())
+                self.result2.append(y.GetText())
         else:
             for i in range(n):
                 x = self.list.GetItem(i, 0)
@@ -98,16 +125,59 @@ class ListView(wx.Dialog):
     def onCancel(self, event):
         self.Destroy()
 
-class ThreeItemList(wx.Dialog):
-    def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key='Name'):
+class TwoItemList(wx.Dialog):
+    def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key='', label1='', label2=""):
         self.key = key
         wx.Dialog.__init__(self, parent, id, title, size=(800,50))
         self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.mainSizer.AddSpacer(10)
 
-        self.label1 = wx.StaticText(self, label=key + ' Name :')
+        self.label1 = wx.StaticText(self, label=label1)
+        self.label2 = wx.StaticText(self, label=label2)
+
+        if label1 == "Teacher":
+            self.field1 = PromptingComboBox(self, "Choose", globaldata.teacher_shortnames,'Teacher', key='') 
+        elif label1 == "Venue": 
+            self.field1 = PromptingComboBox(self, "Choose", globaldata.venue_shortnames,'Venue', key='')
+        if label2 == "Class / Batch":
+            self.field2 = PromptingComboBox(self, "Choose", globaldata.class_shortnames,'Class', key='')
+        elif label2 == "Subject":
+            self.field2 = PromptingComboBox(self, "Choose", globaldata.subject_shortnames,'Subject', key='')
+
+
+        self.mainSizer.Add(self.label1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.Add(self.field1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.AddSpacer(10)
+        self.mainSizer.Add(self.label2, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.Add(self.field2, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.AddSpacer(10)
+
+        self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
+        self.mainSizer.Add(self.okbutton, 1, flag=wx.ALIGN_CENTER_VERTICAL)
+        self.mainSizer.AddSpacer(10)
+        self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
+        self.Bind(wx.EVT_TEXT_ENTER, self.onOK)
+        self.SetSizer(self.mainSizer)
+        self.result = None
+
+    def onOK(self, event):
+        self.result1 = self.field1.res
+        self.result2 = self.field2.res
+        self.Destroy()
+
+    def onCancel(self, event):
+        self.Destroy()
+
+class ThreeItemList(wx.Dialog):
+    def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key='', label1=' Name :', label2="Abbrevation:"):
+        self.key = key
+        wx.Dialog.__init__(self, parent, id, title, size=(800,50))
+        self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.mainSizer.AddSpacer(10)
+
+        self.label1 = wx.StaticText(self, label=key + label1)
         self.field1 = wx.TextCtrl(self, value="")
-        self.label2 = wx.StaticText(self, label="Abbrevation:")
+        self.label2 = wx.StaticText(self, label=label2)
         self.field2 = wx.TextCtrl(self, value="")                
 
         self.mainSizer.Add(self.label1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
@@ -146,10 +216,8 @@ class ThreeItemList(wx.Dialog):
         self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
         self.mainSizer.Add(self.okbutton, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.AddSpacer(10)
-        
         self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
         self.Bind(wx.EVT_TEXT_ENTER, self.onOK)
-
         self.SetSizer(self.mainSizer)
         self.result = None
 
@@ -167,14 +235,78 @@ class ThreeItemList(wx.Dialog):
 
 
 class PromptingComboBox(wx.ComboBox) :
-    def __init__(self, parent, value, choices, name, style=0, **par):
-        wx.ComboBox.__init__(self, parent, wx.ID_ANY, value, style=style|wx.CB_DROPDOWN, choices=choices, **par)
+    def __init__(self, parent, value, choices, name, style=0, key='NotTwo', **par):
+        wx.ComboBox.__init__(self, parent, wx.ID_ANY, value, style= wx.CB_DROPDOWN, choices=choices, **par)
+        self.parent = parent
         self.choices = choices
         self.name = name
+        self.key = key
         self.Bind(wx.EVT_COMBOBOX, self.EvtCombobox) 
                 
     def EvtCombobox(self, event):
+        # print globaldata.teacher_class_map
+        # print 'selected', self.GetValue()
         self.res = self.GetValue()
+        key = self.res
+        if self.key == 'NotTwo':
+            if self.res != "ADD NEW":
+                if self.name == "Teacher":
+                    #TeacherClass map
+                    try:
+                        val = globaldata.teacher_class_map[key]
+                    except:
+                        val = None
+                    if val != None and self.parent.field3.GetValue() == "Choose":
+                        self.parent.field3.SetValue(val)
+                        self.parent.field3.res = val
+                        #check if above line causes any bugs in other functions
+                    #TeacherSubject map
+                    try:
+                        val = globaldata.teacher_subject_map[key]
+                    except:
+                        val = None
+                    if val != None and self.parent.field4.GetValue() == "Choose":
+                        self.parent.field4.SetValue(val)
+                        self.parent.field4.res = val
+                elif self.name == "Venue":
+                    #VenueClass map
+                    try:
+                        val = globaldata.venue_class_map[key]
+                    except:
+                        val = None
+                    if val != None and self.parent.field3.GetValue() == "Choose":
+                        self.parent.field3.SetValue(val)
+                        self.parent.field3.res = val
+
+                elif self.name == "Class":
+
+                    #ClassVenue map
+                    try:
+                        val = globaldata.class_venue_map[key]
+                    except:
+                        val = None
+                    if val != None and self.parent.field2.GetValue() == "Choose":
+                        self.parent.field2.SetValue(val)
+                        self.parent.field2.res = val
+                    #ClassTeacher map
+                    try:
+                        val = globaldata.class_teacher_map[key]
+                    except:
+                        val = None
+                    if val != None and self.parent.field1.GetValue() == "Choose":
+                        self.parent.field1.SetValue(val)
+                        self.parent.field1.res = val
+
+                elif self.name == "Subject":
+                    #SubjectTeacher map
+                    try:
+                        val = globaldata.subject_teacher_map[key]
+                    except:
+                        val = None
+                    if val != None and self.parent.field1.GetValue() == "Choose":
+                        self.parent.field1.SetValue(val)
+                        self.parent.field1.res = val
+                # del self.res
         if self.res == "ADD NEW" :
             if self.name == "Teacher":
                 dlg = ThreeItemList(self, title="Enter Teacher Data", key="Teacher")
@@ -245,8 +377,20 @@ class Dialoge(wx.Dialog):
         # self.field3 = wx.TextCtrl(self, value="")
         self.label4 = wx.StaticText(self, label="Subject:")
         self.field4 = PromptingComboBox(self, "Choose", globaldata.subject_shortnames, 'Subject') 
-                
+    
         self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)
+    
+        #got name of Teacher/Venue/Class
+        self.name = parent.name
+        if self.name in globaldata.all_teachers:
+            self.field1.SetValue(self.name)
+            self.field1.res = self.name
+        elif self.name in globaldata.all_venues:
+            self.field2.SetValue(self.name)
+            self.field2.res = self.name
+        elif self.name in globaldata.all_classes:
+            self.field3.SetValue(self.name)
+            self.field3.res = self.name
 
         self.mainSizer.Add(self.label1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.mainSizer.Add(self.field1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
