@@ -73,14 +73,16 @@ class MyGrid(gridlib.Grid):
         self.Destroy()
 
     def OnDeleteEntry(self, a, b, event):
-        print self.name
+        # print 'all_teachers', globaldata.all_teachers
+        # print 'all_venues', globaldata.all_venues
+        # print 'all_classes', globaldata.all_classes
         entry = self.data[a][b]
         itemId = event.GetId()
         menu = event.GetEventObject()
         menuItem = menu.FindItemById(itemId)
         deleteId = int(menuItem.GetLabel().split()[2]) - 1
         entryLength = len(entry[deleteId]) 
-        print 'to delete', entry[deleteId]
+        print 'name and to delete', self.name, entry[deleteId]
         if entryLength < 3:
             if entry[deleteId][1] == None:
                 project.remove_lunch(self.name, a, b)
@@ -88,18 +90,22 @@ class MyGrid(gridlib.Grid):
                 project.remove_lunch(self.name+'-'+entry[deleteId][1] , a, b)
         else:
             if entry[deleteId][3] == None:
-                f = str(entry[deleteId][0])
-                if f not in globaldata.all_teachers:
-                    #it means its teachers table
-                    project.remove_all(self.name, f, str(entry[deleteId][1]), a, b)
+                newname = self.name
+            else:
+                newname = self.name + '-' + str(entry[deleteId][3])
+
+            f = str(entry[deleteId][0])
+            if f.split("-")[0] not in globaldata.all_teachers:
+                #it means its teachers table
+                project.remove_all(newname, f, str(entry[deleteId][1]), a, b)
+            else:
+                g = str(entry[deleteId][1])
+                if g.split("-")[0] not in globaldata.all_venues:
+                    project.remove_all(f, newname, g, a, b)
                 else:
-                    g = str(entry[deleteId][1])
-                    if g not in globaldata.all_venues:
-                        project.remove_all(f, self.name, g, a, b)
-                    else:
-                        project.remove_all(f, g, self.name, a, b)
-            else:   #let's hope it is class's matrix due to use of batches
-                project.remove_all(str(entry[deleteId][0]), str(entry[deleteId][1]), self.name+'-'+ str(entry[deleteId][3]), a, b)
+                    project.remove_all(f, g, newname, a, b)
+            # else:   #let's hope it is class's matrix due to use of batches
+            #     project.remove_all(str(entry[deleteId][0]), str(entry[deleteId][1]), self.name+'-'+ str(entry[deleteId][3]), a, b)
 
         pub.sendMessage('UPDATE_VIEW', data = None)
 
@@ -138,10 +144,13 @@ class MyGrid(gridlib.Grid):
         dlg.ShowModal()
         # if dlg.ShowModal()  == wx.ID_CANCEL:
         #     return 
+        print (dlg.result1, dlg.result2, dlg.result3, dlg.result4, evt.GetRow(),evt.GetCol())
+
         try:
             project.insert_entry(dlg.result1, dlg.result2, dlg.result3, dlg.result4, evt.GetRow(),evt.GetCol())
             pub.sendMessage('UPDATE_VIEW', data = None)
         except Exception as e:
+            print e
             s = 'Conflict with: '
             for t in e.value:
                 for e in t:

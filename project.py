@@ -352,20 +352,25 @@ class Classes(BaseStructure):
 			self.current_work_load += 1			
 
 
-def get_object(List, name, BaseClass=None):
+def get_object(List, name, BaseClass=None, batch=None):
 	entries = [t for t in List if t.name == name]
 	entry = None
 	if len(entries) == 0 :
+		if batch != None and len(batch) != 0:
+			listname = name + '-' + batch[0]
+		else :
+			listname = name
+
 		if BaseClass == Teacher:
-			i = globaldata.teacher_shortnames.index(name)
+			i = globaldata.teacher_shortnames.index(listname)
 			entry = BaseClass(name, globaldata.teacher_weeklymax[i-1], globaldata.teacher_dailymax[i-1])
 			List.append(entry)
 		elif BaseClass == Venue:
-			i = globaldata.venue_shortnames.index(name)
+			i = globaldata.venue_shortnames.index(listname)
 			entry = BaseClass(name, globaldata.venue_capacity[i-1])
 			List.append(entry)
 		elif BaseClass == Classes:
-			i = globaldata.class_shortnames.index(name)
+			i = globaldata.class_shortnames.index(listname)
 			entry = BaseClass(name, globaldata.class_capacity[i-1])
 			List.append(entry)
 	else:
@@ -374,15 +379,18 @@ def get_object(List, name, BaseClass=None):
 
 
 def insert_entry(teacher, venue, Class, sub, day, lecture):
+	t = teacher
+	v = venue
+	C = Class
 	teacher = teacher.split('-')
-	teacher[0] = get_object(globaldata.all_teachers, teacher[0], Teacher)
+	teacher[0] = get_object(globaldata.all_teachers, teacher[0], Teacher, teacher[1:])
 	venue = venue.split('-')
-	venue[0] = get_object(globaldata.all_venues, venue[0], Venue)
+	venue[0] = get_object(globaldata.all_venues, venue[0], Venue, venue[1:])
 	Class = Class.split('-')
-	Class[0] = get_object(globaldata.all_classes, Class[0], Classes)
+	Class[0] = get_object(globaldata.all_classes, Class[0], Classes, Class[1:])
 
 	try:
-		teacher[0].add_entry(venue[0], Class[0], day, lecture, sub, teacher)
+		teacher[0].add_entry(v, C,  day, lecture, sub, teacher)
 	except ExistingEntry as e:
 		print 'Entry already Exists '
 		print e.value
@@ -396,7 +404,7 @@ def insert_entry(teacher, venue, Class, sub, day, lecture):
 		raise e
 	else:
 		try:
-			venue[0].add_entry(teacher[0], Class[0], day, lecture, sub, venue)
+			venue[0].add_entry(t, C, day, lecture, sub, venue)
 		except ExistingEntry as e:
 			print 'Entry already Exists '
 			print e.value
@@ -404,7 +412,7 @@ def insert_entry(teacher, venue, Class, sub, day, lecture):
 			raise e
 		else:
 			try:
-				Class[0].add_entry(teacher[0], venue[0], day, lecture, sub, Class)
+				Class[0].add_entry(t, v, day, lecture, sub, Class)
 			except ExistingEntry as e:
 				print 'Entry already Exists '
 				print e.value
@@ -426,7 +434,7 @@ def insert_entry(teacher, venue, Class, sub, day, lecture):
 
 def insert_lunch(batch, day, lecture):
 	batch = batch.split('-')
-	batch[0] = get_object(globaldata.all_classes, batch[0], Classes)
+	batch[0] = get_object(globaldata.all_classes, batch[0], Classes, batch[1:])
 	try:
 		batch[0].add_lunch(day, lecture, batch)
 	except ExistingEntry as e:
@@ -436,7 +444,7 @@ def insert_lunch(batch, day, lecture):
 
 def remove_lunch(Class, day, lecture):
 	Class = Class.split('-')
-	Class[0] = get_object(globaldata.all_classes, Class[0], Classes)
+	Class[0] = get_object(globaldata.all_classes, Class[0], Classes, Class[1:])
 	Class[0].remove_entry(day, lecture, Class)
 	Class[0].current_work_load += 1 	#very dirty fix this; dont change attributes of object from non member function.
 
@@ -505,11 +513,11 @@ def FindVenueUtilization():
 
 def remove_all(teacher, venue, Class, day, lecture):
 	teacher = teacher.split('-')
-	teacher[0] = get_object(globaldata.all_teachers, teacher[0], Teacher)
+	teacher[0] = get_object(globaldata.all_teachers, teacher[0], Teacher,teacher[1:])
 	venue = venue.split('-')
-	venue[0] = get_object(globaldata.all_venues, venue[0], Venue)
+	venue[0] = get_object(globaldata.all_venues, venue[0], Venue, venue[1:])
 	Class = Class.split('-')
-	Class[0] = get_object(globaldata.all_classes, Class[0], Classes)
+	Class[0] = get_object(globaldata.all_classes, Class[0], Classes, Class[1:])
 
 	teacher[0].remove_entry(day, lecture, teacher)
 	venue[0].remove_entry(day, lecture, venue)

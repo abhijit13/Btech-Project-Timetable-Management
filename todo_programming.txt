@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 cell- display formatting / add colors
-	export as ods - nice form, pdf//
+export as ods - nice form, pdf//
 preferences - think
 slot merging -  think
 master view of tt 
@@ -30,14 +30,18 @@ undo / redo - think
 									***bugs***
 		saving on disk and opening 
 			changed globals, so wont work properly
-		deleting entries from grid with ui
-			cant delete batches properly
-			batches can be deleted from class only, from teacher, venue entire slot will be emptied
 		header info
 			cant change during runtime
 		after opeing a file when you do new, old tt should disappear
 			restarting program to do this... find better way (checked with default # of args might change over time change it at last)
 		faculty subject/batch mapping, venue class mapping
 			1-1 mapping, cant map faculty to mulitple subjects
+
+		//batches not working
+			//for teacher and venue
+		//deleting entries from grid with ui
+			//cant delete batches properly
+			//batches can be deleted from class only, from teacher, venue entire slot will be emptied
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
