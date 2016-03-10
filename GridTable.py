@@ -13,9 +13,11 @@ class GenericTable(wx.grid.PyGridTableBase):
         
     def GetNumberRows(self):
         return len(self.data)
+        # return globaldata.days_per_week
 
     def GetNumberCols(self):
         return len(self.data[0])
+        # return globaldata.lectures_per_day
 
     def GetColLabelValue(self, col):
         if self.colLabels:

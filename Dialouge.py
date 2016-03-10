@@ -452,7 +452,7 @@ class HeaderInfo(wx.Dialog):
         self.mainSizer.AddSpacer(10)
         self.heading_font = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
 
-        self.label1 = wx.StaticText(self, label="Enter Header Information:")
+        self.label1 = wx.StaticText(self, label="Enter Title For Timetable:")
         self.label1.SetFont(self.heading_font)
         self.label2 = wx.StaticText(self, label="(It will be displayed above the timetable)")
 
@@ -461,9 +461,9 @@ class HeaderInfo(wx.Dialog):
         self.h1.Add(self.label2, 1)
         self.mainSizer.Add(self.h1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
-        self.l1 = wx.StaticText(self, label="Heading 1:")
-        self.l2 = wx.StaticText(self, label="Heading 2:")
-        self.l3 = wx.StaticText(self, label="Heading 3:")
+        self.l1 = wx.StaticText(self, label="Title 1:")
+        self.l2 = wx.StaticText(self, label="Title 2:")
+        self.l3 = wx.StaticText(self, label="Title 3:")
 
         self.f1 = wx.TextCtrl(self, value="", size=(150,-1))
         self.f2 = wx.TextCtrl(self, value="", size=(150,-1))

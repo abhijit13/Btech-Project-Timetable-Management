@@ -44,7 +44,7 @@ class MyForm(wx.Frame):
                 self.sizer1.Add(vbox, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
                 vbox1 = wx.BoxSizer(wx.VERTICAL)
-                self.temp = MyGrid(self.panel1, teacher.mat, teacher.name)
+                self.temp = MyGrid(self.panel1, teacher.mat, teacher.name, 'Teacher')
 
                 setattr(self, name, self.temp)
                 vbox1.Add(getattr(self,name), 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
@@ -57,7 +57,7 @@ class MyForm(wx.Frame):
             name = venue.name
             if not hasattr(self, name):
                 self.listboxVenue.Append(name)
-                self.temp = MyGrid(self.panel2, venue.mat, venue.name)        
+                self.temp = MyGrid(self.panel2, venue.mat, venue.name, 'Venue')        
                 hfirst = wx.StaticText(self.panel2, label=globaldata.header1)
                 hsecond = wx.StaticText(self.panel2, label=globaldata.header2)
                 hthird = wx.StaticText(self.panel2, label=globaldata.header3)
@@ -79,7 +79,7 @@ class MyForm(wx.Frame):
                 vbox.Add(hfourth, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
                 vbox.AddSpacer(20)
                 self.sizer2.Add(vbox, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
-
+                
                 vbox1 = wx.BoxSizer(wx.VERTICAL)
                 setattr(self, name, self.temp)
                 vbox1.Add(getattr(self,name), 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
@@ -92,7 +92,7 @@ class MyForm(wx.Frame):
             name = Class.name
             if not hasattr(self, name):
                 self.listboxClass.Append(name)
-                self.temp = MyGrid(self.panel3, Class.mat, Class.name)        
+                self.temp = MyGrid(self.panel3, Class.mat, Class.name, 'Class')        
                 hfirst = wx.StaticText(self.panel3, label=globaldata.header1)
                 hsecond = wx.StaticText(self.panel3, label=globaldata.header2)
                 hthird = wx.StaticText(self.panel3, label=globaldata.header3)
@@ -462,7 +462,7 @@ class MyForm(wx.Frame):
     def AppendGlobalInput(self, evt):
         if not hasattr(self, "GlobalInput"):
             GlobalInput = [[None for i in range(globaldata.lectures_per_day)] for j in range(globaldata.days_per_week)]
-            self.GlobalInput = MyGrid(self.panel1, GlobalInput, "GlobalInput")
+            self.GlobalInput = MyGrid(self.panel1, GlobalInput, "GlobalInput", 'None')
 
             hfirst = wx.StaticText(self.panel1, label=globaldata.header1)
             hsecond = wx.StaticText(self.panel1, label=globaldata.header2)
@@ -511,7 +511,8 @@ class MyForm(wx.Frame):
         self.AppendGlobalInput(None)
     
     # def ClearGlobalData(self):
-        
+        # for t in globaldata.all_teachers:
+        #     t.resize_matrix()        
     #     globaldata.header1 = ''
     #     globaldata.header2 = ''
     #     globaldata.header3 = ''
@@ -668,6 +669,17 @@ class MyForm(wx.Frame):
             vList.Append(l)
         vDialouge.ShowModal()
 
+    def UpdateHeaders(self, evt):
+        dlg = HeaderInfo(self)
+        dlg.ShowModal()
+
+        globaldata.header1 = dlg.result1
+        globaldata.header2 = dlg.result2
+        globaldata.header3 = dlg.result3  
+
+        dlg.Destroy()
+        self.update(None)
+
     def _init_menubar(self):
 
         menubar = wx.MenuBar()
@@ -692,9 +704,9 @@ class MyForm(wx.Frame):
         # quit.SetBitmap(wx.Bitmap('exit.png'))
         self.Bind(wx.EVT_MENU, self.OnQuit, quit)
 
-
         edit = wx.Menu()
-        edit.Append(-1,'&Header Info')
+        head = edit.Append(-1,'&Header Info')
+        self.Bind(wx.EVT_MENU, self.UpdateHeaders, head)
         checkC = edit.Append(-1,'&Check Constraints')
         self.Bind(wx.EVT_MENU, self.CheckConstraints, checkC)
         edit.Append(-1,'&Undo')

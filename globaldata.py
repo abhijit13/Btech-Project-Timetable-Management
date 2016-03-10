@@ -2,11 +2,11 @@ header1 = ''
 header2 = ''
 header3 = ''
 
+clipboard = ''
 #globals to store all objects
 all_teachers = []
 all_venues = []
 all_classes = []
-
 
 subjects = {}
 

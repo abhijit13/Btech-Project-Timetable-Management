@@ -10,41 +10,35 @@
 	//teacher load individually
 	//venue capacity checking (soft constraint) venue of 70 cap and class of 90 not fair
 	//statistics venue utilization - day/week wise
-	//lunch check add to ui
-		lunch is explicit i.e. empty slot does not mean its lunch time
+	//lunch check in ui- lunch is explicit i.e. empty slot does not mean its lunch time
 	//default entry from which we got popup	
+	//copy paste cut paste
+	//faculty subject/batch mapping 1-1 mapping only
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
 cell- display formatting / add colors
-export as ods - nice form, pdf//
-preferences - think
+export as ods - nice form, pdf
 slot merging -  think
 master view of tt 
 Help / About - think
-undo / redo - think
 
-
+rows / cols no change during runtime
 /////////////////////////////////////////////////////////////////////////////////////////
 	
 									***bugs***
 		saving on disk and opening 
 			changed globals, so wont work properly
-		header info
-			cant change during runtime
 		after opeing a file when you do new, old tt should disappear
 			restarting program to do this... find better way (checked with default # of args might change over time change it at last)
-		faculty subject/batch mapping, venue class mapping
-			1-1 mapping, cant map faculty to mulitple subjects
 		change in working days/week, lectures/day
 			doesnt reflect on existing timetable
 		//batches not working
 			//for teacher and venue
 		//deleting entries from grid with ui
 			//cant delete batches properly
-			//batches can be deleted from class only, from teacher, venue entire slot will be emptied
-
-			pubsub error
+			//batches can be deleted from class only, from teacher, venue entire slot gets empty
+		//pubsub error
 
 /////////////////////////////////////////////////////////////////////////////////////////
 

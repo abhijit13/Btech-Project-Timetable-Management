@@ -6,12 +6,14 @@ import project
 from Dialouge import *
 from GridTable import *
 import globaldata
+import copy
 
 class MyGrid(gridlib.Grid):
-    def __init__(self, parent, data, name):
+    def __init__(self, parent, data, name, typeOf):
         gridlib.Grid.__init__(self, parent, -1)
         self.data = data
         self.name = name
+        self.type = typeOf
         tableBase = GenericTable(data, globaldata.rowLabels, globaldata.colLabels)
         self.SetTable(tableBase)                    
         # self.SetGridLineColour(wx.RED)
@@ -19,11 +21,125 @@ class MyGrid(gridlib.Grid):
         self.SetColLabelSize(-1) 
         self.SetColMinimalAcceptableWidth(100)
         # self.SetColMinimalWidth(1,150)
-        # self.EnableCellEditControl(False)   
-        self.Bind(gridlib.EVT_GRID_EDITOR_SHOWN, self.OnCellDoubleClick)
+        # self.EnableCellEditControl(False) 
+        wx.EVT_KEY_DOWN(self, self.KeyPressed)  
+        # self.Bind(gridlib.EVT_GRID_EDITOR_SHOWN, self.HandelManualInput)
+        self.Bind(gridlib.EVT_GRID_SELECT_CELL, self.OnSelectCell)
         self.Bind(gridlib.EVT_GRID_CELL_LEFT_DCLICK, self.OnCellDoubleClick)
         self.Bind(gridlib.EVT_GRID_CELL_RIGHT_CLICK, self.ShowPopupMenu)
         pub.subscribe(self.Resize, 'RESIZE_CELLS') 
+
+    def OnSelectCell(self, event):
+        
+        self.rowSelect = event.GetRow()
+        self.colSelect = event.GetCol()
+        # print 'selected', self.rowSelect, self.colSelect
+        event.Skip()
+
+    def ParseIntoClipboard(self, clipboard):
+        #make actual copy of it so as to not modify main table
+        clip = copy.deepcopy(clipboard)
+        if self.type == 'Teacher':
+            for i in range(len(clip)):
+                if clip[i][-1] != None:
+                    temp = self.name + '-' + clip[i][-1]
+                else:                    
+                    temp = self.name
+                clip[i] = (temp, ) + clip[i]
+                # e = (temp,) + e 
+            # globaldata.clipboard = clip
+        if self.type == 'Venue':
+            for i in range(len(clip)):
+                if clip[i][-1] != None:
+                    temp = self.name + '-' + clip[i][-1]
+                else:                    
+                    temp = self.name
+
+                clip[i] = list(clip[i])
+                clip[i].insert(1,temp)
+                clip[i] = tuple(clip[i])
+
+            # globaldata.clipboard = clip
+        if self.type == 'Class':
+            for i in range(len(clip)):
+                if clip[i][-1] != None:
+                    temp = self.name + '-' + clip[i][-1]
+                else:                    
+                    temp = self.name
+
+                clip[i] = list(clip[i])
+                clip[i].insert(2,temp)
+                clip[i] = tuple(clip[i])
+        globaldata.clipboard = copy.deepcopy(clip)
+    def KeyPressed(self, event):
+        
+        # If Ctrl+C is pressed...
+        if event.ControlDown() and event.GetKeyCode() == 67:
+            clipboard  = self.data[self.rowSelect][self.colSelect]
+            self.ParseIntoClipboard(clipboard)
+            print 'Copied', globaldata.clipboard
+        
+        # If Ctrl+V is pressed...
+        if event.ControlDown() and event.GetKeyCode() == 86:
+            self.HandelManualInput()
+            print 'Pasted', globaldata.clipboard
+        
+        # If Ctrl+X is pressed...
+        if event.ControlDown() and event.GetKeyCode() == 88:
+            clipboard  = self.data[self.rowSelect][self.colSelect]
+            self.ParseIntoClipboard(clipboard)
+            #clear that cell from everywhere 
+            #global delete
+            for i in range(len(clipboard)):
+                self.RemoveEntryFromTables(clipboard, 0)
+            print 'Cut', globaldata.clipboard
+        
+        # If del is pressed...
+        # if event.GetKeyCode() == 127:
+        
+        #Skip other Key events
+        if event.GetKeyCode():
+            event.Skip()
+            return
+
+    def HandelManualInput(self):
+        i = self.rowSelect
+        j = self.colSelect
+        for e in globaldata.clipboard:
+            if len(e) == 3:
+                try:
+                    project.insert_lunch(e[-1], i, j)
+                    pub.sendMessage('UPDATE_VIEW', data = None)
+                except Exception as e:
+                    s = 'Conflict with: '
+                    for t in e.value:
+                        for e in t:
+                            if e != None:
+                                s += str(e) + ' '
+                        s += '\n'
+                    dlg = wx.MessageDialog(None, s , "ERROR", wx.OK|wx.ICON_INFORMATION)
+                    dlg.ShowModal()
+                    dlg.Destroy()
+            else:
+                t = e[0]
+                v = e[1]
+                c = e[2]
+                s = e[3]            
+                try:
+                    project.insert_entry(t, v, c, s, i, j)
+                    pub.sendMessage('UPDATE_VIEW', data = None)
+                except Exception as e:
+                    print e
+                    s = 'Conflict with: '
+                    for t in e.value:
+                        for e in t:
+                            if e != None:
+                                s += str(e) + ' '
+                        s += '\n'
+                    dlg = wx.MessageDialog(None, s , "ERROR", wx.OK|wx.ICON_INFORMATION)
+                    dlg.ShowModal()
+                    dlg.Destroy()
+        return
 
     def OnLunchClick(self, i, j, e):
         print i, j
@@ -81,14 +197,31 @@ class MyGrid(gridlib.Grid):
         menu = event.GetEventObject()
         menuItem = menu.FindItemById(itemId)
         deleteId = int(menuItem.GetLabel().split()[2]) - 1
-        entryLength = len(entry[deleteId]) 
         print 'name and to delete', self.name, entry[deleteId]
+
+        self.RemoveEntryFromTables(entry, deleteId)
+
+    def RemoveEntryFromTables(self, entry, deleteId):
+        print entry
+        print deleteId
+        entryLength = len(entry[deleteId]) 
+        a = self.rowSelect
+        b = self.colSelect
+
         if entryLength < 3:
             if entry[deleteId][1] == None:
                 project.remove_lunch(self.name, a, b)
             else:
-                project.remove_lunch(self.name+'-'+entry[deleteId][1] , a, b)
+                project.remove_lunch(self.name+'-'+entry[deleteId][-1] , a, b)
+
+        elif entryLength == 5:
+            t = entry[deleteId][0]
+            v = entry[deleteId][1]
+            c = entry[deleteId][2]
+            project.remove_all(t, v, c, a, b)
+
         else:
+            
             if entry[deleteId][3] == None:
                 newname = self.name
             else:
@@ -96,7 +229,7 @@ class MyGrid(gridlib.Grid):
 
             f = str(entry[deleteId][0])
             if f.split("-")[0] not in globaldata.all_teachers:
-                #it means its teachers table
+                # it means its teachers table
                 project.remove_all(newname, f, str(entry[deleteId][1]), a, b)
             else:
                 g = str(entry[deleteId][1])
@@ -104,8 +237,6 @@ class MyGrid(gridlib.Grid):
                     project.remove_all(f, newname, g, a, b)
                 else:
                     project.remove_all(f, g, newname, a, b)
-            # else:   #let's hope it is class's matrix due to use of batches
-            #     project.remove_all(str(entry[deleteId][0]), str(entry[deleteId][1]), self.name+'-'+ str(entry[deleteId][3]), a, b)
 
         pub.sendMessage('UPDATE_VIEW', data = None)
 
