@@ -1,6 +1,6 @@
 import wx
 import wx.grid as gridlib
-from wx.lib.pubsub import Publisher as pub
+from wx.lib.pubsub import pub
 import project
 import globaldata
 

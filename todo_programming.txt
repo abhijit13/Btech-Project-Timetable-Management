@@ -36,12 +36,38 @@ undo / redo - think
 			restarting program to do this... find better way (checked with default # of args might change over time change it at last)
 		faculty subject/batch mapping, venue class mapping
 			1-1 mapping, cant map faculty to mulitple subjects
-
+		change in working days/week, lectures/day
+			doesnt reflect on existing timetable
 		//batches not working
 			//for teacher and venue
 		//deleting entries from grid with ui
 			//cant delete batches properly
 			//batches can be deleted from class only, from teacher, venue entire slot will be emptied
 
+			pubsub error
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+	**For ODS/PDF **
+	UI Design:
+
+	For classwise timetable:
+		show default venue in header
+		in grid show only name of subject 
+			and venue it its not default
+			and batches if its not for whole class
+		show mappings on next page
+
+	For Venuewise timetable:
+		show default class in header
+		in grid show only name of subject 
+			and class if its not default
+			and batches if its not for whole class		
+
+	For Teacherwise timetable:
+		in grid show only name of subject 
+			and class (batch if applicable)
+			and venue
+		therory load/lab load/total load
 
 /////////////////////////////////////////////////////////////////////////////////////////

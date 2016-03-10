@@ -4,7 +4,8 @@ import os, sys
 import wx
 import wx.grid as gridlib
 import wx.lib.scrolledpanel
-from wx.lib.pubsub import Publisher as pub
+from wx.lib.pubsub import setuparg1
+from wx.lib.pubsub import pub
 from Dialouge import *
 from GridTable import *
 from MyGrid import *

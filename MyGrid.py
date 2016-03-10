@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import wx
 import wx.grid as gridlib
-from wx.lib.pubsub import Publisher as pub
+from wx.lib.pubsub import pub
 import project
 from Dialouge import *
 from GridTable import *
