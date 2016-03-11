@@ -19,11 +19,9 @@
 
 cell- display formatting / add colors
 export as ods - nice form, pdf
-slot merging -  think
-master view of tt 
 Help / About - think
-
 rows / cols no change during runtime
+
 /////////////////////////////////////////////////////////////////////////////////////////
 	
 									***bugs***
@@ -33,6 +31,9 @@ rows / cols no change during runtime
 			restarting program to do this... find better way (checked with default # of args might change over time change it at last)
 		change in working days/week, lectures/day
 			doesnt reflect on existing timetable
+		slot merging
+			may contain lot of bugs, test it throughly
+
 		//batches not working
 			//for teacher and venue
 		//deleting entries from grid with ui

@@ -3,6 +3,8 @@ header2 = ''
 header3 = ''
 
 clipboard = ''
+selection_left = None
+selection_right = None
 #globals to store all objects
 all_teachers = []
 all_venues = []
