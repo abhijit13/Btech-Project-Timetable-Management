@@ -41,6 +41,73 @@ class MyGrid(gridlib.Grid):
             print bottom_right
             # self.printSelectedCells(top_left, bottom_right)
  
+    def getHTML(self, justStub=True, tableHeaders=True):
+        ''' Get HTML suitable for printing out the data in
+            this grid via wxHtmlEasyPrinting.
+           
+            If justStub is False, make it like a standalone
+            HTML file complete with <HTML><HEAD> etc...
+        '''
+        cols = self.GetNumberCols()
+        rows = self.GetNumberRows()
+       
+        if justStub:
+            html = ["<HTML><BODY>"]
+        else:
+            html = []
+           
+        html.append("<TABLE BORDER=1 CELLPADDING=0 CELLSPACING=0>")
+       
+        if tableHeaders:
+            html.append("<TR>")
+            html.append("<TD ALIGN='center'> </TD>")
+            for col in range(cols):
+                html.append("<TD ALIGN='center' VALIGN='top' WIDTH=%s><B>%s</B></TD>"
+                                % (self.GetColSize(col), self.GetColLabelValue(col)))
+            html.append("</TR>")
+       
+        for row in range(rows):
+            html.append("<TR>")
+            html.append("<TD ALIGN='center' VALIGN='top' WIDTH=%s><B>%s</B></TD>"
+                                % (self.GetRowSize(row), self.GetRowLabelValue(row)))
+            for col in range(cols):
+                html.append("<TD ALIGN='left' VALIGN='top'>%s</TD>"
+                                % self.GetCellValue(row,col))
+            html.append("</TR>")
+       
+        html.append("</TABLE>")
+        return "\n".join(html) 
+
+    def getHTMLs(self):
+        # docstart = "<HTML><BODY>"
+        # docend = "</BODY></HTML>"
+        # out = [docstart, "<TABLE BORDER CELLPADDING=0 CELLSPACING=0>"]
+        out = ["<TABLE BORDER CELLPADDING=0 CELLSPACING=0>"]
+
+        cols = self.GetNumberCols()
+        # add headers to table
+        _row = []
+        _row.extend( [self.GetColLabelValue(x) for x in range(cols)] )
+        out.append(self.addrow(_row))
+                         
+        for r in xrange(self.GetNumberRows()):
+            _row = [self.GetRowLabelValue(r)]
+            for c in range(cols):
+                _row.append(self.GetCellValue(r, c))
+
+            out.append(self.addrow(_row))
+
+        out.append("</TABLE>")
+        # out.append(docend)
+        return "\n".join(out)
+
+    def addcell(self, s):
+        return "<TD>%s</TD>"%s
+
+    def addrow(self, ls):
+        # adds a list of strings as a row
+        return "<TR>%s</TR>"%"\n\t".join([self.addcell(x) for x in ls])
+
     def OnSelectCell(self, event):
         
         self.rowSelect = event.GetRow()
@@ -305,6 +372,7 @@ class MyGrid(gridlib.Grid):
         print entry
         print deleteId
         entryLength = len(entry[deleteId]) 
+        #if has no attribute that means you haven't selected the cell yet
         a = self.rowSelect
         b = self.colSelect
 
@@ -344,6 +412,9 @@ class MyGrid(gridlib.Grid):
         i = evt.GetRow()
         j = evt.GetCol()
 
+        self.rowSelect = i
+        self.colSelect = j
+
         menu = wx.Menu()
         l = menu.Append(-1, "Insert Lunch")
         self.Bind(wx.EVT_MENU, lambda evt, a=i, b=j: self.OnLunchClick(a, b, evt) , l)
@@ -371,6 +442,11 @@ class MyGrid(gridlib.Grid):
         menu.Destroy()
 
     def OnCellDoubleClick(self, evt):
+        html = open('abc.html', "w")
+        # for t in globaldata.all_teachers:
+        src = self.getHTML()
+        html.write(src)
+        html.close()
 
         dlg = Dialoge(self)
         dlg.ShowModal()
