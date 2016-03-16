@@ -31,6 +31,7 @@ class MyForm(wx.Frame):
                 hthird.SetFont(self.fonth3)     
                 hfourth.SetFont(self.fonth4)
 
+
                 vbox = wx.BoxSizer(wx.VERTICAL)
                 vbox.AddSpacer(150)
                 vbox.Add(hfirst, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
@@ -130,8 +131,12 @@ class MyForm(wx.Frame):
         self.panel3.SendSizeEvent()
         self.panel3.Layout()
         pub.sendMessage('RESIZE_CELLS', data = None)
-        self.SendSizeEvent()        
-        self.Layout()
+        self.psizer1.Layout()
+        self.psizer2.Layout()
+        self.psizer3.Layout()
+        self.mainSizer.Layout()
+        # self.SendSizeEvent()        
+        # self.Layout()
 
     def OnListClick(self, evt):
         sel = self.listboxTeacher.GetSelection()
@@ -379,8 +384,16 @@ class MyForm(wx.Frame):
         globaldata.subject_fullnames = saveObject.subject_fullnames
         globaldata.subject_shortnames =saveObject.subject_shortnames
         globaldata.subject_credits =saveObject.subject_credits
+
+        globaldata.clipboard = saveObject.clipboard
+        globaldata.teacher_class_map = saveObject.teacher_class_map
+        globaldata.class_teacher_map = saveObject.class_teacher_map
+        globaldata.teacher_subject_map = saveObject.teacher_subject_map
+        globaldata.subject_teacher_map = saveObject.subject_teacher_map
+        globaldata.venue_class_map = saveObject.venue_class_map
+        globaldata.class_venue_map = saveObject.class_venue_map
         
-        self.AppendGlobalInput(None)
+        # self.AppendGlobalInput(None)
         self.update(None)
         dlg = wx.MessageDialog(None, "Loaded Successfully", "Notice", wx.OK|wx.ICON_INFORMATION)
         dlg.ShowModal()
@@ -439,6 +452,14 @@ class MyForm(wx.Frame):
         saveObject.subject_shortnames = globaldata.subject_shortnames
         saveObject.subject_credits = globaldata.subject_credits
 
+        saveObject.clipboard = globaldata.clipboard
+        saveObject.teacher_class_map = globaldata.teacher_class_map
+        saveObject.class_teacher_map = globaldata.class_teacher_map
+        saveObject.teacher_subject_map = globaldata.teacher_subject_map
+        saveObject.subject_teacher_map = globaldata.subject_teacher_map
+        saveObject.venue_class_map = globaldata.venue_class_map
+        saveObject.class_venue_map = globaldata.class_venue_map
+
         if not hasattr(self, "savefilepath"):
             saveFileDialog = wx.FileDialog(self, "Save Project File", "", ".tt",
                                                "tt files (*.tt)|*.tt", wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
@@ -491,9 +512,51 @@ class MyForm(wx.Frame):
             
             self.sizer1.Add(vbox, 1, wx.EXPAND)
             self.sizer1.Add(vbox1, 1, wx.EXPAND)
+            # self.panel1.Layout()
             self.sizer1.Layout()
+            self.psizer1.Layout()
             # self.Close()
-            self.listboxTeacher.Append("GlobalInput")
+            # self.listboxTeacher.Append("GlobalInput")
+
+    # def AppendFirstEntry(self, value, panel, sizer, typeOf):
+    #     # if not hasattr(self, "GlobalInput"):
+    #     temp = [[None for i in range(globaldata.lectures_per_day)] for j in range(globaldata.days_per_week)]
+    #     setattr(self, value, MyGrid(panel, temp, value, typeOf))
+
+    #     hfirst = wx.StaticText(panel, label=globaldata.header1)
+    #     hsecond = wx.StaticText(panel, label=globaldata.header2)
+    #     hthird = wx.StaticText(panel, label=globaldata.header3)
+    #     hthird.SetForegroundColour(wx.Colour(255,55,125))
+    #     hfourth = wx.StaticText(panel, label='Timetable For ' + typeOf + ':' + value)
+    #     hfirst.SetFont(self.fonth1)
+    #     hsecond.SetFont(self.fonth2)
+    #     hthird.SetFont(self.fonth3)
+    #     hfourth.SetFont(self.fonth4)
+
+    #     vbox = wx.BoxSizer(wx.VERTICAL)
+    #     vbox.AddSpacer(150)
+    #     vbox.Add(hfirst, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+    #     vbox.AddSpacer(10)
+    #     vbox.Add(hsecond, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+    #     vbox.AddSpacer(2)
+    #     vbox.Add(hthird, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+    #     vbox.AddSpacer(10)
+    #     vbox.Add(hfourth, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+    #     vbox.AddSpacer(20)
+
+    #     vbox1 = wx.BoxSizer(wx.VERTICAL)        
+    #     vbox1.Add(getattr(self, value) , 1, flag=wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL)
+    #     vbox1.AddSpacer(200)
+
+    #     sizer.Add(vbox, 1, wx.EXPAND)
+    #     sizer.Add(vbox1, 1, wx.EXPAND)
+    #     sizer.Layout()
+    #     if typeOf == "Teacher":
+    #         self.listboxTeacher.Append(value)
+    #     if typeOf == "Venue":
+    #             self.listboxVenue.Append(value)
+    #     if typeOf == "Class":
+    #             self.listboxClass.Append(value)
 
     def GetBasicConstraints(self, evt):
         # print 'ccliked'
@@ -508,49 +571,13 @@ class MyForm(wx.Frame):
         globaldata.class_min = int(dlg.class_min)
         globaldata.weekly_max = int(dlg.weekly_max)
         globaldata.weekly_min = int(dlg.weekly_min)
-        self.AppendGlobalInput(None)
+        print len(self.__dict__)
+        for i in  self.__dict__ :
+            print i
+        # self.AppendGlobalInput(None)
     
-    # def ClearGlobalData(self):
-        # for t in globaldata.all_teachers:
-        #     t.resize_matrix()        
-    #     globaldata.header1 = ''
-    #     globaldata.header2 = ''
-    #     globaldata.header3 = ''
-
-    #     #globals to store all objects
-    #     globaldata.all_teachers = []
-    #     globaldata.all_venues = []
-    #     globaldata.all_classes = []
-
-
-    #     globaldata.subjects = {}
-
-    #     globaldata.days_per_week = 0
-    #     globaldata.lectures_per_day = 0
-    #     globaldata.daily_max = 0
-    #     globaldata.daily_min = 0
-    #     globaldata.class_max = 0
-    #     globaldata.class_min = 0
-    #     globaldata.weekly_max = 0
-    #     globaldata.weekly_min = 0
-
-
-    #     globaldata.rowLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    #     globaldata.colLabels = ['9-10','10-11', '11-12', '12-1', '1-2', '2-3', '3-4', '4-5', '5-6', '6-7']
-
-    #     globaldata.teacher_fullnames = []
-    #     globaldata.teacher_shortnames = ['ADD NEW']
-    #     globaldata.venue_fullnames = []
-    #     globaldata.venue_shortnames = ['ADD NEW']
-    #     globaldata.class_fullnames = []
-    #     globaldata.class_shortnames = ['ADD NEW']
-    #     globaldata.subject_fullnames = []
-    #     globaldata.subject_shortnames = ['ADD NEW']
-    #     globaldata.subject_credits = []
-
-
     def OnNew(self, evt):
-        if len(self.__dict__) > 33:    #default attr are 33
+        if len(self.__dict__) > 32:    #default attr are 32
             os.execl(sys.executable, sys.executable, *sys.argv)
 
         dlg = HeaderInfo(self)
@@ -576,7 +603,11 @@ class MyForm(wx.Frame):
         globaldata.teacher_shortnames = temp
         globaldata.teacher_weeklymax = dlg.result3
         globaldata.teacher_dailymax = dlg.result4
-
+        if len(self.__dict__) == 32:    #default attr are 32
+            if len(globaldata.teacher_shortnames) > 1:
+                project.push_object(globaldata.teacher_shortnames[1], 'Teacher')
+                pub.sendMessage('UPDATE_VIEW', data = None)
+                # self.AppendFirstEntry(globaldata.teacher_shortnames[1], self.panel1, self.sizer1, 'Teacher')
 
     def VenueData(self, evt):
         # global venue_fullnames, venue_shortnames
@@ -587,6 +618,10 @@ class MyForm(wx.Frame):
         temp.extend(dlg.result2) 
         globaldata.venue_shortnames =  temp      
         globaldata.venue_capacity = dlg.result3
+        if len(self.__dict__) == 32:    #default attr are 32
+            if len(globaldata.venue_shortnames) > 1:
+                project.push_object(globaldata.venue_shortnames[1], 'Venue')
+                pub.sendMessage('UPDATE_VIEW', data = None)
 
     def ClassData(self, evt):
         # global class_fullnames, class_shortnames
@@ -597,6 +632,10 @@ class MyForm(wx.Frame):
         temp.extend(dlg.result2)
         globaldata.class_shortnames = temp
         globaldata.class_capacity = dlg.result3
+        if len(self.__dict__) == 32:    #default attr are 32
+            if len(globaldata.class_shortnames) > 1:
+                project.push_object(globaldata.class_shortnames[1], 'Class')
+                pub.sendMessage('UPDATE_VIEW', data = None)
 
     def SubjectData(self, evt):
         dlg = ListView(self, title='Add Subject Data', key='Subject')
@@ -670,6 +709,7 @@ class MyForm(wx.Frame):
         vDialouge.ShowModal()
 
     def UpdateHeaders(self, evt):
+
         dlg = HeaderInfo(self)
         dlg.ShowModal()
 
@@ -814,4 +854,6 @@ class MyForm(wx.Frame):
 if __name__ == "__main__":
     app = wx.App(False)
     frame = MyForm().Show()
+    # import wx.lib.inspection
+    # wx.lib.inspection.InspectionTool().Show()
     app.MainLoop()

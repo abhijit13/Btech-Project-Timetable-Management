@@ -14,13 +14,20 @@
 	//default entry from which we got popup	
 	//copy paste cut paste
 	//faculty subject/batch mapping 1-1 mapping only
-
+	//discard global input after first entry
+		no global input - first entry will appear on adding first teacher / venue / class
 /////////////////////////////////////////////////////////////////////////////////////////
 
 cell- display formatting / add colors
 export as ods - nice form, pdf
-Help / About - think
 rows / cols no change during runtime
+header box instead of line
+view of grid - scroll bars when not required takes less space than available and shows scrollbars
+enter should work
+cant cancel the dialouge
+warning list  for soft constraints violation
+teacher lunch break, teacher load should be soft constraint
+teacher, venue, class list should be imported from file
 
 /////////////////////////////////////////////////////////////////////////////////////////
 	

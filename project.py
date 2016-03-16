@@ -378,6 +378,21 @@ def get_object(List, name, BaseClass=None, batch=None):
 	return entry
 
 
+def push_object(listname, typeOf):
+
+	if typeOf == 'Teacher':
+		i = globaldata.teacher_shortnames.index(listname)
+		entry = Teacher(listname, globaldata.teacher_weeklymax[i-1], globaldata.teacher_dailymax[i-1])
+		globaldata.all_teachers.append(entry)
+	if typeOf == 'Venue':
+		i = globaldata.venue_shortnames.index(listname)
+		entry = Venue(listname, globaldata.venue_capacity[i-1])		
+		globaldata.all_venues.append(entry)
+	if typeOf == 'Class':
+		i = globaldata.class_shortnames.index(listname)
+		entry = Classes(listname, class_capacity[i-1])		
+		globaldata.all_classes.append(entry)
+
 def insert_entry(teacher, venue, Class, sub, day, lecture):
 	t = teacher
 	v = venue

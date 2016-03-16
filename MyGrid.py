@@ -20,14 +20,26 @@ class MyGrid(gridlib.Grid):
         self.SetRowLabelSize(-1) 
         self.SetColLabelSize(-1) 
         self.SetColMinimalAcceptableWidth(100)
+        # self.SetRowMinimalAcceptableWidth(100)
         # self.SetColMinimalWidth(1,150)
         # self.EnableCellEditControl(False) 
         wx.EVT_KEY_DOWN(self, self.KeyPressed)  
-        # self.Bind(gridlib.EVT_GRID_EDITOR_SHOWN, self.HandelManualInput)
+        # self.EnableEditing(False)
+#////////////////////////////////
+        #trying to fix the white overflow (bleed) that appears on windows
+        panelcolour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNFACE)
+        self.SetDefaultCellBackgroundColour(panelcolour) 
+#///////////////////////////////////
+        self.InvalidateBestSize();
+#        ///////////////////////////////////
+        # SetClientSize(self.GetBestSize());
+        self.Bind(gridlib.EVT_GRID_EDITOR_SHOWN, self.OnCellDoubleClick)
         self.Bind(gridlib.EVT_GRID_SELECT_CELL, self.OnSelectCell)
         self.Bind(gridlib.EVT_GRID_RANGE_SELECT, self.onDragSelection)
         self.Bind(gridlib.EVT_GRID_CELL_LEFT_DCLICK, self.OnCellDoubleClick)
         self.Bind(gridlib.EVT_GRID_CELL_RIGHT_CLICK, self.ShowPopupMenu)
+        # self.ShowScrollbars(wx.SHOW_SB_DEFAULT,wx.SHOW_SB_NEVER)
+        self.SetMargins(0,0)        
         self.SetDefaultCellAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE);
         pub.subscribe(self.Resize, 'RESIZE_CELLS') 
 
@@ -442,11 +454,11 @@ class MyGrid(gridlib.Grid):
         menu.Destroy()
 
     def OnCellDoubleClick(self, evt):
-        html = open('abc.html', "w")
-        # for t in globaldata.all_teachers:
-        src = self.getHTML()
-        html.write(src)
-        html.close()
+        # html = open('abc.html', "w")
+        # # for t in globaldata.all_teachers:
+        # src = self.getHTML()
+        # html.write(src)
+        # html.close()
 
         dlg = Dialoge(self)
         dlg.ShowModal()
@@ -495,6 +507,7 @@ class MyGrid(gridlib.Grid):
         evt.Skip()
 
     def Resize(self, evt):
-        self.AutoSizeColumns()
+        # self.AutoSizeColumns()
+        # self.AutoSizeRows()
         self.AutoSize()
         # evt.Skip()
