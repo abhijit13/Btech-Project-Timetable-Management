@@ -51,6 +51,7 @@ class MyGrid(gridlib.Grid):
             globaldata.selection_right = bottom_right
             print top_left
             print bottom_right
+
             # self.printSelectedCells(top_left, bottom_right)
  
     def getHTML(self, justStub=True, tableHeaders=True):
@@ -63,11 +64,29 @@ class MyGrid(gridlib.Grid):
         cols = self.GetNumberCols()
         rows = self.GetNumberRows()
        
-        if justStub:
-            html = ["<HTML><BODY>"]
-        else:
-            html = []
-           
+        # # if justStub:
+        # #     html = ["<HTML><BODY>"]
+        # # else:
+        #     html = []
+
+        html = []   
+        footer = {}
+        html.append('<h1 ALIGN="center"> %s </h1>' % globaldata.header1)
+        html.append('<h2 ALIGN="center"> %s </h2>' % globaldata.header2)
+        html.append('<h3 ALIGN="center"> %s </h3>' % globaldata.header3)
+
+        hfourth = 'Timetable For ' + self.type + ':' + self.name
+        if self.type == 'Class':
+            try:
+                hfourth += '&nbsp&nbspVenue:' + globaldata.class_venue_map[self.name]
+            except:
+                hfourth += ' '
+        if self.type == 'Venue':
+            try:
+                hfourth += '&nbsp&nbspClass:' + globaldata.venue_class_map[self.name]
+            except:
+                hfourth += ' '
+        html.append('<h3 ALIGN="center"> %s </h3>' % hfourth)
         html.append("<TABLE BORDER=1 CELLPADDING=0 CELLSPACING=0>")
        
         if tableHeaders:
@@ -83,35 +102,113 @@ class MyGrid(gridlib.Grid):
             html.append("<TD ALIGN='center' VALIGN='top' WIDTH=%s><B>%s</B></TD>"
                                 % (self.GetRowSize(row), self.GetRowLabelValue(row)))
             for col in range(cols):
-                html.append("<TD ALIGN='left' VALIGN='top'>%s</TD>"
-                                % self.GetCellValue(row,col))
+                if self.type == 'Teacher':
+                    val = self.data[row][col]
+                    res = ''
+                    if val == None:
+                        html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % res)
+                    else:
+                        for e in val:
+                            v = e[0]
+                            c = e[1]
+                            s = e[2]
+                            b = e[3]
+                            s += ' '
+                            if b != None:
+                                s +=  '- ' + str(b)  + ' '
+                            s += str(c) + ' '
+                            s +=  '['+ str(v) + ']'
+                            res += s + '<br>'
+                        html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % res)
+                        t = self.name
+                if self.type == 'Venue':
+                    val = self.data[row][col]
+                    res = ''
+                    if val == None:
+                        html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % res)
+                    else:
+                        for e in val:
+                            t = e[0]
+                            c = e[1]
+                            s = e[2]
+                            b = e[3]
+                            s += ' '
+                            if b != None:
+                                s +=  '- ' + str(b)  + ' '
+                            try:
+                                if c != globaldata.venue_class_map[self.name]:
+                                    s +=  '['+ str(c) + ']'
+                            except:
+                                s +=  '['+ str(c) + ']'
+
+                            res += s + '<br>'
+                        html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % res)
+
+                if self.type == 'Class':
+                    val = self.data[row][col]
+                    res = ''
+                    if val == None:
+                        html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % res)
+                    else:
+                        for e in val:
+                            t = e[0]
+                            v = e[1]
+                            s = e[2]
+                            b = e[3]
+                            s += ' '
+                            if b != None:
+                                s +=  '- ' + str(b)  + ' '
+                            footer[s] = t
+                            try:
+                                if v != globaldata.class_venue_map[self.name]:
+                                    s +=  '['+ str(v) + ']'
+                            except:
+                                s +=  '['+ str(v) + ']'
+                            res += s + '<br>'
+                        html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % res)
+                        
             html.append("</TR>")
-       
         html.append("</TABLE>")
+        html.append("<br><br><br>")
+
+        if self.type == 'Class':
+            html.append("<TABLE BORDER=1 CELLPADDING=0 CELLSPACING=0>")
+            html.append("<TR>")
+            html.append("<TD ALIGN='center' VALIGN='top'><B>Subject / Batch </B></TD>")
+            html.append("<TD ALIGN='center' VALIGN='top'><B>Teacher</B></TD>")
+            html.append("</TR>")
+            for e in footer:
+                print e, footer[e]
+                html.append("<TR>")
+                html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % e)
+                html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % footer[e])
+                html.append("</TR>")
+            html.append("</TABLE>")
+
         return "\n".join(html) 
 
-    def getHTMLs(self):
-        # docstart = "<HTML><BODY>"
-        # docend = "</BODY></HTML>"
-        # out = [docstart, "<TABLE BORDER CELLPADDING=0 CELLSPACING=0>"]
-        out = ["<TABLE BORDER CELLPADDING=0 CELLSPACING=0>"]
+    # def getHTMLs(self):
+    #     # docstart = "<HTML><BODY>"
+    #     # docend = "</BODY></HTML>"
+    #     # out = [docstart, "<TABLE BORDER CELLPADDING=0 CELLSPACING=0>"]
+    #     out = ["<TABLE BORDER CELLPADDING=0 CELLSPACING=0>"]
 
-        cols = self.GetNumberCols()
-        # add headers to table
-        _row = []
-        _row.extend( [self.GetColLabelValue(x) for x in range(cols)] )
-        out.append(self.addrow(_row))
+    #     cols = self.GetNumberCols()
+    #     # add headers to table
+    #     _row = []
+    #     _row.extend( [self.GetColLabelValue(x) for x in range(cols)] )
+    #     out.append(self.addrow(_row))
                          
-        for r in xrange(self.GetNumberRows()):
-            _row = [self.GetRowLabelValue(r)]
-            for c in range(cols):
-                _row.append(self.GetCellValue(r, c))
+    #     for r in xrange(self.GetNumberRows()):
+    #         _row = [self.GetRowLabelValue(r)]
+    #         for c in range(cols):
+    #             _row.append(self.GetCellValue(r, c))
 
-            out.append(self.addrow(_row))
+    #         out.append(self.addrow(_row))
 
-        out.append("</TABLE>")
-        # out.append(docend)
-        return "\n".join(out)
+    #     out.append("</TABLE>")
+    #     # out.append(docend)
+    #     return "\n".join(out)
 
     def addcell(self, s):
         return "<TD>%s</TD>"%s
@@ -321,6 +418,9 @@ class MyGrid(gridlib.Grid):
         # self.dia.field1 = wx.TextCtrl(self.dia, value="")
         self.dia.field1 = PromptingComboBox(self.dia, "Choose", globaldata.class_shortnames[1:], 'Class') 
 
+        self.dia.field1.SetValue(self.name)
+        self.dia.field1.res = self.name
+
         self.dia.mainSizer.Add(self.dia.label1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.dia.mainSizer.Add(self.dia.field1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
 
@@ -454,12 +554,7 @@ class MyGrid(gridlib.Grid):
         menu.Destroy()
 
     def OnCellDoubleClick(self, evt):
-        # html = open('abc.html', "w")
-        # # for t in globaldata.all_teachers:
-        # src = self.getHTML()
-        # html.write(src)
-        # html.close()
-
+        
         dlg = Dialoge(self)
         dlg.ShowModal()
         # if dlg.ShowModal()  == wx.ID_CANCEL:

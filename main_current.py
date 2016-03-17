@@ -306,6 +306,29 @@ class MyForm(wx.Frame):
         self.Close()
     def CheckConstraints(self, evt):
         
+        import pdfkit
+        src = "<HTML><BODY>"
+        html = open('teacher.html', "w")
+        for t in globaldata.all_teachers:
+            src += getattr(self, t.name).getHTML()
+        html.write(src)
+        html.close()
+        pdfkit.from_string(src, 'teacher.pdf')
+        src = "<HTML><BODY>"    
+        html = open('venue.html', "w")
+        for t in globaldata.all_venues:
+            src += getattr(self, t.name).getHTML()
+        html.write(src)
+        html.close()
+        pdfkit.from_string(src, 'venue.pdf')
+        src = "<HTML><BODY>"    
+        html = open('class.html', "w")
+        for t in globaldata.all_classes:
+            src += getattr(self, t.name).getHTML()
+        html.write(src)
+        html.close()
+        pdfkit.from_string(src,'class.pdf')
+
         for c in globaldata.all_classes:
             res = c.valid_lunch_break()
             if res == True:
@@ -708,6 +731,53 @@ class MyForm(wx.Frame):
             vList.Append(l)
         vDialouge.ShowModal()
 
+    def ImportFromFile(self, evt):
+        f = open("data.txt", "r")
+        data = f.read().split("#")
+        data.remove("")
+        t = data[0]
+        v = data[1]
+        c = data[2]
+        s = data[3]
+
+        e = t.split("\n")
+        for en in e:
+            if "//" in en or en == "":
+                continue
+            p = en.split()
+            globaldata.teacher_fullnames.append(p[0])
+            globaldata.teacher_shortnames.append(p[1])
+            globaldata.teacher_weeklymax.append(p[2])
+            globaldata.teacher_dailymax.append(p[3])
+
+        e = v.split("\n")
+        for en in e:
+            if "//" in en or en == "":
+                continue
+            p = en.split()
+            globaldata.venue_fullnames.append(p[0])
+            globaldata.venue_shortnames.append(p[1])
+            globaldata.venue_capacity.append(p[2])
+
+        e = c.split("\n")
+        for en in e:
+            if "//" in en or en == "":
+                continue
+            p = en.split()
+            globaldata.class_fullnames.append(p[0])
+            globaldata.class_shortnames.append(p[1])
+            globaldata.class_capacity.append(p[2])
+
+        e = s.split("\n")
+        for en in e:
+            if "//" in en or en == "":
+                continue
+            p = en.split()
+
+            globaldata.subject_fullnames.append(p[0])
+            globaldata.subject_shortnames.append(p[1])
+            globaldata.subject_credits.append(p[2])
+
     def UpdateHeaders(self, evt):
 
         dlg = HeaderInfo(self)
@@ -761,6 +831,8 @@ class MyForm(wx.Frame):
         data = wx.Menu()
         basic = data.Append(-1,'&Basic Constraints')
         self.Bind(wx.EVT_MENU, self.GetBasicConstraints, basic)
+        imp = data.Append(-1,'&Import from File')
+        self.Bind(wx.EVT_MENU, self.ImportFromFile, imp)
         teacher = data.Append(-1,'&Teachers')
         self.Bind(wx.EVT_MENU, self.TeacherData, teacher)
         venue = data.Append(-1,'&Venues')

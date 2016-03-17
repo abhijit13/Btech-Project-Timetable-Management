@@ -15,38 +15,37 @@
 	//copy paste cut paste
 	//faculty subject/batch mapping 1-1 mapping only
 	//discard global input after first entry
-		no global input - first entry will appear on adding first teacher / venue / class
+		//no global input - first entry will appear on adding first teacher / venue / class
+	//teacher, venue, class list should be imported from file
+	//view of grid
+		//scroll bars when not required. grid takes less space than available and shows scrollbars
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
 cell- display formatting / add colors
 export as ods - nice form, pdf
 rows / cols no change during runtime
 header box instead of line
-view of grid - scroll bars when not required takes less space than available and shows scrollbars
-enter should work
-cant cancel the dialouge
+enter should work and cant cancel the dialouge
 warning list  for soft constraints violation
 teacher lunch break, teacher load should be soft constraint
-teacher, venue, class list should be imported from file
+basic constraints remove teacher constraints
 
 /////////////////////////////////////////////////////////////////////////////////////////
 	
 									***bugs***
-		saving on disk and opening 
-			changed globals, so wont work properly
-		after opeing a file when you do new, old tt should disappear
-			restarting program to do this... find better way (checked with default # of args might change over time change it at last)
-		change in working days/week, lectures/day
-			doesnt reflect on existing timetable
-		slot merging
-			may contain lot of bugs, test it throughly
-
+		//saving on disk and opening 
+			if len(sel__dict__) changes, it need to be updated again.
+		//after opeing a file when you do new, old tt should disappear
+			restarting program to do this... find better way 
+			(checked with len(self.__dict__) may change over time change it at last)
+		//slot merging
+			background cells are active, take care while using it
 		//batches not working
 			//for teacher and venue
 		//deleting entries from grid with ui
 			//cant delete batches properly
-			//batches can be deleted from class only, from teacher, venue entire slot gets empty
-		//pubsub error
+			//batches can be deleted from class only, other's slot gets empty
 
 /////////////////////////////////////////////////////////////////////////////////////////
 

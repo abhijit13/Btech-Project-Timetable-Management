@@ -103,18 +103,18 @@ class Teacher(BaseStructure):
 		self.current_work_load  -= 1
 		super(Teacher, self).remove_entry(day, lecture, values)
 
-	def print_table(self):
-		for i in range(0, globaldata.days_per_week):
-			print i, 
-			for j in range(0, globaldata.lectures_per_day):
-				try:
-					for data in self.mat[i][j]:
-						print data[1], '-',data[0], 
-					print " ",
-				except:
-					print "None\t",
-			print
-		print	
+	# def print_table(self):
+	# 	for i in range(0, globaldata.days_per_week):
+	# 		print i, 
+	# 		for j in range(0, globaldata.lectures_per_day):
+	# 			try:
+	# 				for data in self.mat[i][j]:
+	# 					print data[1], '-',data[0], 
+	# 				print " ",
+	# 			except:
+	# 				print "None\t",
+	# 		print
+	# 	print	
 
 	def check_daily_workload(self):
 		errors = []

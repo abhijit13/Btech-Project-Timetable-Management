@@ -1,0 +1,19 @@
+#//Teacher Data :
+//	TeacherName	Abbrevation	WeeklyMaxLoad	DailyMaxLoad
+	Abhijit		AM			35				10
+	Lone		LN			35				10
+
+#//Venue Data :
+//	VenueName	Abbrevation	Capacity
+	201			201			80
+	202			202			80
+
+#//Class Data :
+//	ClassName	Abbrevation	Capacity
+	Sycomp		SYC 		75	
+	Tycomp		TYC 		75
+
+#//Subject Data :
+//	SubjectName	Abbrevation	Credits
+	DataStrucrure	DSA			4
+	Math			M2			4
