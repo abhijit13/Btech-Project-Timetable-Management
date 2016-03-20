@@ -72,6 +72,11 @@ class ListView(wx.Dialog):
         self.mainSizer.Add(self.list, 0, flag=wx.EXPAND|wx.ALIGN_CENTER)
         self.mainSizer.Add(self.hh, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
         self.SetSizer(self.mainSizer)
+        self.Bind(wx.EVT_CLOSE, self.Closed)
+
+    def Closed(self, event):
+        print 'Close pressed'
+        self.Destroy()
 
     def onDel(self, event):
         i = self.list.GetFirstSelected()
@@ -81,14 +86,17 @@ class ListView(wx.Dialog):
         if self.key == '':
             dlg = TwoItemList(self, title=self.title, key=self.key, label1=self.label1, label2=self.label2)
             dlg.ShowModal()
-            self.list.Append([dlg.result1, dlg.result2])
+            if hasattr(dlg, 'result1') and hasattr(dlg, 'result2'):
+                self.list.Append([dlg.result1, dlg.result2])
         else:
             dlg = ThreeItemList(self, title=self.title, key=self.key, label1=self.label1, label2=self.label2)
             dlg.ShowModal()
             if self.key == "Teacher":
-                self.list.Append([dlg.result1, dlg.result2, dlg.result3, dlg.result4])
+                if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3') and hasattr(dlg, 'result4') :
+                    self.list.Append([dlg.result1, dlg.result2, dlg.result3, dlg.result4])
             else:
-                self.list.Append([dlg.result1, dlg.result2, dlg.result3])
+                if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3'):
+                    self.list.Append([dlg.result1, dlg.result2, dlg.result3])
     def onOK(self, event):
         self.result1 = []
         self.result2 = []
@@ -122,13 +130,10 @@ class ListView(wx.Dialog):
                 self.result3.append(int(z.GetText()))
         self.Destroy()
 
-    def onCancel(self, event):
-        self.Destroy()
-
 class TwoItemList(wx.Dialog):
     def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key='', label1='', label2=""):
         self.key = key
-        wx.Dialog.__init__(self, parent, id, title, size=(800,50))
+        wx.Dialog.__init__(self, parent, id, title, size=(800,80))
         self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.mainSizer.AddSpacer(10)
 
@@ -159,19 +164,21 @@ class TwoItemList(wx.Dialog):
         self.Bind(wx.EVT_TEXT_ENTER, self.onOK)
         self.SetSizer(self.mainSizer)
         self.result = None
+        self.Bind(wx.EVT_CLOSE, self.Closed)
+
+    def Closed(self, event):
+        print 'Close pressed'
+        self.Destroy()
 
     def onOK(self, event):
         self.result1 = self.field1.res
         self.result2 = self.field2.res
         self.Destroy()
 
-    def onCancel(self, event):
-        self.Destroy()
-
 class ThreeItemList(wx.Dialog):
     def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key='', label1=' Name :', label2="Abbrevation:"):
         self.key = key
-        wx.Dialog.__init__(self, parent, id, title, size=(800,50))
+        wx.Dialog.__init__(self, parent, id, title, size=(850,80))
         self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.mainSizer.AddSpacer(10)
 
@@ -220,6 +227,12 @@ class ThreeItemList(wx.Dialog):
         self.Bind(wx.EVT_TEXT_ENTER, self.onOK)
         self.SetSizer(self.mainSizer)
         self.result = None
+        self.Bind(wx.EVT_CLOSE, self.Closed)
+
+    def Closed(self, event):
+        print 'Close pressed'
+        self.result = None
+        self.Destroy()
 
     def onOK(self, event):
         self.result1 = self.field1.GetValue()
@@ -229,9 +242,9 @@ class ThreeItemList(wx.Dialog):
             self.result4 = self.field4.GetValue()
         self.Destroy()
 
-    def onCancel(self, event):
-        self.result = None
-        self.Destroy()
+    # def onCancel(self, event):
+    #     self.result = None
+    #     self.Destroy()
 
 
 class PromptingComboBox(wx.ComboBox) :
@@ -311,50 +324,48 @@ class PromptingComboBox(wx.ComboBox) :
             if self.name == "Teacher":
                 dlg = ThreeItemList(self, title="Enter Teacher Data", key="Teacher")
                 dlg.ShowModal()
-                try:
+                if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3') and hasattr(dlg, 'result4'):
                     globaldata.teacher_fullnames.append(dlg.result1)
                     globaldata.teacher_shortnames.append(dlg.result2)
                     globaldata.teacher_weeklymax.append(int(dlg.result3))
                     globaldata.teacher_dailymax.append(int(dlg.result4))
                     self.Append(dlg.result2)
-                except:
+                else:
                     self.SetValue('Choose')
                 dlg.Destroy()
 
             elif self.name == "Venue":
                 dlg = ThreeItemList(self, title="Enter Venue Data", key="Venue")
                 dlg.ShowModal()
-                try:
+                if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3'):
                     globaldata.venue_fullnames.append(dlg.result1)
                     globaldata.venue_shortnames.append(dlg.result2)
                     globaldata.venue_capacity.append(int(dlg.result3))
-
                     self.Append(dlg.result2)
-                except:
+                else:
                     self.SetValue('Choose')
                 dlg.Destroy()        
             elif self.name == "Class":
                 dlg = ThreeItemList(self, title="Enter Class Data", key="Class")
                 dlg.ShowModal()
-                try:
+                if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3'):
                     globaldata.class_fullnames.append(dlg.result1)
                     globaldata.class_shortnames.append(dlg.result2)
                     globaldata.class_capacity.append(int(dlg.result3))
-
                     self.Append(dlg.result2)
-                except:
+                else:
                     self.SetValue('Choose')
                 dlg.Destroy()
             elif self.name == "Subject":
                 dlg = ThreeItemList(self, title="Enter Subject Data", key="Subject")
                 dlg.ShowModal()
-                try:
+                if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3'):
                     globaldata.subject_fullnames.append(dlg.result1)
                     globaldata.subject_shortnames.append(dlg.result2)
                     globaldata.subject_credits.append(dlg.result3)
                     globaldata.subjects[dlg.result2] = int(dlg.result3)
                     self.Append(dlg.result2)
-                except:
+                else:
                     self.SetValue('Choose')
                 dlg.Destroy()
             del self.res
@@ -414,10 +425,21 @@ class Dialoge(wx.Dialog):
 
         self.SetSizer(self.mainSizer)
         self.result = None
+        self.Bind(wx.EVT_CLOSE, self.Closed)
+
+    def Closed(self, event):
+        print 'Close pressed'
+        self.result = None
+        self.Destroy()
 
     def onOK(self, event):
-        if self.field1.res == "ADD NEW" or self.field2.res == "ADD NEW" or self.field3.res == "ADD NEW" or self.field4.res == "ADD NEW":
+        if not hasattr(self.field1, 'res') or not hasattr(self.field2,"res") or not hasattr(self.field3, "res") or not hasattr(self.field4, "res"):
+            print 'NO res'
             return
+
+        # if self.field1.res == "ADD NEW" or self.field2.res == "ADD NEW" or self.field3.res == "ADD NEW" or self.field4.res == "ADD NEW":
+        #     return
+
         if self.warn:
             venueIn = globaldata.venue_shortnames.index(self.field2.res) - 1
             venueCap = globaldata.venue_capacity[venueIn]
@@ -491,9 +513,16 @@ class HeaderInfo(wx.Dialog):
         
         self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
         self.Bind(wx.EVT_TEXT_ENTER, self.onOK)
-
+        self.Bind(wx.EVT_CLOSE, self.Closed)
+        
         self.SetSizer(self.mainSizer)
         self.result = None
+
+
+    def Closed(self, event):
+        print 'Close pressed'
+        self.result = None
+        self.Destroy()
 
     def onOK(self, event):
         self.result1 = self.f1.GetValue()
@@ -510,7 +539,7 @@ class BasicConstraint(wx.Dialog):
 
     def __init__(self, parent, id=-1, title="Enter Values"):
 
-        wx.Dialog.__init__(self, parent, id, title,size=(900,600))
+        wx.Dialog.__init__(self, parent, id, title,size=(500,400))
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
 
         self.mainSizer.AddSpacer(10)        
@@ -543,60 +572,60 @@ class BasicConstraint(wx.Dialog):
         self.mainSizer.Add(self.h1, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
 
-        self.label2 = wx.StaticText(self, label="Teacher:")
-        self.label2.SetFont(self.heading_font)
-        self.hh = wx.BoxSizer(wx.HORIZONTAL)
-        self.hh.Add(self.label2, 1)
-        self.mainSizer.AddSpacer(10)        
-        self.mainSizer.Add(self.hh, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        # self.label2 = wx.StaticText(self, label="Teacher:")
+        # self.label2.SetFont(self.heading_font)
+        # self.hh = wx.BoxSizer(wx.HORIZONTAL)
+        # self.hh.Add(self.label2, 1)
+        # self.mainSizer.AddSpacer(10)        
+        # self.mainSizer.Add(self.hh, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
 
 
-        self.h2 = wx.BoxSizer(wx.HORIZONTAL)
-        self.ldailymax = wx.StaticText(self, label="Daily Maximum Workload")
-        self.tdailymax = wx.TextCtrl(self, value="5",size=(140,-1))
-        self.h2.Add(self.ldailymax, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
-        self.h2.Add(self.tdailymax, 1, flag=wx.EXPAND)
+        # self.h2 = wx.BoxSizer(wx.HORIZONTAL)
+        # self.ldailymax = wx.StaticText(self, label="Daily Maximum Workload")
+        # self.tdailymax = wx.TextCtrl(self, value="5",size=(140,-1))
+        # self.h2.Add(self.ldailymax, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
+        # self.h2.Add(self.tdailymax, 1, flag=wx.EXPAND)
        
-        self.h3 = wx.BoxSizer(wx.HORIZONTAL)
-        self.ldailymin = wx.StaticText(self, label="Daily Minimum Workload")
-        self.tdailymin = wx.TextCtrl(self, value="1",size=(140,-1))
-        self.h3.Add(self.ldailymin, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
-        self.h3.Add(self.tdailymin, 1, flag=wx.EXPAND)
+        # self.h3 = wx.BoxSizer(wx.HORIZONTAL)
+        # self.ldailymin = wx.StaticText(self, label="Daily Minimum Workload")
+        # self.tdailymin = wx.TextCtrl(self, value="1",size=(140,-1))
+        # self.h3.Add(self.ldailymin, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
+        # self.h3.Add(self.tdailymin, 1, flag=wx.EXPAND)
 
-        self.v1 = wx.BoxSizer(wx.VERTICAL)
-        self.v1.Add(self.h2, 1, flag=wx.EXPAND)
-        self.v1.AddSpacer(10)
-        self.v1.Add(self.h3, 1, flag=wx.EXPAND)
+        # self.v1 = wx.BoxSizer(wx.VERTICAL)
+        # self.v1.Add(self.h2, 1, flag=wx.EXPAND)
+        # self.v1.AddSpacer(10)
+        # self.v1.Add(self.h3, 1, flag=wx.EXPAND)
 
 
-        self.h5 = wx.BoxSizer(wx.HORIZONTAL)
-        self.lweeklymax = wx.StaticText(self, label="Weekly Maximum Workload")
-        self.tweeklymax = wx.TextCtrl(self, value="20",size=(140,-1))
-        self.h5.Add(self.lweeklymax, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
-        self.h5.AddSpacer(10)
-        self.h5.Add(self.tweeklymax, 1, flag=wx.EXPAND)
+        # self.h5 = wx.BoxSizer(wx.HORIZONTAL)
+        # self.lweeklymax = wx.StaticText(self, label="Weekly Maximum Workload")
+        # self.tweeklymax = wx.TextCtrl(self, value="20",size=(140,-1))
+        # self.h5.Add(self.lweeklymax, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
+        # self.h5.AddSpacer(10)
+        # self.h5.Add(self.tweeklymax, 1, flag=wx.EXPAND)
 
-        self.h4 = wx.BoxSizer(wx.HORIZONTAL)
-        self.lweeklymin = wx.StaticText(self, label="Weekly Minimum Workload")
-        self.tweeklymin = wx.TextCtrl(self, value="5",size=(140,-1))
-        self.h4.Add(self.lweeklymin, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
-        self.h5.AddSpacer(10)
-        self.h4.Add(self.tweeklymin, 1, flag=wx.EXPAND)
+        # self.h4 = wx.BoxSizer(wx.HORIZONTAL)
+        # self.lweeklymin = wx.StaticText(self, label="Weekly Minimum Workload")
+        # self.tweeklymin = wx.TextCtrl(self, value="5",size=(140,-1))
+        # self.h4.Add(self.lweeklymin, 1, flag=wx.ALIGN_CENTER|wx.EXPAND)
+        # self.h5.AddSpacer(10)
+        # self.h4.Add(self.tweeklymin, 1, flag=wx.EXPAND)
 
-        self.v2 = wx.BoxSizer(wx.VERTICAL)
-        self.v2.Add(self.h5, 1, flag=wx.EXPAND)
-        self.v2.AddSpacer(10)
-        self.v2.Add(self.h4, 1, flag=wx.EXPAND)
+        # self.v2 = wx.BoxSizer(wx.VERTICAL)
+        # self.v2.Add(self.h5, 1, flag=wx.EXPAND)
+        # self.v2.AddSpacer(10)
+        # self.v2.Add(self.h4, 1, flag=wx.EXPAND)
 
-        self.hh = wx.BoxSizer(wx.HORIZONTAL)
-        self.hh.Add(self.v1, 1, flag=wx.EXPAND)
-        self.hh.AddSpacer(10)
-        self.hh.Add(self.v2, 1, flag=wx.EXPAND)
+        # self.hh = wx.BoxSizer(wx.HORIZONTAL)
+        # self.hh.Add(self.v1, 1, flag=wx.EXPAND)
+        # self.hh.AddSpacer(10)
+        # self.hh.Add(self.v2, 1, flag=wx.EXPAND)
 
-        self.mainSizer.Add(self.hh, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
-        self.mainSizer.AddSpacer(10)
+        # self.mainSizer.Add(self.hh, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
 
+        self.mainSizer.AddSpacer(50)
 
         self.label3 = wx.StaticText(self, label="Class:")
         self.label3.SetFont(self.heading_font)
@@ -604,8 +633,6 @@ class BasicConstraint(wx.Dialog):
         self.hh = wx.BoxSizer(wx.VERTICAL)
         self.hh.Add(self.label3, 1, flag=wx.EXPAND)
         self.mainSizer.Add(self.hh, 1, flag=wx.ALIGN_CENTER_HORIZONTAL)
-
-
 
 
         self.h4 = wx.BoxSizer(wx.HORIZONTAL)
@@ -635,22 +662,27 @@ class BasicConstraint(wx.Dialog):
         self.Bind(wx.EVT_TEXT_ENTER, self.onOK)
         self.SetSizer(self.mainSizer)
         self.result = None
+        self.Bind(wx.EVT_CLOSE, self.Closed)
+
+    def Closed(self, event):
+        print 'Close pressed'
+        self.result = None
+        self.Destroy()
 
     def onOK(self, event):
         self.days = self.tdays.GetValue()
         self.lectures = self.tlectures.GetValue()
         
-        self.daily_max = self.tdailymax.GetValue()
-        self.daily_min = self.tdailymin.GetValue()
+        # self.daily_max = self.tdailymax.GetValue()
+        # self.daily_min = self.tdailymin.GetValue()
 
-        self.weekly_max = self.tweeklymax.GetValue()
-        self.weekly_min = self.tweeklymin.GetValue()
+        # self.weekly_max = self.tweeklymax.GetValue()
+        # self.weekly_min = self.tweeklymin.GetValue()
 
         self.class_max = self.tclassmax.GetValue()
         self.class_min = self.tclassmin.GetValue()
-
         self.Destroy()
 
-    def onCancel(self, event):
-        self.result = None
-        self.Destroy()
+    # def onCancel(self, event):
+    #     self.result = None
+    #     self.Destroy()

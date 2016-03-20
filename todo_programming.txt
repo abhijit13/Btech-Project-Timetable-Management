@@ -1,5 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
+teacher load should be soft constraint
+enter should work
+warning list  for soft constraints violation
+cell- display formatting / add colors
+export as ods - nice form, pdf
+rows / cols no change during runtime
+header box instead of line
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+								***bugs***
+
 	//new wizard -> headers, basic constraints, popup for data
 	//data --> teachers, venue, classes, subjects
 	//suggestions dropdown box for teacher/venue/class names
@@ -19,33 +31,21 @@
 	//teacher, venue, class list should be imported from file
 	//view of grid
 		//scroll bars when not required. grid takes less space than available and shows scrollbars
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
-cell- display formatting / add colors
-export as ods - nice form, pdf
-rows / cols no change during runtime
-header box instead of line
-enter should work and cant cancel the dialouge
-warning list  for soft constraints violation
-teacher lunch break, teacher load should be soft constraint
-basic constraints remove teacher constraints
-
-/////////////////////////////////////////////////////////////////////////////////////////
-	
-									***bugs***
-		//saving on disk and opening 
-			if len(sel__dict__) changes, it need to be updated again.
-		//after opeing a file when you do new, old tt should disappear
-			restarting program to do this... find better way 
-			(checked with len(self.__dict__) may change over time change it at last)
-		//slot merging
-			background cells are active, take care while using it
-		//batches not working
-			//for teacher and venue
-		//deleting entries from grid with ui
-			//cant delete batches properly
-			//batches can be deleted from class only, other's slot gets empty
+	//teacher lunch break
+	//basic constraints remove teacher constraints
+	//cant cancel the dialouge
+	//saving on disk and opening 
+		if len(sel__dict__) changes, it need to be updated again.
+	//after opeing a file when you do new, old tt should disappear
+		restarting program to do this... find better way 
+		(checked with len(self.__dict__) may change over time change it at last)
+	//slot merging
+		background cells are active, take care while using it
+	//batches not working
+		//for teacher and venue
+	//deleting entries from grid with ui
+		//cant delete batches properly
+		//batches can be deleted from class only, other's slot gets empty
 
 /////////////////////////////////////////////////////////////////////////////////////////
 

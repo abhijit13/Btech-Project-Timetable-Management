@@ -132,6 +132,14 @@ class Teacher(BaseStructure):
 		else:
 			return True
 
+	def add_lunch(self, day, lecture, batch = None):
+		batch = None
+		if self.can_add(day, lecture):
+			self.mat[day][lecture] = [('LUNCH', batch)]
+		else:
+			entries = self.mat[day][lecture]
+			raise ExistingEntry(entries)		
+
 	def check_workload(self):
 		#work load should be greater than min and less than max
 		if self.current_work_load <= self.max_work_load and self.current_work_load >= self.min_work_load:
@@ -447,9 +455,13 @@ def insert_entry(teacher, venue, Class, sub, day, lecture):
 				teacher[0].remove_entry(day, lecture, teacher)
 				raise e
 
-def insert_lunch(batch, day, lecture):
+def insert_lunch(batch, day, lecture, typeOf):
 	batch = batch.split('-')
-	batch[0] = get_object(globaldata.all_classes, batch[0], Classes, batch[1:])
+	if typeOf == "Class":
+		batch[0] = get_object(globaldata.all_classes, batch[0], Classes, batch[1:])
+	elif typeOf == "Teacher":
+		batch[0] = get_object(globaldata.all_teachers, batch[0], Teacher, batch[1:])
+
 	try:
 		batch[0].add_lunch(day, lecture, batch)
 	except ExistingEntry as e:
@@ -457,11 +469,16 @@ def insert_lunch(batch, day, lecture):
 		print e.value
 		raise e
 
-def remove_lunch(Class, day, lecture):
+def remove_lunch(Class, day, lecture, typeOf):
 	Class = Class.split('-')
-	Class[0] = get_object(globaldata.all_classes, Class[0], Classes, Class[1:])
-	Class[0].remove_entry(day, lecture, Class)
-	Class[0].current_work_load += 1 	#very dirty fix this; dont change attributes of object from non member function.
+	if typeOf == 'Class':
+		Class[0] = get_object(globaldata.all_classes, Class[0], Classes, Class[1:])
+		Class[0].remove_entry(day, lecture, Class)
+		Class[0].current_work_load += 1 	#very dirty fix this; dont change attributes of object from non member function.
+	elif typeOf == 'Teacher':
+		Class[0] = get_object(globaldata.all_teachers, Class[0], Teacher, Class[1:])
+		Class[0].remove_entry(day, lecture, Class)
+		Class[0].current_work_load += 1 	#very dirty fix this; dont change attributes of object from non member function.
 
 # def print_table(choice):
 

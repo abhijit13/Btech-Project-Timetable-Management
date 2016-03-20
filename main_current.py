@@ -585,15 +585,16 @@ class MyForm(wx.Frame):
         # print 'ccliked'
         dlg = BasicConstraint(self)
         dlg.ShowModal()
-        # print dlg.daily_max, dlg.weekly_max, dlg.class_max
-        globaldata.days_per_week = int(dlg.days)
-        globaldata.lectures_per_day = int(dlg.lectures)
-        globaldata.daily_max = int(dlg.daily_max)
-        globaldata.daily_min = int(dlg.daily_min)
-        globaldata.class_max = int(dlg.class_max)
-        globaldata.class_min = int(dlg.class_min)
-        globaldata.weekly_max = int(dlg.weekly_max)
-        globaldata.weekly_min = int(dlg.weekly_min)
+        if hasattr(dlg, 'days') and hasattr(dlg, 'lectures') and hasattr(dlg, 'class_max') and hasattr(dlg, 'class_min'):
+            # print dlg.daily_max, dlg.weekly_max, dlg.class_max
+            globaldata.days_per_week = int(dlg.days)
+            globaldata.lectures_per_day = int(dlg.lectures)
+            # globaldata.daily_max = int(dlg.daily_max)
+            # globaldata.daily_min = int(dlg.daily_min)
+            globaldata.class_max = int(dlg.class_max)
+            globaldata.class_min = int(dlg.class_min)
+            # globaldata.weekly_max = int(dlg.weekly_max)
+            # globaldata.weekly_min = int(dlg.weekly_min)
         print len(self.__dict__)
         for i in  self.__dict__ :
             print i
@@ -605,11 +606,12 @@ class MyForm(wx.Frame):
 
         dlg = HeaderInfo(self)
         dlg.ShowModal()
-
-        globaldata.header1 = dlg.result1
-        globaldata.header2 = dlg.result2
-        globaldata.header3 = dlg.result3  
-
+        if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3'):
+            globaldata.header1 = dlg.result1
+            globaldata.header2 = dlg.result2
+            globaldata.header3 = dlg.result3  
+        else:
+            return
         self.GetBasicConstraints(evt)
 
         dlg = wx.MessageDialog(None, "For ease of use add Teacher, Venue and Class data under:\nData->Teacher\nData->Venue\nData->Class","Notice", wx.OK|wx.ICON_INFORMATION)
@@ -620,93 +622,100 @@ class MyForm(wx.Frame):
         # global teacher_fullnames, teacher_shortnames
         dlg = ListView(self, title='Add Teacher Data', key='Teacher')
         dlg.ShowModal()
-        globaldata.teacher_fullnames = dlg.result1
-        temp = ["ADD NEW"]
-        temp.extend(dlg.result2)
-        globaldata.teacher_shortnames = temp
-        globaldata.teacher_weeklymax = dlg.result3
-        globaldata.teacher_dailymax = dlg.result4
-        if len(self.__dict__) == 32:    #default attr are 32
-            if len(globaldata.teacher_shortnames) > 1:
-                project.push_object(globaldata.teacher_shortnames[1], 'Teacher')
-                pub.sendMessage('UPDATE_VIEW', data = None)
-                # self.AppendFirstEntry(globaldata.teacher_shortnames[1], self.panel1, self.sizer1, 'Teacher')
+        if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3') and hasattr(dlg, 'result4'):
+            globaldata.teacher_fullnames = dlg.result1
+            temp = ["ADD NEW"]
+            temp.extend(dlg.result2)
+            globaldata.teacher_shortnames = temp
+            globaldata.teacher_weeklymax = dlg.result3
+            globaldata.teacher_dailymax = dlg.result4
+            if len(self.__dict__) == 32:    #default attr are 32
+                if len(globaldata.teacher_shortnames) > 1:
+                    project.push_object(globaldata.teacher_shortnames[1], 'Teacher')
+                    pub.sendMessage('UPDATE_VIEW', data = None)
+                    # self.AppendFirstEntry(globaldata.teacher_shortnames[1], self.panel1, self.sizer1, 'Teacher')
 
     def VenueData(self, evt):
         # global venue_fullnames, venue_shortnames
         dlg = ListView(self, title='Add Venue Data', key='Venue')
         dlg.ShowModal()
-        globaldata.venue_fullnames = dlg.result1
-        temp = ["ADD NEW"]
-        temp.extend(dlg.result2) 
-        globaldata.venue_shortnames =  temp      
-        globaldata.venue_capacity = dlg.result3
-        if len(self.__dict__) == 32:    #default attr are 32
-            if len(globaldata.venue_shortnames) > 1:
-                project.push_object(globaldata.venue_shortnames[1], 'Venue')
-                pub.sendMessage('UPDATE_VIEW', data = None)
+        if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3'):    
+            globaldata.venue_fullnames = dlg.result1
+            temp = ["ADD NEW"]
+            temp.extend(dlg.result2) 
+            globaldata.venue_shortnames =  temp      
+            globaldata.venue_capacity = dlg.result3
+            if len(self.__dict__) == 32:    #default attr are 32
+                if len(globaldata.venue_shortnames) > 1:
+                    project.push_object(globaldata.venue_shortnames[1], 'Venue')
+                    pub.sendMessage('UPDATE_VIEW', data = None)
 
     def ClassData(self, evt):
         # global class_fullnames, class_shortnames
         dlg = ListView(self, title='Add Class Data', key='Class')
         dlg.ShowModal()
-        globaldata.class_fullnames = dlg.result1
-        temp = ["ADD NEW"]
-        temp.extend(dlg.result2)
-        globaldata.class_shortnames = temp
-        globaldata.class_capacity = dlg.result3
-        if len(self.__dict__) == 32:    #default attr are 32
-            if len(globaldata.class_shortnames) > 1:
-                project.push_object(globaldata.class_shortnames[1], 'Class')
-                pub.sendMessage('UPDATE_VIEW', data = None)
+        if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3'):
+            globaldata.class_fullnames = dlg.result1
+            temp = ["ADD NEW"]
+            temp.extend(dlg.result2)
+            globaldata.class_shortnames = temp
+            globaldata.class_capacity = dlg.result3
+            if len(self.__dict__) == 32:    #default attr are 32
+                if len(globaldata.class_shortnames) > 1:
+                    project.push_object(globaldata.class_shortnames[1], 'Class')
+                    pub.sendMessage('UPDATE_VIEW', data = None)
 
     def SubjectData(self, evt):
         dlg = ListView(self, title='Add Subject Data', key='Subject')
         dlg.ShowModal()
-        globaldata.subject_fullnames = dlg.result1
-        temp = ["ADD NEW"]  
-        temp.extend(dlg.result2)
-        globaldata.subject_shortnames = temp
-        globaldata.subject_credits = dlg.result3
-        for i in range(len(dlg.result2)):
-            globaldata.subjects[dlg.result2[i]] = dlg.result3[i]
+        if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3'):
+            globaldata.subject_fullnames = dlg.result1
+            temp = ["ADD NEW"]  
+            temp.extend(dlg.result2)
+            globaldata.subject_shortnames = temp
+            globaldata.subject_credits = dlg.result3
+            for i in range(len(dlg.result2)):
+                globaldata.subjects[dlg.result2[i]] = dlg.result3[i]
 
     def TeacherClass(self, evt):
         dlg = ListView(self, title='Add Mapping', label1="Teacher", label2="Class / Batch")
         dlg.ShowModal()
-        teacher_class_map = {}
-        class_teacher_map = {}
+        if hasattr(dlg, 'result1') and hasattr(dlg, 'result2'):
+            teacher_class_map = {}
+            class_teacher_map = {}
 
-        for i in range(len(dlg.result1)):
-            teacher_class_map[dlg.result1[i]] = dlg.result2[i]
-            class_teacher_map[dlg.result2[i]] = dlg.result1[i]
+            for i in range(len(dlg.result1)):
+                teacher_class_map[dlg.result1[i]] = dlg.result2[i]
+                class_teacher_map[dlg.result2[i]] = dlg.result1[i]
 
-        globaldata.teacher_class_map = teacher_class_map
-        globaldata.class_teacher_map = class_teacher_map
+            globaldata.teacher_class_map = teacher_class_map
+            globaldata.class_teacher_map = class_teacher_map
 
     def TeacherSubject(self, evt):
         dlg = ListView(self, title='Add Mapping', label1="Teacher", label2="Subject")
         dlg.ShowModal()
-        teacher_subject_map = {}
-        subject_teacher_map = {}
-        for i in range(len(dlg.result1)):
-            teacher_subject_map[dlg.result1[i]] = dlg.result2[i]
-            subject_teacher_map[dlg.result2[i]] = dlg.result1[i]
+        if hasattr(dlg, 'result1') and hasattr(dlg, 'result2'):
+            teacher_subject_map = {}
+            subject_teacher_map = {}
+            for i in range(len(dlg.result1)):
+                teacher_subject_map[dlg.result1[i]] = dlg.result2[i]
+                subject_teacher_map[dlg.result2[i]] = dlg.result1[i]
 
-        globaldata.teacher_subject_map = teacher_subject_map
-        globaldata.subject_teacher_map = subject_teacher_map
+            globaldata.teacher_subject_map = teacher_subject_map
+            globaldata.subject_teacher_map = subject_teacher_map
 
     def VenueClass(self, evt):
         dlg = ListView(self, title='Add Mapping', label1="Venue", label2="Class / Batch")
         dlg.ShowModal()
-        venue_class_map = {}
-        class_venue_map = {}
-        for i in range(len(dlg.result1)):
-            venue_class_map[dlg.result1[i]] = dlg.result2[i]
-            class_venue_map[dlg.result2[i]] = dlg.result1[i]
+        if hasattr(dlg, 'result1') and hasattr(dlg, 'result2'):
+            venue_class_map = {}
+            class_venue_map = {}
+            for i in range(len(dlg.result1)):
+                venue_class_map[dlg.result1[i]] = dlg.result2[i]
+                class_venue_map[dlg.result2[i]] = dlg.result1[i]
 
-        globaldata.venue_class_map = venue_class_map
-        globaldata.class_venue_map = class_venue_map
+            globaldata.venue_class_map = venue_class_map
+            globaldata.class_venue_map = class_venue_map
 
     def VenueUtilization(self, evt):
         res = project.FindVenueUtilization()
@@ -778,17 +787,20 @@ class MyForm(wx.Frame):
             globaldata.subject_shortnames.append(p[1])
             globaldata.subject_credits.append(p[2])
 
+        dlg = wx.MessageDialog(None, "Imported Successfully", "Notice", wx.OK|wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
+
     def UpdateHeaders(self, evt):
 
         dlg = HeaderInfo(self)
         dlg.ShowModal()
-
-        globaldata.header1 = dlg.result1
-        globaldata.header2 = dlg.result2
-        globaldata.header3 = dlg.result3  
-
+        if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3'):
+            globaldata.header1 = dlg.result1
+            globaldata.header2 = dlg.result2
+            globaldata.header3 = dlg.result3  
+            self.update(None) 
         dlg.Destroy()
-        self.update(None)
 
     def _init_menubar(self):
 

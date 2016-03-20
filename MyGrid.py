@@ -210,12 +210,12 @@ class MyGrid(gridlib.Grid):
     #     # out.append(docend)
     #     return "\n".join(out)
 
-    def addcell(self, s):
-        return "<TD>%s</TD>"%s
+    # def addcell(self, s):
+    #     return "<TD>%s</TD>"%s
 
-    def addrow(self, ls):
-        # adds a list of strings as a row
-        return "<TR>%s</TR>"%"\n\t".join([self.addcell(x) for x in ls])
+    # def addrow(self, ls):
+    #     # adds a list of strings as a row
+    #     return "<TR>%s</TR>"%"\n\t".join([self.addcell(x) for x in ls])
 
     def OnSelectCell(self, event):
         
@@ -330,7 +330,11 @@ class MyGrid(gridlib.Grid):
             for e in globaldata.clipboard:
                 if len(e) == 3:
                     try:
-                        project.insert_lunch(e[-1], i, j)
+                        if self.type == 'Class':
+                            project.insert_lunch(e[-1], i, j, self.type)
+                        elif self.type == 'Teacher':
+                            project.insert_lunch(e[0], i, j, self.type)  
+                                                      
                         pub.sendMessage('UPDATE_VIEW', data = None)
                     except Exception as e:
                         s = 'Conflict with: '
@@ -373,7 +377,10 @@ class MyGrid(gridlib.Grid):
                     for e in globaldata.clipboard:
                         if len(e) == 3:
                             try:
-                                project.insert_lunch(e[-1], i, j)
+                                if self.type == 'Class':
+                                    project.insert_lunch(e[-1], i, j, self.type)
+                                elif self.type == 'Teacher':
+                                    project.insert_lunch(e[0], i, j, self.type)                                    
                                 pub.sendMessage('UPDATE_VIEW', data = None)
                             except Exception as e:
                                 s = 'Conflict with: '
@@ -408,19 +415,23 @@ class MyGrid(gridlib.Grid):
                                 self.SetCellSize(p, q, 1,1)
         return
 
-    def OnLunchClick(self, i, j, e):
+    def OnLunchClick(self, i, j, evt):
         print i, j
         self.dia = wx.Dialog(self, -1, 'Enter Lunch Details', size=(300,50))
         self.dia.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.dia.mainSizer.AddSpacer(10)
 
-        self.dia.label1 = wx.StaticText(self.dia, label='Enter Class:')
-        # self.dia.field1 = wx.TextCtrl(self.dia, value="")
-        self.dia.field1 = PromptingComboBox(self.dia, "Choose", globaldata.class_shortnames[1:], 'Class') 
+        if self.type == "Class":
+            self.dia.label1 = wx.StaticText(self.dia, label='Enter Class:')
+            # self.dia.field1 = wx.TextCtrl(self.dia, value="")
+            self.dia.field1 = PromptingComboBox(self.dia, "Choose", globaldata.class_shortnames[1:], 'Class') 
+        elif self.type == "Teacher":
+            self.dia.label1 = wx.StaticText(self.dia, label='Enter Teacher:')
+            # self.dia.field1 = wx.TextCtrl(self.dia, value="")
+            self.dia.field1 = PromptingComboBox(self.dia, "Choose", globaldata.teacher_shortnames[1:], 'Teacher') 
 
         self.dia.field1.SetValue(self.name)
         self.dia.field1.res = self.name
-
         self.dia.mainSizer.Add(self.dia.label1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
         self.dia.mainSizer.Add(self.dia.field1, 1, flag=wx.ALIGN_CENTER_VERTICAL)
 
@@ -432,31 +443,59 @@ class MyGrid(gridlib.Grid):
         self.dia.result = None
         self.dia.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
         self.dia.Bind(wx.EVT_TEXT_ENTER, self.onOK)
+        self.dia.Bind(wx.EVT_CLOSE, self.Closed)
         self.dia.ShowModal()
-        # if self.dia.ShowModal()  == wx.ID_CANCEL:
-        #     return
-        # self.dia.result1
-        try:
-            project.insert_lunch(self.dia.result1, i, j)
-            pub.sendMessage('UPDATE_VIEW', data = None)
-        except Exception as e:
-            s = 'Conflict with: '
-            for t in e.value:
-                for e in t:
-                    if e != None:
-                        s += str(e) + ' '
-                s += '\n'
-            dlg = wx.MessageDialog(None, s , "ERROR", wx.OK|wx.ICON_INFORMATION)
-            dlg.ShowModal()
-            dlg.Destroy()
-        e.Skip()
+
+        if hasattr(self.dia, 'result1'):
+            if self.GetCellSize(i,j) == (1,1):
+                try:
+                    project.insert_lunch(self.dia.result1, i, j, self.type)
+                    pub.sendMessage('UPDATE_VIEW', data = None)
+                except Exception as e:
+                    s = 'Conflict with: '
+                    for t in e.value:
+                        for e in t:
+                            if e != None:
+                                s += str(e) + ' '
+                        s += '\n'
+                    dlg = wx.MessageDialog(None, s , "ERROR", wx.OK|wx.ICON_INFORMATION)
+                    dlg.ShowModal()
+                    dlg.Destroy()
+            else:
+                x, y = self.GetCellSize(i,j)
+                l = i
+                m = j
+                for i in range(x):
+                    for j in range(y):
+                        p = l+i
+                        q = m+j
+                        try:
+                            project.insert_lunch(self.dia.result1, p, q, self.type)
+                            pub.sendMessage('UPDATE_VIEW', data = None)
+                        except Exception as e:
+                            print e
+                            s = 'Conflict with: '
+                            for t in e.value:
+                                for e in t:
+                                    if e != None:
+                                        s += str(e) + ' '
+                                s += '\n'
+                            dlg = wx.MessageDialog(None, s , "ERROR", wx.OK|wx.ICON_INFORMATION)
+                            dlg.ShowModal()
+                            dlg.Destroy()
+                            self.SetCellSize(l, m, 1,1)
+        evt.Skip()
 
     def onOK(self, event):
         self.dia.result1 = self.dia.field1.res
         self.dia.Destroy()
 
     def onCancel(self, event):
-        self.Destroy()
+        self.dia.Destroy()
+
+    def Closed(self, event):
+        print 'Close pressed'
+        self.dia.Destroy()
 
     def OnDeleteEntry(self, a, b, event):
         # print 'all_teachers', globaldata.all_teachers
@@ -490,9 +529,9 @@ class MyGrid(gridlib.Grid):
 
         if entryLength < 3:
             if entry[deleteId][1] == None:
-                project.remove_lunch(self.name, a, b)
+                project.remove_lunch(self.name, a, b, self.type)
             else:
-                project.remove_lunch(self.name+'-'+entry[deleteId][-1] , a, b)
+                project.remove_lunch(self.name+'-'+entry[deleteId][-1] , a, b, self.type)
 
         elif entryLength == 5:
             t = entry[deleteId][0]
@@ -557,48 +596,45 @@ class MyGrid(gridlib.Grid):
         
         dlg = Dialoge(self)
         dlg.ShowModal()
-        # if dlg.ShowModal()  == wx.ID_CANCEL:
-        #     return 
-        # print (dlg.result1, dlg.result2, dlg.result3, dlg.result4, evt.GetRow(),evt.GetCol())
-        if self.GetCellSize(evt.GetRow(), evt.GetCol()) == (1,1):
-
-            try:
-                project.insert_entry(dlg.result1, dlg.result2, dlg.result3, dlg.result4, evt.GetRow(),evt.GetCol())
-                pub.sendMessage('UPDATE_VIEW', data = None)
-            except Exception as e:
-                print e
-                s = 'Conflict with: '
-                for t in e.value:
-                    for e in t:
-                        if e != None:
-                            s += str(e) + ' '
-                    s += '\n'
-                dlg = wx.MessageDialog(None, s , "ERROR", wx.OK|wx.ICON_INFORMATION)
-                dlg.ShowModal()
-                dlg.Destroy()
-        else:
-            x, y = self.GetCellSize(evt.GetRow(), evt.GetCol())
-            l = evt.GetRow()
-            m = evt.GetCol()
-            for i in range(x):
-                for j in range(y):
-                    p = l+i
-                    q = m+j
-                    try:
-                        project.insert_entry(dlg.result1, dlg.result2, dlg.result3, dlg.result4, p, q)
-                        pub.sendMessage('UPDATE_VIEW', data = None)
-                    except Exception as e:
-                        print e
-                        s = 'Conflict with: '
-                        for t in e.value:
-                            for e in t:
-                                if e != None:
-                                    s += str(e) + ' '
-                            s += '\n'
-                        dlg = wx.MessageDialog(None, s , "ERROR", wx.OK|wx.ICON_INFORMATION)
-                        dlg.ShowModal()
-                        dlg.Destroy()
-                        self.SetCellSize(l, m, 1,1)
+        if hasattr(dlg, 'result1') and hasattr(dlg, 'result2') and hasattr(dlg, 'result3') and hasattr(dlg, 'result4'):
+            if self.GetCellSize(evt.GetRow(), evt.GetCol()) == (1,1):
+                try:
+                    project.insert_entry(dlg.result1, dlg.result2, dlg.result3, dlg.result4, evt.GetRow(),evt.GetCol())
+                    pub.sendMessage('UPDATE_VIEW', data = None)
+                except Exception as e:
+                    print e
+                    s = 'Conflict with: '
+                    for t in e.value:
+                        for e in t:
+                            if e != None:
+                                s += str(e) + ' '
+                        s += '\n'
+                    dlg = wx.MessageDialog(None, s , "ERROR", wx.OK|wx.ICON_INFORMATION)
+                    dlg.ShowModal()
+                    dlg.Destroy()
+            else:
+                x, y = self.GetCellSize(evt.GetRow(), evt.GetCol())
+                l = evt.GetRow()
+                m = evt.GetCol()
+                for i in range(x):
+                    for j in range(y):
+                        p = l+i
+                        q = m+j
+                        try:
+                            project.insert_entry(dlg.result1, dlg.result2, dlg.result3, dlg.result4, p, q)
+                            pub.sendMessage('UPDATE_VIEW', data = None)
+                        except Exception as e:
+                            print e
+                            s = 'Conflict with: '
+                            for t in e.value:
+                                for e in t:
+                                    if e != None:
+                                        s += str(e) + ' '
+                                s += '\n'
+                            dlg = wx.MessageDialog(None, s , "ERROR", wx.OK|wx.ICON_INFORMATION)
+                            dlg.ShowModal()
+                            dlg.Destroy()
+                            self.SetCellSize(l, m, 1,1)
         evt.Skip()
 
     def Resize(self, evt):
