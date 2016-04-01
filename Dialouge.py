@@ -1,12 +1,102 @@
 import wx
 import globaldata
-
+from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
 # class EditableListCtrl(wx.ListCtrl, listmix.TextEditMixin):
 #     def __init__(self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition,
 #                  size=wx.DefaultSize, style=0):
 #         """Constructor"""
 #         wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
 #         listmix.TextEditMixin.__init__(self)
+class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
+    def __init__(self, parent):
+        wx.ListCtrl.__init__(self, parent, -1, style=wx.LC_REPORT | wx.ALWAYS_SHOW_SB ,size=(700, 400))
+        ListCtrlAutoWidthMixin.__init__(self)
+
+class WarningView(wx.Dialog):
+    def __init__(self, parent, source, size=(900,900), id=-1, title="Warnings"):
+        self.parent = parent
+        wx.Dialog.__init__(self, parent, id, title, size)
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
+        self.list = AutoWidthListCtrl(self)
+        # self.list = wx.ListCtrl(self,id, style=wx.LC_REPORT, size=(900, 400))
+        self.list.Show(True)
+        self.list.InsertColumn(0, 'No', width=wx.LIST_AUTOSIZE)
+        self.list.InsertColumn(1, 'Warnings', width=wx.LIST_AUTOSIZE)
+
+        #get data from the file or get it from the list
+        for i in range(len(source)):
+            self.list.Append([i+1, source[i]])
+
+        self.hh = wx.BoxSizer(wx.HORIZONTAL)
+        self.okbutton = wx.Button(self, label="OK", id=wx.ID_OK)        
+        self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
+
+        self.delbutton = wx.Button(self, label="Remove")        
+        self.Bind(wx.EVT_BUTTON, self.onDel, self.delbutton)
+
+        self.refbutton = wx.Button(self, label="Refresh")        
+        self.Bind(wx.EVT_BUTTON, self.onRefresh, self.refbutton)
+
+        self.hh.Add(self.okbutton, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.hh.Add(self.delbutton, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.hh.Add(self.refbutton, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+
+        self.mainSizer.Add(self.list, 0, flag=wx.EXPAND|wx.ALIGN_CENTER)
+        self.mainSizer.Add(self.hh, 0, flag=wx.ALIGN_CENTER_HORIZONTAL)
+        self.SetSizer(self.mainSizer)
+        self.Bind(wx.EVT_CLOSE, self.Closed)
+        # self.list.EnsureVisible(-1)
+        # self.list.SetColumnWidth(0, wx.LIST_AUTOSIZE)
+        # self.list.SetColumnWidth(1, wx.LIST_AUTOSIZE)
+        # t = self.list.GetSize()
+        # self.list.SetSize(t)
+
+    def Closed(self, event):
+        print 'Close pressed'
+        self.Destroy()
+
+    def onRefresh(self, event):
+        res = self.parent.CheckActualConstraints()
+        parent = self.parent
+        self.Destroy()
+        dlg = WarningView(self.parent, res)
+        dlg.ShowModal()
+        if hasattr(dlg, 'result'):
+            parent.ReplaceFile(dlg.result)
+    def get_selected_items(self, list_control):
+
+        selection = []
+        # start at -1 to get the first selected item
+        current = -1
+        while True:
+            next = self.GetNextSelected(list_control, current)
+            if next == -1:
+                return selection
+            selection.append(next)
+            current = next
+
+    def GetNextSelected(self, list_control, current):
+        return list_control.GetNextItem(current,
+                                wx.LIST_NEXT_ALL,
+                                wx.LIST_STATE_SELECTED)
+    def onDel(self, event):
+        i = self.list.GetFirstSelected()
+        self.list.DeleteItem(i)
+        #for multiselect delete / doesnt work perfectly
+        # selection = self.get_selected_items(self.list)
+        # for i in selection:
+        #     self.list.DeleteItem(i)
+
+    def onOK(self, event):
+        #repace contents of file with updated one
+        n = self.list.GetItemCount()
+        res = []
+        for i in range(n):
+            x = self.list.GetItem(i, 1).GetText()
+            # print x
+            res.append(x)
+        self.result = ''.join(res)
+        self.Destroy()
 
 class ListView(wx.Dialog):
     def __init__(self, parent, size=(600,50), id=-1, title="Enter Values",key='', label1= " Name", label2= "Abbrevation"):

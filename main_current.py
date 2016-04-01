@@ -295,7 +295,7 @@ class MyForm(wx.Frame):
         dlg.Destroy()
 
     def __init__(self):
-        wx.Frame.__init__(self, parent=None, title="Timetable Management")
+        wx.Frame.__init__(self, parent=None, title="Timetable Management", size=(1024,1000))
         self._init_menubar()
         self._init_toolbar()
         self.RenewUI()
@@ -304,8 +304,8 @@ class MyForm(wx.Frame):
         self.Close()
     def OnRedo(self, evt):
         self.Close()
-    def CheckConstraints(self, evt):
-        
+    def ExportHTML(self, evt):
+
         import pdfkit
         src = "<HTML><BODY>"
         html = open('teacher.html', "w")
@@ -313,37 +313,109 @@ class MyForm(wx.Frame):
             src += getattr(self, t.name).getHTML()
         html.write(src)
         html.close()
-        pdfkit.from_string(src, 'teacher.pdf')
+        # pdfkit.from_string(src, 'teacher.pdf')
         src = "<HTML><BODY>"    
         html = open('venue.html', "w")
         for t in globaldata.all_venues:
             src += getattr(self, t.name).getHTML()
         html.write(src)
         html.close()
-        pdfkit.from_string(src, 'venue.pdf')
+        # pdfkit.from_string(src, 'venue.pdf')
         src = "<HTML><BODY>"    
         html = open('class.html', "w")
         for t in globaldata.all_classes:
             src += getattr(self, t.name).getHTML()
         html.write(src)
         html.close()
+        # pdfkit.from_string(src,'class.pdf')
+
+        dlg = wx.MessageDialog(None, "Exported Successfully", "Notice", wx.OK|wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
+
+    def ExportPDF(self, evt):
+        import pdfkit
+        src = "<HTML><BODY>"
+        # html = open('teacher.html', "w")
+        for t in globaldata.all_teachers:
+            src += getattr(self, t.name).getHTML()
+        # html.write(src)
+        # html.close()
+        pdfkit.from_string(src, 'teacher.pdf')
+        src = "<HTML><BODY>"    
+        # html = open('venue.html', "w")
+        for t in globaldata.all_venues:
+            src += getattr(self, t.name).getHTML()
+        # html.write(src)
+        # html.close()
+        pdfkit.from_string(src, 'venue.pdf')
+        src = "<HTML><BODY>"    
+        # html = open('class.html', "w")
+        for t in globaldata.all_classes:
+            src += getattr(self, t.name).getHTML()
+        # html.write(src)
+        # html.close()
         pdfkit.from_string(src,'class.pdf')
 
+        dlg = wx.MessageDialog(None, "Exported Successfully", "Notice", wx.OK|wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
+
+    def CheckActualConstraints(self):
+        s = []
         for c in globaldata.all_classes:
             res = c.valid_lunch_break()
             if res == True:
                 continue
-            s = ''
             for m in res:
                 for key in m:
                     if c.name == key:
-                        s += "No Lunch Breaks for %s on %s\n" % (key, m[key])
+                        s.append("No Lunch Breaks for %s on %s\n" % (key, m[key]))
                     else:
-                        s += "No Lunch Breaks for %s-%s on %s\n" % (c.name, key, m[key])
-            # print 'lunch for %s on ' % c.name, 
-            dlg = wx.MessageDialog(None, s, "Error", wx.OK|wx.ICON_ERROR)
-            dlg.ShowModal()
-            dlg.Destroy()
+                        s.append("No Lunch Breaks for %s-%s on %s\n" % (c.name, key, m[key]))
+
+        for t in globaldata.all_teachers:
+            res = t.check_workload()
+            print 'teacher', res
+            if res != True :
+                if res == False:
+                    s.append("Extra Workload for Teacher %s\n" % t.name)
+                else:
+                    temp = 'Extra Workload for %s on ' % t.name
+                    for i in res:
+                        temp += globaldata.rowLabels[i] + ', '
+                    temp += '\n'
+                    s.append(temp)
+        return s
+
+    def ReplaceFile(self, data):                    
+        f = open('warning.data', 'w')
+        f.write(data)
+        f.close()
+
+    def CheckConstraints(self, evt):
+        #Check if file is exsisting else take it from the code below
+        #   s = fromfile()
+        #
+        if os.path.isfile('warning.data') == True:
+            f = open('warning.data')
+            s = f.read()
+            d = "\n"
+            s =  [e+d for e in s.split(d) if e != ""]
+            f.close()
+        else: 
+            s = self.CheckActualConstraints()
+        # print s
+        dlg = WarningView(self, s)
+        dlg.ShowModal()
+        if hasattr(dlg, 'result'):
+            self.ReplaceFile(dlg.result)
+        # dlg = ListView(self, title='Add Teacher Data', key='Teacher')
+        # dlg.ShowModal()
+
+            # dlg = warningx.MessageDialog(None, s, "Error", wx.OK|wx.ICON_ERROR)
+            # dlg.ShowModal()
+            # dlg.Destroy()
         # pass
         # self.Close()
 
@@ -816,9 +888,11 @@ class MyForm(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnSaveAs, saveas)
 
         imp = wx.Menu()
-        imp.Append(-1,'Import csv')
-        imp.Append(-1,'Import pdf')
-        file.AppendMenu(-1,'Import', imp)
+        exhtml = imp.Append(-1,'Export HTML')
+        self.Bind(wx.EVT_MENU, self.ExportHTML, exhtml)
+        expdf = imp.Append(-1,'Export pdf')
+        self.Bind(wx.EVT_MENU, self.ExportPDF, expdf)
+        file.AppendMenu(-1,'Export', imp)
         file.AppendSeparator()
 
         quit = file.Append(wx.ID_EXIT, 'Quit', '&Quit\tCtrl+Q')

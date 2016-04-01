@@ -109,16 +109,24 @@ class MyGrid(gridlib.Grid):
                         html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % res)
                     else:
                         for e in val:
-                            v = e[0]
-                            c = e[1]
-                            s = e[2]
-                            b = e[3]
-                            s += ' '
-                            if b != None:
-                                s +=  '- ' + str(b)  + ' '
-                            s += str(c) + ' '
-                            s +=  '['+ str(v) + ']'
-                            res += s + '<br>'
+                            if len(e) < 4:
+                                l = e[0]
+                                b = e[1]
+                                s = l
+                                if b != None:   
+                                    s +=  '- ' + str(b)  + ' '
+                                res += s + '<br>'
+                            else:
+                                v = e[0]
+                                c = e[1]
+                                s = e[2]
+                                b = e[3]
+                                s += ' '
+                                if b != None:
+                                    s +=  '- ' + str(b)  + ' '
+                                s += str(c) + ' '
+                                s +=  '['+ str(v) + ']'
+                                res += s + '<br>'
                         html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % res)
                         t = self.name
                 if self.type == 'Venue':
@@ -151,20 +159,30 @@ class MyGrid(gridlib.Grid):
                         html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % res)
                     else:
                         for e in val:
-                            t = e[0]
-                            v = e[1]
-                            s = e[2]
-                            b = e[3]
-                            s += ' '
-                            if b != None:
-                                s +=  '- ' + str(b)  + ' '
-                            footer[s] = t
-                            try:
-                                if v != globaldata.class_venue_map[self.name]:
+                            # print e
+                            if len(e) < 4:
+                                l = e[0]
+                                b = e[1]
+                                s = l
+                                if b != None:   
+                                    s +=  '- ' + str(b)  + ' '
+                                res += s + '<br>'
+                            else:
+                                t = e[0]
+                                v = e[1]
+                                s = e[2]
+                                b = e[3]
+                                s += ' '
+                                if b != None:
+                                    s +=  '- ' + str(b)  + ' '
+                                footer[s] = t
+                                try:
+                                    if v != globaldata.class_venue_map[self.name]:
+                                        s +=  '['+ str(v) + ']'
+                                except:
                                     s +=  '['+ str(v) + ']'
-                            except:
-                                s +=  '['+ str(v) + ']'
-                            res += s + '<br>'
+                                res += s + '<br>'
+
                         html.append("<TD ALIGN='center' VALIGN='top'>%s</TD>" % res)
                         
             html.append("</TR>")
@@ -449,6 +467,7 @@ class MyGrid(gridlib.Grid):
         if hasattr(self.dia, 'result1'):
             if self.GetCellSize(i,j) == (1,1):
                 try:
+                    print 'lunch', self.dia.result1
                     project.insert_lunch(self.dia.result1, i, j, self.type)
                     pub.sendMessage('UPDATE_VIEW', data = None)
                 except Exception as e:

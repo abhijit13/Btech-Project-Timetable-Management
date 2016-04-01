@@ -1,12 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
-teacher load should be soft constraint
-enter should work
-warning list  for soft constraints violation
 cell- display formatting / add colors
 export as ods - nice form, pdf
 rows / cols no change during runtime
 header box instead of line
+enter should work
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +30,7 @@ header box instead of line
 	//view of grid
 		//scroll bars when not required. grid takes less space than available and shows scrollbars
 	//teacher lunch break
+		No batches here cause not required
 	//basic constraints remove teacher constraints
 	//cant cancel the dialouge
 	//saving on disk and opening 
@@ -46,7 +45,10 @@ header box instead of line
 	//deleting entries from grid with ui
 		//cant delete batches properly
 		//batches can be deleted from class only, other's slot gets empty
-
+	//teacher load should be soft constraint
+	//warning list  for soft constraints violation
+	// temp word should be avoided, treat is as keyword
+	
 /////////////////////////////////////////////////////////////////////////////////////////
 
 	**For ODS/PDF **

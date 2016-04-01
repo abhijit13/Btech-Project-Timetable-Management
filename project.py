@@ -142,19 +142,25 @@ class Teacher(BaseStructure):
 
 	def check_workload(self):
 		#work load should be greater than min and less than max
-		if self.current_work_load <= self.max_work_load and self.current_work_load >= self.min_work_load:
-			return True
-		else:
+		if self.current_work_load > self.max_work_load or self.current_work_load < self.min_work_load:
 			return False
+		# else:
+		# 	return False
+
+		temp = self.check_daily_workload()
+		if temp != True:
+			return temp
+		else:
+			return True
 
 	def add_entry(self, venue, Class, day, lecture, sub, List=''):
 		#check if we dont exceed max work load
-		if self.current_work_load >= self.max_work_load:
-			raise ExtraWorkLoad([(self.name, self.max_work_load)])
+		# if self.current_work_load >= self.max_work_load:
+		# 	raise ExtraWorkLoad([(self.name, self.max_work_load)])
 		
-		temp = self.check_daily_workload()
-		if temp != True and day in temp:
-			raise DailyWorkLoadLimit(temp)
+		# temp = self.check_daily_workload()
+		# if temp != True and day in temp:
+		# 	raise DailyWorkLoadLimit(temp)
 		
 		batch = None
 		if len(List) > 1:
@@ -461,7 +467,6 @@ def insert_lunch(batch, day, lecture, typeOf):
 		batch[0] = get_object(globaldata.all_classes, batch[0], Classes, batch[1:])
 	elif typeOf == "Teacher":
 		batch[0] = get_object(globaldata.all_teachers, batch[0], Teacher, batch[1:])
-
 	try:
 		batch[0].add_lunch(day, lecture, batch)
 	except ExistingEntry as e:
