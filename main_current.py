@@ -304,6 +304,8 @@ class MyForm(wx.Frame):
         self.Close()
     def OnRedo(self, evt):
         self.Close()
+    def ExportODS(self, evt):
+        pass
     def ExportHTML(self, evt):
 
         import pdfkit
@@ -890,8 +892,10 @@ class MyForm(wx.Frame):
         imp = wx.Menu()
         exhtml = imp.Append(-1,'Export HTML')
         self.Bind(wx.EVT_MENU, self.ExportHTML, exhtml)
-        expdf = imp.Append(-1,'Export pdf')
+        expdf = imp.Append(-1,'Export Pdf')
         self.Bind(wx.EVT_MENU, self.ExportPDF, expdf)
+        exods = imp.Append(-1,'Export Ods')
+        self.Bind(wx.EVT_MENU, self.ExportODS, exods)
         file.AppendMenu(-1,'Export', imp)
         file.AppendSeparator()
 
