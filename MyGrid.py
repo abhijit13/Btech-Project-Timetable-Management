@@ -54,6 +54,97 @@ class MyGrid(gridlib.Grid):
 
             # self.printSelectedCells(top_left, bottom_right)
  
+    def getODSData(self):
+        cols = self.GetNumberCols()
+        rows = self.GetNumberRows()
+        footer = {}
+        resMat = copy.deepcopy(self.data)
+        for row in range(rows):
+            for col in range(cols):
+                if self.type == 'Teacher':
+                    val = self.data[row][col]
+                    res = ''
+                    if val == None:
+                        resMat[row][col] = res
+                    else:
+                        for e in val:
+                            if len(e) < 4:
+                                l = e[0]
+                                b = e[1]
+                                s = l
+                                if b != None:   
+                                    s +=  '- ' + str(b)  + ' '
+                                res += s + '\n'
+                            else:
+                                v = e[0]
+                                c = e[1]
+                                s = e[2]
+                                b = e[3]
+                                s += ' '
+                                if b != None:
+                                    s +=  '- ' + str(b)  + ' '
+                                s += str(c) + ' '
+                                s +=  '['+ str(v) + ']'
+                                res += s + '\n'
+                        resMat[row][col] = res
+                        t = self.name
+                if self.type == 'Venue':
+                    val = self.data[row][col]
+                    res = ''
+                    if val == None:
+                        resMat[row][col] = res
+                    else:
+                        for e in val:
+                            t = e[0]
+                            c = e[1]
+                            s = e[2]
+                            b = e[3]
+                            s += ' '
+                            if b != None:
+                                s +=  '- ' + str(b)  + ' '
+                            try:
+                                if c != globaldata.venue_class_map[self.name]:
+                                    s +=  '['+ str(c) + ']'
+                            except:
+                                s +=  '['+ str(c) + ']'
+
+                            res += s + '\n'
+                        resMat[row][col] = res
+
+                if self.type == 'Class':
+                    val = self.data[row][col]
+                    res = ''
+                    if val == None:
+                        resMat[row][col] = res
+                    else:
+                        for e in val:
+                            # print e
+                            if len(e) < 4:
+                                l = e[0]
+                                b = e[1]
+                                s = l
+                                if b != None:   
+                                    s +=  '- ' + str(b)  + ' '
+                                res += s + '\n'
+                            else:
+                                t = e[0]
+                                v = e[1]
+                                s = e[2]
+                                b = e[3]
+                                s += ' '
+                                if b != None:
+                                    s +=  '- ' + str(b)  + ' '
+                                footer[s] = t
+                                try:
+                                    if v != globaldata.class_venue_map[self.name]:
+                                        s +=  '['+ str(v) + ']'
+                                except:
+                                    s +=  '['+ str(v) + ']'
+                                res += s + '\n'
+
+                        resMat[row][col] = res
+        return resMat
+
     def getHTML(self, justStub=True, tableHeaders=True):
         ''' Get HTML suitable for printing out the data in
             this grid via wxHtmlEasyPrinting.

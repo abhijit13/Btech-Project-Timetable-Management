@@ -305,7 +305,157 @@ class MyForm(wx.Frame):
     def OnRedo(self, evt):
         self.Close()
     def ExportODS(self, evt):
-        pass
+        import ezodf
+        # ods = ezodf.newdoc('ods')
+        ods = ezodf.newdoc('ods', template='styling_reference.ods')
+
+        # ods.inject_style(""" <style:style style:name="heading" style:family="table-cell" style:parent-style-name="Default"><style:text-properties style:vertical-align="top" style:use-window-font-color="true" style:repeat-content="false" style:text-outline="false" style:text-line-through-style="none" style:text-line-through-type="none" style:font-name="Liberation Serif" fo:font-size="22pt" fo:language="en" fo:country="IN" fo:font-style="normal" fo:text-shadow="none" style:text-underline-style="none" fo:font-weight="bold" style:text-underline-mode="continuous" style:text-overline-mode="continuous" style:text-line-through-mode="continuous" style:font-size-asian="22pt" style:language-asian="zh" style:country-asian="CN" style:font-style-asian="normal" style:font-weight-asian="normal" style:font-size-complex="22pt" style:language-complex="hi" style:country-complex="IN" style:font-style-complex="normal" style:font-weight-complex="normal" style:text-emphasize="none" style:font-relief="none" style:text-overline-style="none" style:text-overline-color="font-color"/></style:style>""")
+        # ods.inject_style(""" <style:style style:name="cell" style:family="table-cell" style:parent-style-name="Default"><style:table-cell-properties fo:border-bottom="0.06pt solid #000000" style:text-align-source="fix" style:repeat-content="false" fo:border-left="2.49pt solid #000000" fo:border-right="0.06pt solid #000000" fo:border-top="0.06pt solid #000000" style:vertical-align="top"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:use-window-font-color="true" style:text-outline="false" style:text-line-through-style="none" style:text-line-through-type="none" style:font-name="Liberation Serif" fo:font-size="22pt" fo:language="en" fo:country="IN" fo:font-style="normal" fo:text-shadow="none" style:text-underline-style="none" fo:font-weight="bold" style:text-underline-mode="continuous" style:text-overline-mode="continuous" style:text-line-through-mode="continuous" style:font-size-asian="10pt" style:language-asian="zh" style:country-asian="CN" style:font-style-asian="normal" style:font-weight-asian="normal" style:font-size-complex="10pt" style:language-complex="hi" style:country-complex="IN" style:font-style-complex="normal" style:font-weight-complex="normal" style:text-emphasize="none" style:font-relief="none" style:text-overline-style="none" style:text-overline-color="font-color"/></style:style> """)
+
+        #static size change it later
+        sheetT = ezodf.Sheet('Teacher', size=(1000,1000))
+        sheetV = ezodf.Sheet('Venue', size=(1000,1000))
+        sheetC = ezodf.Sheet('Class', size=(1000,1000))
+
+        ods.sheets += sheetT
+        ods.sheets += sheetV
+        ods.sheets += sheetC
+
+        del ods.sheets[0]
+        i = 0
+        for t in globaldata.all_venues:
+            resMat = getattr(self, t.name).getODSData()
+            sheetV[i+4, 5].set_value(globaldata.header1) 
+            sheetV[i+4, 5].style_name = 'ce11'
+            sheetV[i+6, 4].set_value(globaldata.header2) 
+            sheetV[i+6, 4].style_name = 'ce1'
+            sheetV[i+8, 6].set_value(globaldata.header3) 
+            sheetV[i+8, 6].style_name = 'ce17'
+            head = 'Timetable for Venue : %s \t\t' % t.name
+            if t.name in globaldata.venue_class_map.keys():
+                head += 'Class : %s ' % globaldata.venue_class_map[t.name]
+            sheetV[i+10, 6].set_value(head) 
+            sheetV[i+10, 6].style_name = 'ce13'
+            #upper row 
+            sheetV[i+12, 3].set_value('')
+            sheetV[i+12, 3].style_name = 'ce5'
+            for l in range(1, len(globaldata.colLabels)+1):
+                sheetV[i+12, 3+l].set_value(globaldata.colLabels[l-1])
+                sheetV[i+12, 3+l].style_name = "ce8"
+            #fix last one in first row
+            sheetV[i+12, 3+len(globaldata.colLabels)].style_name = "ce21"
+            #first col
+            for l in range(1, len(globaldata.rowLabels)+1):
+                sheetV[i+12+l, 3].set_value(globaldata.rowLabels[l-1])
+                sheetV[i+12+l, 3].style_name = "ce6"
+            #fix last one in first col
+            sheetV[i+12 + len(globaldata.rowLabels), 3].style_name = "ce7"
+
+            for l in range(1, globaldata.days_per_week+1):
+                for m in range(1, globaldata.lectures_per_day+1):
+                    # print 'yo', resMat[l-1][m-1]
+                    sheetV[i+12+l, 3+m].set_value(resMat[l-1][m-1])
+                    sheetV[i+12+l, 3+m].style_name = "ce9"
+            #fix last row
+            for m in range(1, globaldata.lectures_per_day+1):
+                sheetV[i+12+globaldata.days_per_week, 3+m].style_name = "ce10"
+            #fix last col
+            for l in range(1, globaldata.days_per_week+1):
+                sheetV[i+12+l, 3+globaldata.lectures_per_day].style_name = "ce22"
+            #fix last corner
+            sheetV[i+12+globaldata.days_per_week, 3+globaldata.lectures_per_day].style_name = "ce23"
+
+            i += 25
+
+        i = 0
+        for t in globaldata.all_teachers:
+            resMat = getattr(self, t.name).getODSData()
+            sheetT[i+4, 5].set_value(globaldata.header1) 
+            sheetT[i+4, 5].style_name = 'ce11'
+            sheetT[i+6, 4].set_value(globaldata.header2) 
+            sheetT[i+6, 4].style_name = 'ce1'
+            sheetT[i+8, 6].set_value(globaldata.header3) 
+            sheetT[i+8, 6].style_name = 'ce17'
+            head = 'Timetable for Teacher : %s \t\t' % t.name
+            sheetT[i+10, 6].set_value(head) 
+            sheetT[i+10, 6].style_name = 'ce13'
+            #upper row 
+            sheetT[i+12, 3].set_value('')
+            sheetT[i+12, 3].style_name = 'ce5'
+            for l in range(1, len(globaldata.colLabels)+1):
+                sheetT[i+12, 3+l].set_value(globaldata.colLabels[l-1])
+                sheetT[i+12, 3+l].style_name = "ce8"
+            #fix last one in first row
+            sheetT[i+12, 3+len(globaldata.colLabels)].style_name = "ce21"
+            #first col
+            for l in range(1, len(globaldata.rowLabels)+1):
+                sheetT[i+12+l, 3].set_value(globaldata.rowLabels[l-1])
+                sheetT[i+12+l, 3].style_name = "ce6"
+            #fix last one in first col
+            sheetT[i+12 + len(globaldata.rowLabels), 3].style_name = "ce7"
+
+            for l in range(1, globaldata.days_per_week+1):
+                for m in range(1, globaldata.lectures_per_day+1):
+                    # print 'yo', resMat[l-1][m-1]
+                    sheetT[i+12+l, 3+m].set_value(resMat[l-1][m-1])
+                    sheetT[i+12+l, 3+m].style_name = "ce9"
+            #fix last row
+            for m in range(1, globaldata.lectures_per_day+1):
+                sheetT[i+12+globaldata.days_per_week, 3+m].style_name = "ce10"
+            #fix last col
+            for l in range(1, globaldata.days_per_week+1):
+                sheetT[i+12+l, 3+globaldata.lectures_per_day].style_name = "ce22"
+            #fix last corner
+            sheetT[i+12+globaldata.days_per_week, 3+globaldata.lectures_per_day].style_name = "ce23"
+            i += 25
+
+        i = 0
+        for t in globaldata.all_classes:
+            resMat = getattr(self, t.name).getODSData()
+            sheetC[i+4, 5].set_value(globaldata.header1) 
+            sheetC[i+4, 5].style_name = 'ce11'
+            sheetC[i+6, 4].set_value(globaldata.header2) 
+            sheetC[i+6, 4].style_name = 'ce1'
+            sheetC[i+8, 6].set_value(globaldata.header3) 
+            sheetC[i+8, 6].style_name = 'ce17'
+            head = 'Timetable for Class : %s \t\t' % t.name
+            if t.name in globaldata.class_venue_map.keys():
+                head += 'Venue : %s ' % globaldata.class_venue_map[t.name]
+
+            sheetC[i+10, 6].set_value(head) 
+            sheetC[i+10, 6].style_name = 'ce13'
+            #upper row 
+            sheetC[i+12, 3].set_value('')
+            sheetC[i+12, 3].style_name = 'ce5'
+            for l in range(1, len(globaldata.colLabels)+1):
+                sheetC[i+12, 3+l].set_value(globaldata.colLabels[l-1])
+                sheetC[i+12, 3+l].style_name = "ce8"
+            #fix last one in first row
+            sheetC[i+12, 3+len(globaldata.colLabels)].style_name = "ce21"
+            #first col
+            for l in range(1, len(globaldata.rowLabels)+1):
+                sheetC[i+12+l, 3].set_value(globaldata.rowLabels[l-1])
+                sheetC[i+12+l, 3].style_name = "ce6"
+            #fix last one in first col
+            sheetC[i+12 + len(globaldata.rowLabels), 3].style_name = "ce7"
+
+            for l in range(1, globaldata.days_per_week+1):
+                for m in range(1, globaldata.lectures_per_day+1):
+                    # print 'yo', resMat[l-1][m-1]
+                    sheetC[i+12+l, 3+m].set_value(resMat[l-1][m-1])
+                    sheetC[i+12+l, 3+m].style_name = "ce9"
+            #fix last row
+            for m in range(1, globaldata.lectures_per_day+1):
+                sheetC[i+12+globaldata.days_per_week, 3+m].style_name = "ce10"
+            #fix last col
+            for l in range(1, globaldata.days_per_week+1):
+                sheetC[i+12+l, 3+globaldata.lectures_per_day].style_name = "ce22"
+            #fix last corner
+            sheetC[i+12+globaldata.days_per_week, 3+globaldata.lectures_per_day].style_name = "ce23"
+            i += 25
+
+        ods.saveas('Timetable.ods')
+
     def ExportHTML(self, evt):
 
         import pdfkit

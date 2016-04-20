@@ -1,8 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
-cell- display formatting / add colors
+cell- display formatting / add colosr
 export as ods - nice form, pdf
-rows / cols no change during runtime
 header box instead of line
 enter should work
 
